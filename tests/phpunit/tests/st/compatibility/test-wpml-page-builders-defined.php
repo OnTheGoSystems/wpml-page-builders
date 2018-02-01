@@ -25,6 +25,13 @@ class Test_WPML_Page_Builders_Defined extends WPML_PB_TestCase2 {
 					'wpml-translation-editor',
 				),
 			),
+			'vc-website-builder' => array(
+				'name' => 'Visual Composer Website Builder',
+				'constant' => 'VCV_VERSION',
+				'notices-display' => array(
+					'wpml-translation-editor',
+				),
+			),
 		);
 
 		$subject    = new WPML_Page_Builders_Defined();
@@ -45,7 +52,11 @@ class Test_WPML_Page_Builders_Defined extends WPML_PB_TestCase2 {
 			'elementor' => array(
 				'constant' => 'ELEMENTOR_VERSION',
 				'factory' => 'WPML_Elementor_Integration_Factory',
-			)
+			),
+			'vc-website-builder' => array(
+				'constant' => 'VCV_VERSION',
+				'factory' => 'WPML_VC_Website_Builder_Integration_Factory',
+			),
 		);
 
 		$subject = new WPML_Page_Builders_Defined();

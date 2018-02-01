@@ -36,6 +36,13 @@ class WPML_Page_Builders_Defined {
 					'wpml-translation-editor',
 				),
 			);
+			$components['page-builders']['vc-website-builder']      = array(
+				'name'            => 'Visual Composer Website Builder',
+				'constant'        => $this->settings['vc-website-builder']['constant'],
+				'notices-display' => array(
+					'wpml-translation-editor',
+				),
+			);
 		}
 
 		return $components;
@@ -50,6 +57,10 @@ class WPML_Page_Builders_Defined {
 			'elementor' => array(
 				'constant' => 'ELEMENTOR_VERSION',
 				'factory' => 'WPML_Elementor_Integration_Factory',
+			),
+			'vc-website-builder' => array(
+				'constant' => 'VCV_VERSION',
+				'factory' => 'WPML_VC_Website_Builder_Integration_Factory',
 			)
 		);
 	}
