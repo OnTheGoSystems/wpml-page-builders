@@ -92,6 +92,21 @@ abstract class WPML_Page_Builders_Update_Translation {
 		return $string;
 	}
 
+	/**
+	 * @param string $node_id
+	 * @param $settings
+	 *
+	 * @return mixed
+	 */
+	protected function update_strings_in_node( $node_id, $settings ) {
+		$strings = $this->translatable_nodes->get( $node_id, $settings );
+		foreach ( $strings as $string ) {
+			$translation = $this->get_translation( $string );
+			$settings    = $this->translatable_nodes->update( $node_id, $settings, $translation );
+		}
+
+		return $settings;
+	}
+
 	abstract protected function update_strings_in_modules( array &$data_array );
-	abstract protected function update_strings_in_node( $node_id, $settings );
 }
