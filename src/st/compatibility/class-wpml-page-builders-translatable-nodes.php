@@ -1,6 +1,6 @@
 <?php
 
-abstract class WPML_Page_Builders_Translatable_Nodes {
+abstract class WPML_Page_Builders_Translatable_Nodes implements IWPML_Page_Builders_Translatable_Nodes {
 
 	/**
 	 * @var array
@@ -114,7 +114,7 @@ abstract class WPML_Page_Builders_Translatable_Nodes {
 		return $conditions_meet;
 	}
 
-	abstract protected function initialize_nodes_to_translate();
+	abstract public function initialize_nodes_to_translate();
 
 	/**
 	 * @param obj|array $settings
@@ -122,14 +122,14 @@ abstract class WPML_Page_Builders_Translatable_Nodes {
 	 *
 	 * @return obj|array
 	 */
-	abstract protected function get_field_value( $settings, $field_key );
+	abstract public function get_field_value( $settings, $field_key );
 
 	/**
 	 * @param obj|array $settings
 	 *
 	 * @return string
 	 */
-	abstract protected function get_type( $settings );
+	abstract public function get_type( $settings );
 
-	abstract protected function update_field_value( $settings, $field_key, $string );
+	abstract public function update_field_value( $settings, $field_key, $string );
 }
