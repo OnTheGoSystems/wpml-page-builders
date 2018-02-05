@@ -2,31 +2,29 @@
 
 interface IWPML_Page_Builders_Translatable_Nodes {
 
-	/**
-	 * @param string $node_id
-	 * @param array $element
-	 *
-	 * @return WPML_PB_String[]
-	 */
-	public function get( $node_id, $element );
+	public function initialize_nodes_to_translate();
 
 	/**
-	 * @param string $node_id
-	 * @param array $element
+	 * @param obj|array $settings
+	 * @param string $field_key
+	 *
+	 * @return obj|array
+	 */
+	public function get_field_value( $settings, $field_key );
+
+	/**
+	 * @param obj|array $settings
+	 *
+	 * @return string
+	 */
+	public function get_type( $settings );
+
+	/**
+	 * @param obj|array $settings
+	 * @param string $field_key
 	 * @param WPML_PB_String $string
 	 *
-	 * @return mixed
+	 * @return obj|array
 	 */
-	public function update( $node_id, $element, WPML_PB_String $string );
-
-	/**
-	 * @param string $node_id
-	 * @param array $field
-	 * @param mixed $settings
-	 *
-	 * @return mixed
-	 */
-	public function get_string_name( $node_id, $field, $settings );
-
-	public function initialize_nodes_to_translate();
+	public function update_field_value( $settings, $field_key, $string );
 }
