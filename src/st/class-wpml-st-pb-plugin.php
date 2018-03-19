@@ -30,16 +30,16 @@ class WPML_ST_PB_Plugin {
 		?>
 			<div class="message error">
 				<p>
-			<?php esc_html_e( "The WPML Page Builders plugin that you're using is now part of WPML.", 'wpml-string-translation' ); ?>
+			<?php esc_html_e( "The WPML Page Builders plugin that you're using is now part of WPML.", 'sitepress' ); ?>
 				</p>
 				<p>
-			<?php esc_html_e( 'You need to deactivate the separate plugin.', 'wpml-string-translation' ); ?>
+			<?php esc_html_e( 'You need to deactivate the separate plugin.', 'sitepress' ); ?>
 				</p>
 				<p>
-			<?php esc_html_e( 'No worries, the full functionality is preserved in WPML String Translation.', 'wpml-string-translation' ); ?>
+			<?php esc_html_e( 'No worries, the full functionality is preserved in WPML String Translation.', 'sitepress' ); ?>
 				</p>
 				<p>
-					<a class="button-primary" href="<?php echo esc_url( $plugins_url ); ?>"><?php esc_html_e( 'Deactivate WPML Page Builders', 'wpml-string-translation' ); ?></a>
+					<a class="button-primary" href="<?php echo esc_url( $plugins_url ); ?>"><?php esc_html_e( 'Deactivate WPML Page Builders', 'sitepress' ); ?></a>
 				</p>
 			</div>
 		<?php
