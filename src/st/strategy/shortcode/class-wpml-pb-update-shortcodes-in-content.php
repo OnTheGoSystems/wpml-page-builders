@@ -72,20 +72,20 @@ class WPML_PB_Update_Shortcodes_In_Content {
 					$encoding            = $this->strategy->get_shortcode_attribute_encoding( $shortcode_data['tag'], $attr );
 					$translation         = $this->get_translation( $attr_value, $encoding );
 					$translation         = $this->filter_attribute_translation( $translation, $encoding );
-					$shortcode_attribute = $this->replace_string_with_translation( $shortcode_attribute, $attr_value, $translation, true );
+					$shortcode_attribute = $this->replace_string_with_translation( $shortcode_attribute, $attr_value, $translation, true, $attr );
 				}
 			}
 		}
 	}
 
-	private function replace_string_with_translation( $block, $original, $translation, $is_attribute = false ) {
+	private function replace_string_with_translation( $block, $original, $translation, $is_attribute = false, $attr = '' ) {
 		$translation = apply_filters( 'wpml_pb_before_replace_string_with_translation', $translation, $is_attribute );
 
 		$new_block = $block;
 		if ( $translation ) {
-			if ( $is_attribute ) {
-				$pattern   = '/(["\'])' . preg_quote( $original, '/' ) . '(["\'])/';
-				$new_block = preg_replace( $pattern, '${1}' . $translation . '${2}', $block );
+			if ( $is_attribute && $attr ) {
+				$pattern   = '/' . $attr . '=(["\'])' . preg_quote( $original, '/' ) . '(["\'])/';
+				$new_block = preg_replace( $pattern, $attr . '=${1}' . $translation . '${2}', $block );
 			} else {
 				$pattern   = '/(]\s*)' . preg_quote( trim( $original ), '/' ) . '(\s*\[)/';
 				$new_block = preg_replace( $pattern, '${1}' . trim( $translation ) . '${2}', $block );
