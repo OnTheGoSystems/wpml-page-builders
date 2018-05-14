@@ -54,8 +54,19 @@ class Test_WPML_PB_Update_Shortcodes_In_Content extends WPML_PB_TestCase {
 					return $result;
 				}
 
-				list( $name, $value ) = explode( '=', trim( $attribs ) );
-				$result[ $name ] = trim( $value, '""' );
+				$attribs_arr = explode( '=', trim( $attribs ) );
+
+				if ( 2 === count( $attribs_arr ) ) {
+					list( $name, $value ) = $attribs_arr;
+					$result[ $name ] = trim( $value, '""' );
+				} else {
+					$attribs_arr = explode( '" ', trim( $attribs ) );
+
+					foreach ( $attribs_arr as $attrib ) {
+						$single_attrib_arr = explode( '=', $attrib );
+						$result[ trim( $single_attrib_arr[0], '""' ) ] = trim( $single_attrib_arr[1], '""' );
+					}
+				}
 
 				return $result;
 			},
@@ -145,6 +156,28 @@ class Test_WPML_PB_Update_Shortcodes_In_Content extends WPML_PB_TestCase {
 						'fr' => array(
 							'status' => ICL_TM_COMPLETE,
 							'value'  => '[<text>] fr title value', // test escaping of special chars from attributes
+						),
+					),
+				),
+			),
+			'Test translating only translatable attributes even when their values are the same' => array(
+				'[et_shortcode title="title value" title2="title value" /]',
+				'[et_shortcode title="fr title value" title2="title value" /]',
+				array( 'et_shortcode' ),
+				array( 'et_shortcode' => array( 'title' ) ),
+				array(
+					array(
+						'block'      => '[et_shortcode title="title value" title2="title value" /]]',
+						'tag'        => 'et_shortcode',
+						'attributes' => ' title="title value" title2="title value"',
+						'content'    => '',
+					),
+				),
+				array(
+					md5( 'title value' ) => array(
+						'fr' => array(
+							'status' => ICL_TM_COMPLETE,
+							'value'  => 'fr title value',
 						),
 					),
 				),
