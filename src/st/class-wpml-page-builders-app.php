@@ -43,7 +43,15 @@ class WPML_Page_Builders_App {
 		if ( $factories ) {
 			foreach ( $factories as $factory ) {
 				$integration = $factory->create();
-				$integration->add_hooks();
+
+				if ( is_array( $integration ) ) {
+					foreach ( $integration as $hooks ) {
+						$hooks->add_hooks();
+					}
+				} else {
+					$integration->add_hooks();
+				}
+
 				$this->integrations[] = $integration;
 			}
 		}

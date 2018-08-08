@@ -80,6 +80,54 @@ class Test_WPML_Page_Builders_App extends OTGS_TestCase {
 
 	/**
 	 * @test
+	 * @group wpmlcore-5375
+	 */
+	public function it_loads_integration_as_an_array_of_hooks_instances() {
+
+		$plugins = array(
+			'fusion-builder' => array(
+				'constant' => 'FUSION_BUILDER_VERSION',
+				'factory' => 'WPML_Fusion_Builder_Integration_Factory',
+				'enabled' => true,
+			)
+		);
+
+		$pb_plugins = $this->getMockBuilder( 'WPML_Page_Builders_Defined' )
+		                   ->disableOriginalConstructor()
+		                   ->getMock();
+
+		$pb_plugins->method( 'has' )->willReturn( true );
+
+		$pb_plugins->method( 'get_settings' )
+		           ->willReturn( $plugins );
+
+		$integration_hook_1 = $this->get_integration_mock();
+		$integration_hook_1->expects( $this->once() )->method( 'add_hooks' );
+
+		$integration_hook_2 = $this->get_integration_mock();
+		$integration_hook_2->expects( $this->once() )->method( 'add_hooks' );
+
+		foreach ( $plugins as $key => $plugin ) {
+
+			$bb_integration_factory = \Mockery::mock( 'overload:' . $plugin['factory']);
+			$bb_integration_factory->shouldReceive('create')
+			                       ->once()
+			                       ->andReturn( array( $integration_hook_1, $integration_hook_2 ) );
+		}
+
+		$subject = new WPML_Page_Builders_App( $pb_plugins );
+		$subject->load_integration();
+	}
+
+	private function get_integration_mock() {
+		return $this->getMockBuilder( 'WPML_Page_Builders_Integration' )
+			->setMethods( array( 'add_hooks' ) )
+		     ->disableOriginalConstructor()
+		     ->getMock();
+	}
+
+	/**
+	 * @test
 	 */
 	public function it_adds_components() {
 		$components = array( rand_str( 10 ) );

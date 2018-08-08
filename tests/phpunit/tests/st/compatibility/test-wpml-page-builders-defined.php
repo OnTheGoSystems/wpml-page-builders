@@ -25,6 +25,13 @@ class Test_WPML_Page_Builders_Defined extends WPML_PB_TestCase2 {
 					'wpml-translation-editor',
 				),
 			),
+			'fusion-builder' => array(
+				'name' => 'Fusion Builder',
+				'constant' => 'FUSION_BUILDER_VERSION',
+				'notices-display' => array(
+					'wpml-translation-editor',
+				),
+			),
 		);
 
 		$subject    = new WPML_Page_Builders_Defined();
@@ -45,6 +52,10 @@ class Test_WPML_Page_Builders_Defined extends WPML_PB_TestCase2 {
 			'elementor' => array(
 				'constant' => 'ELEMENTOR_VERSION',
 				'factory' => 'WPML_Elementor_Integration_Factory',
+			),
+			'fusion-builder' => array(
+				'constant' => 'FUSION_BUILDER_VERSION',
+				'factory' => 'WPML_Fusion_Builder_Integration_Factory',
 			)
 		);
 

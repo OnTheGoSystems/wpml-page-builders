@@ -36,6 +36,13 @@ class WPML_Page_Builders_Defined {
 					'wpml-translation-editor',
 				),
 			);
+			$components['page-builders']['fusion-builder'] = array(
+				'name'            => 'Fusion Builder',
+				'constant'        => $this->settings['fusion-builder']['constant'],
+				'notices-display' => array(
+					'wpml-translation-editor',
+				),
+			);
 		}
 
 		return $components;
@@ -45,12 +52,16 @@ class WPML_Page_Builders_Defined {
 		$this->settings = array(
 			'beaver-builder' => array(
 				'constant' => 'FL_BUILDER_VERSION',
-				'factory' => 'WPML_Beaver_Builder_Integration_Factory',
+				'factory'  => 'WPML_Beaver_Builder_Integration_Factory',
 			),
 			'elementor' => array(
 				'constant' => 'ELEMENTOR_VERSION',
-				'factory' => 'WPML_Elementor_Integration_Factory',
-			)
+				'factory'  => 'WPML_Elementor_Integration_Factory',
+			),
+			'fusion-builder' => array(
+				'constant' => 'FUSION_BUILDER_VERSION',
+				'factory'  => 'WPML_Fusion_Builder_Integration_Factory',
+			),
 		);
 	}
 
