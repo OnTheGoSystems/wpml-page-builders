@@ -526,6 +526,68 @@ class Test_WPML_PB_Update_Shortcodes_In_Content extends WPML_PB_TestCase {
 
 	}
 
+	/**
+	 * @test
+	 * @group wpmlcore-5470
+	 */
+	public function it_updates_shortcodes_with_long_text() {
+		$original         = $this->get_long_text( 5001 );
+		$original_content = '[et_row][et_shortcode1]' . $original . '[/et_shortcode1][/et_row]';
+
+		$translation      = $this->get_long_text( 6001 );
+		$expected_content = '[et_row][et_shortcode1]' . $translation . '[/et_shortcode1][/et_row]';
+
+		$shortcodes        = array( 'et_shortcode1' );
+		$shortcode_attribs = array( 'et_shortcode1' => array() );
+		$parsed_shortcodes = array(
+			array(
+				'block'      => '[et_shortcode1]' . $original . '[/et_shortcode1]',
+				'tag'        => 'et_shortcode1',
+				'attributes' => '',
+				'content'    => $original,
+			),
+		);
+
+		$translations = array(
+			md5( $original ) => array(
+				'fr' => array(
+					'status' => ICL_TM_COMPLETE,
+					'value'  => $translation,
+				),
+			),
+		);
+
+		$this->shortcode_strategy->method( 'get_shortcodes' )->willReturn( $shortcodes );
+		$this->shortcode_strategy->method( 'get_shortcode_attributes' )->willReturnCallback( function ( $tag ) use ( $shortcode_attribs ) {
+			return isset( $shortcode_attribs[ $tag ] ) ? $shortcode_attribs[ $tag ] : array();
+		} );
+
+		$this->shortcode_parser->method( 'get_shortcodes' )->with( $original_content )->willReturn( $parsed_shortcodes );
+
+		$subject = new WPML_PB_Update_Shortcodes_In_Content( $this->shortcode_strategy, new WPML_PB_Shortcode_Encoding() );
+		$actual  = $subject->update_content( $original_content, $translations, 'fr' );
+
+		$this->assertSame( $expected_content, $actual );
+	}
+
+	private function get_long_text( $length ) {
+		$characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+		$next_space = mt_rand( 1, 20 );
+		$long_text = '';
+
+		for ( $i = 0; $i < $length; $i++ ) {
+
+			if ( $i === $next_space ) {
+				$long_text .= ' ';
+				$next_space += mt_rand( 1, 20 );
+			} else {
+				$long_text .= $characters[ rand( 0, strlen( $characters ) - 1 ) ];
+			}
+		}
+
+		return $long_text;
+	}
+
 	public function translation_saved_data_provider() {
 		return array(
 			array( true ),
