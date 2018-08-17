@@ -16,6 +16,7 @@ abstract class WPML_PB_TestCase extends OTGS_TestCase {
 		Mockery::mock( 'AbsoluteLinks' );
 		Mockery::mock( 'WPML_Absolute_To_Permalinks' );
 		Mockery::mock( 'WPML_Translate_Link_Targets' );
+		Mockery::mock( 'WPML_Page_Builder_Settings' );
 	}
 
 	protected function get_factory( $wpdb, $sitepress ) {
@@ -25,7 +26,8 @@ abstract class WPML_PB_TestCase extends OTGS_TestCase {
 	}
 
 	protected function get_shortcode_strategy( WPML_PB_Factory $factory, $encoding = '', $encoding_condition = '' ) {
-		$strategy = new WPML_PB_Shortcode_Strategy();
+		$page_builder_settings = Mockery::mock( 'WPML_Page_Builder_Settings' );
+		$strategy = new WPML_PB_Shortcode_Strategy( $page_builder_settings );
 		$strategy->add_shortcodes(
 			array(
 				array(

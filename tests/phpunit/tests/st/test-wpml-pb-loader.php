@@ -100,5 +100,4 @@ class Test_WPML_PB_Loader extends WPML_PB_TestCase {
 		            ->disableOriginalConstructor()
 		            ->getMock();
 	}
-
 }
