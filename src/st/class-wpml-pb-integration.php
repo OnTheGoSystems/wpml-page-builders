@@ -19,6 +19,9 @@ class WPML_PB_Integration {
 	 */
 	private $rescan;
 
+	/** @var IWPML_PB_Media_Update $media_updaters */
+	private $media_updaters;
+
 	/**
 	 * WPML_PB_Integration constructor.
 	 *
@@ -125,6 +128,10 @@ class WPML_PB_Integration {
 
 		foreach( $this->save_post_queue as $post_id => $post ) {
 			$this->register_all_strings_for_translation( $post );
+
+			if ( $this->sitepress->get_wp_api()->constant( 'WPML_MEDIA_VERSION' ) ) {
+				$this->translate_media( $post );
+			}
 		}
 	}
 
@@ -207,4 +214,24 @@ class WPML_PB_Integration {
 		update_post_meta( $post_id, WPML_PB_Integration::MIGRATION_DONE_POST_META, true );
 	}
 
+	/**
+	 * @param WP_Post $post
+	 */
+	private function translate_media( $post ) {
+		if ( $this->is_post_status_ok( $post ) && ! $this->is_original_post( $post ) ) {
+
+			foreach ( $this->get_media_updaters() as $updater ) {
+				$updater->translate( $post );
+			}
+		}
+	}
+
+	/** @return IWPML_PB_Media_Update[] $media_updaters */
+	private function get_media_updaters() {
+		if ( ! $this->media_updaters ) {
+			$this->media_updaters = apply_filters( 'wmpl_pb_get_media_updaters', array() );
+		}
+
+		return $this->media_updaters;
+	}
 }
