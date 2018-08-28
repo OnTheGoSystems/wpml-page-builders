@@ -8,14 +8,17 @@
 class Test_WPML_PB_Reuse_Translations extends WPML_PB_TestCase {
 
 	/**
+	 * @group wpmlpb-159
 	 * @dataProvider status_provider
 	 */
 	public function test_find_and_reuse_by_location( $status, $expected_status ) {
 
-		$post_id             = mt_rand( 1, 100 );
-		$string_id_no_update = 10;
-		$string_id_to_update = 20;
-		$string_id_updated   = 30;
+		$post_id               = mt_rand( 1, 100 );
+		$string_id_no_update   = 10;
+		$string_id_to_update   = 20;
+		$string_id_updated     = 30;
+		$string_id_old_content = 40;
+		$string_id_new_content = 50;
 
 		$translation = (object) array(
 			'status'              => $status,
@@ -37,19 +40,28 @@ class Test_WPML_PB_Reuse_Translations extends WPML_PB_TestCase {
 		                                                                   $translation->translation_service,
 		                                                                   $translation->batch_id );
 
+		$string_old_content = Mockery::mock( 'WPML_String' );
+		$string_old_content->shouldReceive( 'get_value' )->andReturn( 'string OLD content' );
+		$string_new_content = Mockery::mock( 'WPML_String' );
+		$string_new_content->shouldReceive( 'get_value' )->andReturn( 'completely different new content (sameness < 50%)' );
+
 		$original_strings = array(
-			array( 'location' => 1, 'id' => $string_id_no_update ),
-			array( 'location' => 2, 'id' => $string_id_to_update ),
+			array( 'location' => 1, 'id' => $string_id_no_update, 'value' => 'string NO update' ),
+			array( 'location' => 2, 'id' => $string_id_to_update, 'value' => 'string TO update' ),
+			array( 'location' => 3, 'id' => $string_id_old_content, 'value' => 'string OLD content' ),
 		);
 
 		$leftover_strings = array(
-			array( 'location' => 2, 'id' => $string_id_to_update ),
+			array( 'location' => 2, 'id' => $string_id_to_update, 'value' => 'string TO update' ),
+			array( 'location' => 3, 'id' => $string_id_old_content, 'value' => 'string OLD content' ),
 		);
 
 		$current_strings = array(
-			array( 'location' => 1, 'id' => $string_id_no_update ),
-			array( 'location' => 2, 'id' => $string_id_to_update ),
-			array( 'location' => 2, 'id' => $string_id_updated ),
+			array( 'location' => 1, 'id' => $string_id_no_update, 'value' => 'string NO update' ),
+			array( 'location' => 2, 'id' => $string_id_to_update, 'value' => 'string NO update' ),
+			array( 'location' => 2, 'id' => $string_id_updated, 'value' => 'string NO update' ),
+			array( 'location' => 3, 'id' => $string_id_new_content, 'value' => 'completely different new content (sameness < 50%)' ),
+			array( 'location' => 3, 'id' => $string_id_new_content, 'value' => 'completely different new content (sameness < 50%)' ),
 		);
 
 		$strategy_mock = Mockery::mock( 'WPML_PB_Shortcode_Strategy' );
@@ -68,6 +80,14 @@ class Test_WPML_PB_Reuse_Translations extends WPML_PB_TestCase {
 		                         ->once()
 		                         ->with( $string_id_updated )
 		                         ->andReturn( $string_updated );
+		$string_registration_mock->shouldReceive( 'find_by_id' )
+		                         ->once()
+		                         ->with( $string_id_new_content )
+		                         ->andReturn( $string_new_content );
+		$string_registration_mock->shouldReceive( 'find_by_id' )
+		                         ->once()
+		                         ->with( $string_id_old_content )
+		                         ->andReturn( $string_old_content );
 
 		$subject = new WPML_PB_Reuse_Translations( $strategy_mock, $string_registration_mock );
 
