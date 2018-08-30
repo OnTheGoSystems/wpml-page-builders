@@ -1,8 +1,10 @@
 <?php
 
 /**
+ * @runTestsInSeparateProcesses
+ * @preserveGlobalState disabled
+ *
  * @group page-builders
- * @group adriano
  */
 class Test_WPML_TM_Page_Builders extends OTGS_TestCase {
 
