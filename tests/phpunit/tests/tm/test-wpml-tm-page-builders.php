@@ -1,6 +1,9 @@
 <?php
 
 /**
+ * @runTestsInSeparateProcesses
+ * @preserveGlobalState disabled
+ *
  * @group page-builders
  * @group adriano
  */
