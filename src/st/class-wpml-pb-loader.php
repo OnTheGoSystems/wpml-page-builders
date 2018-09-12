@@ -18,6 +18,14 @@ class WPML_PB_Loader {
 			$strategy = new WPML_PB_Shortcode_Strategy( new WPML_Page_Builder_Settings() );
 			$strategy->add_shortcodes( $page_builder_config_import->get_settings() );
 			$page_builder_strategies[] = $strategy;
+
+			if ( is_admin() && defined( 'WPML_MEDIA_VERSION' ) ) {
+				$shortcodes_media_hooks = new WPML_Page_Builders_Media_Hooks(
+					new WPML_Page_Builders_Media_Shortcodes_Update_Factory(),
+					'shortcodes'
+				);
+				$shortcodes_media_hooks->add_hooks();
+			}
 		}
 
 		if ( class_exists( 'WPML_Config_Built_With_Page_Builders' ) ) {
