@@ -89,6 +89,18 @@ class Test_WPML_Page_Builders_Media_Translate extends \OTGS\PHPUnit\Tools\TestCa
 		$this->assertSame( $id, $subject->translate_id( $id, $lang ) );
 	}
 
+	/**
+	 * @test
+	 */
+	public function it_should_return_the_original_id_if_not_a_valid_one() {
+		$id   = 'invalid ID';
+		$lang = 'fr';
+		
+		$subject = $this->get_subject();
+
+		$this->assertSame( $id, $subject->translate_id( $id, $lang ) );
+	}
+
 	private function get_subject( $factory = null, $image_translate = null ) {
 		$factory         = $factory ? $factory : $this->get_element_factory();
 		$image_translate = $image_translate ? $image_translate : $this->get_image_translate();

@@ -51,6 +51,10 @@ class WPML_Page_Builders_Media_Translate {
 	 * @return int
 	 */
 	public function translate_id( $id, $lang ) {
+		if ( (int) $id < 1 ) {
+			return $id;
+		}
+
 		$translated_attachment = $this->get_translated_attachment( $id, $lang );
 
 		if ( isset( $translated_attachment->ID ) ) {
