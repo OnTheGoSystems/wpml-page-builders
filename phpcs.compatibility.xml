@@ -2,9 +2,7 @@
 <ruleset name="WPML">
 	<description>WPML Coding Standards</description>
 
-	<rule ref="WordPress-Core"/>
-	<rule ref="WordPress-Docs"/>
-	<rule ref="WordPress-Extra"/>
+	<config name="testVersion" value="5.2"/>
 
 	<exclude-pattern>*/vendor/*</exclude-pattern>
 	<exclude-pattern>*/tests/*</exclude-pattern>
@@ -14,12 +12,5 @@
 	<exclude-pattern>*.twig</exclude-pattern>
 	<exclude-pattern>*.css</exclude-pattern>
 	<exclude-pattern>*.scss</exclude-pattern>
-
-	<rule ref="Squiz.Commenting.FileComment.Missing">
-		<severity>0</severity>
-	</rule>
-	<rule ref="Squiz.Commenting.ClassComment.Missing">
-		<severity>0</severity>
-	</rule>
 
 </ruleset>
