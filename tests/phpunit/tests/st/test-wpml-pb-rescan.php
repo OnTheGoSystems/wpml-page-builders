@@ -3,7 +3,7 @@
 /**
  * Class Test_WPML_PR_Register_Shortcodes
  */
-class Test_WPML_PB_Rescan extends OTGS_TestCase {
+class Test_WPML_PB_Rescan extends \OTGS\PHPUnit\Tools\TestCase {
 	/**
 	 * @var WPML_PB_Integration
 	 */

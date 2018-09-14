@@ -5,7 +5,6 @@ class Test_WPML_PB_Update_Post extends WPML_PB_TestCase {
 	function setUp() {
 		parent::setUp();
 
-		$this->mock_all_core_functions();
 		\WP_Mock::wpFunction( 'get_shortcode_regex', array(
 			'return' => '\[(\[?)(vc_column_text)(?![\w-])([^\]\/]*(?:\/(?!\])[^\]\/]*)*?)(?:(\/)\]|\](?:([^\[]*+(?:\[(?!\/\2\])[^\[]*+)*+)\[\/\2\])?)(\]?)',
 		) );
@@ -26,21 +25,31 @@ class Test_WPML_PB_Update_Post extends WPML_PB_TestCase {
 		$text_string                         = rand_str();
 		$translated_text_string              = rand_str();
 		$string_without_translation_complete = rand_str();
-		$post_id                             = wp_insert_post( array(
-				'post_content' => '[vc_column_text title="' . ( $encode ? base64_encode( $title_string ) : $title_string ) . '" text="' . ( $encode ? base64_encode( $text_string ) : $text_string ) . '"]' . ( $encode ? base64_encode( $string ) : $string ) . '[/vc_column_text]' .
-				                  '[vc_column_text title="' . ( $encode ? base64_encode( $title_string_2 ) : $title_string_2 ) . '"]' . $string_without_translation_complete . '[/vc_column_text]',
-				'post_type'    => 'page',
-			)
-		);
+		$post_id                             = 123;
+
+		/** @var \WP_Post|\PHPUnit_Framework_MockObject_MockObject $wp_post */
+		$wp_post = $this->getMockBuilder( 'WP_Post' )
+						->disableOriginalConstructor()
+						->getMock();
+
+		$wp_post->ID           = $post_id;
+		$wp_post->post_content = '[vc_column_text title="' . ( $encode ? base64_encode( $title_string ) : $title_string ) . '" text="' . ( $encode ? base64_encode( $text_string ) : $text_string ) . '"]' . ( $encode ? base64_encode( $string ) : $string ) . '[/vc_column_text]' .
+								 '[vc_column_text title="' . ( $encode ? base64_encode( $title_string_2 ) : $title_string_2 ) . '"]' . $string_without_translation_complete . '[/vc_column_text]';
+		$wp_post->post_type    = 'page';
+
 		$language                            = rand_str( 4 );
 
+		\WP_Mock::wpFunction( 'get_post', array(
+			'args'   => array( $post_id ),
+			'return' => $wp_post,
+		) );
 		\WP_Mock::wpFunction( 'wp_update_post', array(
 			'times' => 1,
 			'args'  => array(
 				array(
 					'ID'           => $post_id,
 					'post_content' => '[vc_column_text title="' . ( $encode ? base64_encode( $translated_title_string ) : $translated_title_string ) . '" text="' . ( $encode ? base64_encode( $translated_text_string ) : $translated_text_string ) . '"]' . ( $encode ? base64_encode( $translated_string ) : $translated_string ) . '[/vc_column_text]' .
-					                  '[vc_column_text title="' . ( $encode ? base64_encode( $translated_title_string ) : $translated_title_string ) . '"]' . $string_without_translation_complete . '[/vc_column_text]',
+									  '[vc_column_text title="' . ( $encode ? base64_encode( $translated_title_string ) : $translated_title_string ) . '"]' . $string_without_translation_complete . '[/vc_column_text]',
 				)
 			)
 		) );

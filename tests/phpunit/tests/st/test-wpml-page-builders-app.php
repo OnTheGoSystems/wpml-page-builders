@@ -7,7 +7,7 @@
  * @group beaver-builder
  * @group elementor
  */
-class Test_WPML_Page_Builders_App extends OTGS_TestCase {
+class Test_WPML_Page_Builders_App extends \OTGS\PHPUnit\Tools\TestCase {
 
 	/**
 	 * @test

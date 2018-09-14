@@ -1,6 +1,6 @@
 <?php
 
-abstract class WPML_PB_TestCase extends OTGS_TestCase {
+abstract class WPML_PB_TestCase extends WPML_PageBuilders_TestCase {
 
 	function setUp() {
 		parent::setUp();

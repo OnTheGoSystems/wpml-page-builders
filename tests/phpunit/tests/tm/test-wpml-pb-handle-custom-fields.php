@@ -5,7 +5,7 @@
  *
  * @group wpmlpb-149
  */
-class Test_WPML_PB_Handle_Custom_Fields extends OTGS_TestCase {
+class Test_WPML_PB_Handle_Custom_Fields extends \OTGS\PHPUnit\Tools\TestCase {
 
 	/**
 	 * @test

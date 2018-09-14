@@ -5,7 +5,7 @@
  *
  * @author OnTheGoSystems
  */
-abstract class WPML_ST_TestCase extends OTGS_TestCase {
+abstract class WPML_ST_TestCase extends WPML_PageBuilders_TestCase {
 
 	/**
 	 * @return array

@@ -6,7 +6,7 @@
  *
  * @group page-builders
  */
-class Test_WPML_TM_Page_Builders extends OTGS_TestCase {
+class Test_WPML_TM_Page_Builders extends \OTGS\PHPUnit\Tools\TestCase {
 
 	function setUp() {
 		parent::setUp();
@@ -21,8 +21,6 @@ class Test_WPML_TM_Page_Builders extends OTGS_TestCase {
 				return $result;
 			}
 		) );
-
-		$this->mock_all_core_functions();
 	}
 
 	/**
@@ -480,21 +478,28 @@ class Test_WPML_TM_Page_Builders extends OTGS_TestCase {
 		$wpml_tm_translation_status->method( 'filter_translation_status' )->with( null, $trid, $lang )
 			->willReturn( $status );
 
-		$actual_link = $this->get_subject()->link_to_translation_filter( $link, $post_id, $lang, $trid );
-
-		if ( $is_link_altered ) {
-			$expected_link = add_query_arg( array(
+		$altered_link = 'altered-link';
+		WP_Mock::userFunction( 'add_query_arg', array(
+			'args'   => array(
+				array(
 					'update_needed' => 1,
 					'trid'          => $trid,
 					'language_code' => $lang,
 				),
-				$link
-			);
+				$link,
+			),
+			'return' => $altered_link,
+		) );
 
-			$this->assertEquals( $expected_link, $actual_link );
+		$actual_link = $this->get_subject()->link_to_translation_filter( $link, $post_id, $lang, $trid );
+
+		if ( $is_link_altered ) {
+			$expected_link = $altered_link;
+
 		} else {
-			$this->assertEquals( $link, $actual_link );
+			$expected_link = $link;
 		}
+		$this->assertSame( $expected_link, $actual_link );
 	}
 
 	/**

@@ -3,7 +3,7 @@
 /**
  * @group media
  */
-class Test_WPML_Page_Builders_Media_Shortcodes extends OTGS_TestCase {
+class Test_WPML_Page_Builders_Media_Shortcodes extends \OTGS\PHPUnit\Tools\TestCase {
 
 	/**
 	 * @test

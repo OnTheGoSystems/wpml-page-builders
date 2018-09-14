@@ -5,7 +5,7 @@
  *
  * @group page-builders
  */
-class Test_WPML_TM_Page_Builders_Field_Wrapper extends OTGS_TestCase {
+class Test_WPML_TM_Page_Builders_Field_Wrapper extends \OTGS\PHPUnit\Tools\TestCase {
 
 	private $package_id;
 	private $string_id;

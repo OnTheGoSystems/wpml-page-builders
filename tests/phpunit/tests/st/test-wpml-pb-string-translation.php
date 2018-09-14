@@ -4,13 +4,6 @@
  * @group page-builders
  */
 class Test_WPML_PB_String_Translation extends WPML_PB_TestCase {
-
-	function setUp() {
-		parent::setUp();
-
-		$this->mock_all_core_functions();
-	}
-
 	/**
 	 * @dataProvider new_translations_data_provider
 	 */
@@ -82,7 +75,7 @@ class Test_WPML_PB_String_Translation extends WPML_PB_TestCase {
 	}
 
 	private function get_wpdb_mock( $string_package_id, $language_1, $language_2 ) {
-		$wpdb = $this->get_wpdb_stub();
+		$wpdb = $this->stubs->wpdb();
 
 		$result_1                    = new stdClass();
 		$result_1->string_package_id = $string_package_id;

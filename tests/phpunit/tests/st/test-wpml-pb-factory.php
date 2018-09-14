@@ -13,8 +13,6 @@ class Test_WPML_PB_Factory extends WPML_PB_TestCase {
 		parent::setUp();
 		global $wpdb;
 
-		$this->mock_all_core_functions();
-
 		$this->wpdb_original = $wpdb;
 	}
 

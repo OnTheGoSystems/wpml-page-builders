@@ -3,7 +3,7 @@
 /**
  * @group media
  */
-class Test_WPML_Page_Builders_Media_Hooks extends OTGS_TestCase {
+class Test_WPML_Page_Builders_Media_Hooks extends \OTGS\PHPUnit\Tools\TestCase {
 
 	const SLUG_TEST = 'the-page-builder';
 

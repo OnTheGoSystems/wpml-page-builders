@@ -15,8 +15,6 @@ class Test_WPML_PB_Visual_Composer_Links extends WPML_PB_TestCase {
 	function setUp() {
 		parent::setUp();
 
-		$this->mock_all_core_functions();
-
 		/** @var WPML_PB_Shortcodes|\Mockery\MockInterface $shortcode_parser */
 		$shortcode_parser = \Mockery::mock( 'WPML_PB_Shortcodes' );
 		$shortcode_parser->shouldReceive( 'get_shortcodes' )->andReturn(

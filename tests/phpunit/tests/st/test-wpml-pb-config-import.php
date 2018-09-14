@@ -3,7 +3,7 @@
 /**
  * Class Test_WPML_PB_Config_Import
  */
-class Test_WPML_PB_Config_Import extends OTGS_TestCase {
+class Test_WPML_PB_Config_Import extends \OTGS\PHPUnit\Tools\TestCase {
 	/**
 	 * @param $shortcode
 	 * @param $expected_value
@@ -11,8 +11,6 @@ class Test_WPML_PB_Config_Import extends OTGS_TestCase {
 	 * @dataProvider filter_data_provider
 	 */
 	public function test_filter( $shortcode, $expected_value ) {
-		$this->mock_all_core_functions();
-
 		$data     = array(
 			'wpml-config' => array(
 				'shortcodes' => array(
@@ -121,7 +119,6 @@ class Test_WPML_PB_Config_Import extends OTGS_TestCase {
 	 * @dataProvider settings_provider
 	 */
 	public function test_has_settings( $has_settings ) {
-		$this->mock_all_core_functions();
 		$settings = $this->get_settings_mock_for_has_settings( $has_settings );
 		$subject  = new WPML_PB_Config_Import_Shortcode( $settings );
 		$this->assertEquals( $has_settings, $subject->has_settings() );
@@ -146,7 +143,6 @@ class Test_WPML_PB_Config_Import extends OTGS_TestCase {
 	}
 
 	public function test_link_attribute() {
-		$this->mock_all_core_functions();
 		$shortcode = array(
 			'tag'        => array( 'value' => 'tag1', 'attr' => array( 'type' => 'link' ) ),
 			'attributes' => array(

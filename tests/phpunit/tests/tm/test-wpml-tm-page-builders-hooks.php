@@ -5,7 +5,7 @@
  *
  * @group page-builders
  */
-class Test_WPML_TM_Page_Builders_Hooks extends OTGS_TestCase {
+class Test_WPML_TM_Page_Builders_Hooks extends \OTGS\PHPUnit\Tools\TestCase {
 
 	private $worker;
 

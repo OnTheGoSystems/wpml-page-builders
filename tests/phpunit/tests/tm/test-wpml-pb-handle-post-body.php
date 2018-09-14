@@ -5,7 +5,7 @@
  *
  * @group wpmlcore-5684
  */
-class Test_WPML_PB_Handle_Post_Body extends OTGS_TestCase {
+class Test_WPML_PB_Handle_Post_Body extends \OTGS\PHPUnit\Tools\TestCase {
 
 	/**
 	 * @test

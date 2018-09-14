@@ -7,7 +7,7 @@
  * @group beaver-builder
  * @group elementor
  */
-class Test_WPML_Page_Builders_Integration extends OTGS_TestCase {
+class Test_WPML_Page_Builders_Integration extends \OTGS\PHPUnit\Tools\TestCase {
 
 	private $register_strings;
 	private $update_translation;

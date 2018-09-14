@@ -1,6 +1,6 @@
 <?php
 
-class Test_WPML_PB_Shortcode_Strategy extends OTGS_TestCase {
+class Test_WPML_PB_Shortcode_Strategy extends \OTGS\PHPUnit\Tools\TestCase {
 
 	/**
 	 * @test

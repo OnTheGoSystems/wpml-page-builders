@@ -1,13 +1,6 @@
 <?php
 
 class Test_WPML_PB_Loader extends WPML_PB_TestCase {
-
-	function setUp() {
-		parent::setUp();
-
-		$this->mock_all_core_functions();
-	}
-
 	public function test_no_strategies() {
 		$st_settings      = $this->get_wpml_st_settings();
 		$integration_mock = $this->get_pb_integration_mock();
@@ -20,6 +13,7 @@ class Test_WPML_PB_Loader extends WPML_PB_TestCase {
 		$integration_mock = $this->get_pb_integration_mock();
 		$integration_mock->expects( $this->exactly( 1 ) )->method( 'add_hooks' );
 		$integration_mock->expects( $this->exactly( 1 ) )->method( 'add_strategy' );
+		WP_Mock::userFunction('is_admin', array('return' => true));
 		new WPML_PB_Loader( $this->get_sitepress_mock(),
 		                    $this->get_wpdb_mock(),
 		                    $this->get_settings_mock(),

@@ -5,7 +5,7 @@
  *
  * @group wpmlpb-148
  */
-class Test_WPML_Page_Builders_Page_Built extends OTGS_TestCase {
+class Test_WPML_Page_Builders_Page_Built extends WPML_PageBuilders_TestCase {
 
 	/**
 	 * @test

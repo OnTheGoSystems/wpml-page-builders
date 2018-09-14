@@ -6,13 +6,6 @@
  */
 
 class Test_WPML_PB_String_Registration extends WPML_PB_TestCase {
-
-	function setUp() {
-		parent::setUp();
-
-		$this->mock_all_core_functions();
-	}
-
 	/**
 	 * @test
 	 * @dataProvider string_name_provider
@@ -188,11 +181,15 @@ class Test_WPML_PB_String_Registration extends WPML_PB_TestCase {
 	}
 
 	/**
-	 * @group page-builders
-	 * @group wpmlst-1171
-	 * @group migrate-location
+	 * @group        page-builders
+	 * @group        wpmlst-1171
+	 * @group        migrate-location
+	 *
+	 * @dataProvider dp_migration_modes
+	 *
+	 * @param bool $migration_mode
 	 */
-	public function test_migrate_location() {
+	public function test_migrate_location( $migration_mode ) {
 
 		$post_id  = mt_rand();
 		$location = mt_rand();
@@ -215,19 +212,31 @@ class Test_WPML_PB_String_Registration extends WPML_PB_TestCase {
 		                                                   $package_factory,
 		                                                   \Mockery::mock( 'WPML_Translate_Link_Targets' ),
 		                                                   array(),
-		                                                   true );
+			$migration_mode );
 
-		$this->expectAction( 'wpml_register_string',
-		                     array(
-			                     'something',
-			                     md5( 'something' ),
-			                     $strategy->get_package_key( $post_id ),
-			                     'title',
-			                     'LINE'
-		                     ),
-		                     0 );
+		$content     = 'something';
+		$string_name = md5( $content );
+		$package     = $strategy->get_package_key( $post_id );
+		$title       = 'title';
+		$type        = 'LINE';
 
-		$string_handler->register_string( $post_id, 'something', 'LINE', 'title', '', $location );
+		if ( $migration_mode ) {
+			\WP_Mock::onAction( 'wpml_register_string' )->react( array( $this, 'on_wpml_register_string_action' ) );
+		} else {
+			\WP_Mock::expectAction( 'wpml_register_string', $content, $string_name, $package, $title, $type );
+		}
+		$string_handler->register_string( $post_id, $content, $type, $title, '', $location );
+	}
+
+	public function on_wpml_register_string_action() {
+		$this->fail( 'wpml_register_string action is not expected to be called.' );
+	}
+
+	public function dp_migration_modes() {
+		return array(
+			'with migration mode'    => array( true ),
+			'without migration mode' => array( false ),
+		);
 	}
 
 	private function get_sitepress_mock() {
@@ -262,10 +271,5 @@ class Test_WPML_PB_String_Registration extends WPML_PB_TestCase {
 		$package_factory->method( 'create' )->willReturn( $package );
 
 		return $package_factory;
-	}
-
-	public function tearDown() {
-		\Mockery::close();
-		parent::tearDown();
 	}
 }

@@ -6,13 +6,6 @@
  */
 
 class Test_WPML_PB_API_Hooks_Strategy extends WPML_PB_TestCase {
-
-	function setUp() {
-		parent::setUp();
-
-		$this->mock_all_core_functions();
-	}
-
 	function test_get_package_kind() {
 		$name = rand_str();
 		$subject = new WPML_PB_API_Hooks_Strategy( $name );
