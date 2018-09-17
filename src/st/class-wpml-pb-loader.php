@@ -19,9 +19,9 @@ class WPML_PB_Loader {
 			$strategy->add_shortcodes( $page_builder_config_import->get_settings() );
 			$page_builder_strategies[] = $strategy;
 
-			if ( is_admin() && defined( 'WPML_MEDIA_VERSION' ) ) {
+			if ( is_admin() && defined( 'WPML_MEDIA_VERSION' ) && $page_builder_config_import->get_media_settings() ) {
 				$shortcodes_media_hooks = new WPML_Page_Builders_Media_Hooks(
-					new WPML_Page_Builders_Media_Shortcodes_Update_Factory(),
+					new WPML_Page_Builders_Media_Shortcodes_Update_Factory( $page_builder_config_import ),
 					'shortcodes'
 				);
 				$shortcodes_media_hooks->add_hooks();
