@@ -2,6 +2,13 @@
 
 class WPML_Page_Builders_Media_Shortcodes_Update_Factory implements IWPML_PB_Media_Update_Factory {
 
+	/** @var WPML_PB_Config_Import_Shortcode WPML_PB_Config_Import_Shortcode */
+	private $page_builder_config_import;
+
+	public function __construct( WPML_PB_Config_Import_Shortcode $page_builder_config_import ) {
+		$this->page_builder_config_import = $page_builder_config_import;
+	}
+
 	public function create() {
 		global $sitepress;
 
@@ -23,40 +30,9 @@ class WPML_Page_Builders_Media_Shortcodes_Update_Factory implements IWPML_PB_Med
 			new WPML_Media_Image_Translate( $sitepress, new WPML_Media_Attachment_By_URL_Factory() )
 		);
 
-		return new WPML_Page_Builders_Media_Shortcodes( $media_translate, $this->get_shortcodes_config() );
-	}
-
-	/** @return array */
-	private function get_shortcodes_config() {
-		/**
-		 * @todo: Move configuration to wpml-config.xml
-		 */
-		if ( defined( 'ET_BUILDER_THEME' ) ) {
-			return array(
-				WPML_Page_Builders_Media_Shortcodes::ALL_TAGS => array(
-					'background_image' => WPML_Page_Builders_Media_Shortcodes::TYPE_URL,
-				),
-				'et_pb_video_slider_item|et_pb_video'         => array(
-					'image_src' => WPML_Page_Builders_Media_Shortcodes::TYPE_URL,
-				),
-				'et_pb_gallery'                               => array(
-					'gallery_ids' => WPML_Page_Builders_Media_Shortcodes::TYPE_IDS,
-				),
-				'et_pb_image'                                 => array(
-					'src' => WPML_Page_Builders_Media_Shortcodes::TYPE_URL,
-				),
-				'et_pb_slide'                                 => array(
-					'image' => WPML_Page_Builders_Media_Shortcodes::TYPE_URL,
-				),
-				'et_pb_team_member'                           => array(
-					'image_url' => WPML_Page_Builders_Media_Shortcodes::TYPE_URL,
-				),
-				'et_pb_testimonial'                           => array(
-					'portrait_url' => WPML_Page_Builders_Media_Shortcodes::TYPE_URL,
-				),
-			);
-		}
-
-		return array();
+		return new WPML_Page_Builders_Media_Shortcodes(
+			$media_translate,
+			$this->page_builder_config_import->get_media_settings()
+		);
 	}
 }

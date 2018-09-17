@@ -57,16 +57,34 @@ class Test_WPML_Page_Builders_Media_Shortcodes extends \OTGS\PHPUnit\Tools\TestC
 [/et_pb_column][/et_pb_row][/et_pb_section]
 ';
 
-
 		$config = array(
-			WPML_Page_Builders_Media_Shortcodes::ALL_TAGS => array(
-				'background_image' => WPML_Page_Builders_Media_Shortcodes::TYPE_URL,
+			array(
+				'tag'        => array( 'name' => '*' ),
+				'attributes' => array(
+					'background_image' => array( 'type' => WPML_Page_Builders_Media_Shortcodes::TYPE_URL ),
+				),
 			),
-			'et_pb_video_slider_item|et_pb_video'         => array(
-				'image_src' => WPML_Page_Builders_Media_Shortcodes::TYPE_URL,
+			array(
+				'tag'        => array( 'name' => 'et_pb_video_slider_item|et_pb_video' ),
+				'attributes' => array(
+					'image_src' => array( 'type' => WPML_Page_Builders_Media_Shortcodes::TYPE_URL ),
+				),
 			),
-			'et_pb_gallery'                               => array(
-				'gallery_ids' => WPML_Page_Builders_Media_Shortcodes::TYPE_IDS,
+			array(
+				'tag'        => array( 'name' => 'et_pb_gallery' ),
+				'attributes' => array(
+					'gallery_ids' => array( 'type' => WPML_Page_Builders_Media_Shortcodes::TYPE_IDS ),
+				),
+			),
+			// Missing tag, should not alter content
+			array(
+				'attributes' => array(
+					'background_image' => array( 'type' => WPML_Page_Builders_Media_Shortcodes::TYPE_URL ),
+				),
+			),
+			// No attributes, should not alter content
+			array(
+				'tag' => array( 'name' => 'et_pb_gallery' ),
 			),
 		);
 

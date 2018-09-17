@@ -24,16 +24,45 @@ class WPML_Page_Builders_Media_Shortcodes {
 	}
 
 	public function translate( $content )  {
-		foreach ( $this->config as $tag => $attributes ) {
-			$content = $this->translate_attributes( $content, $tag, $attributes );
+		foreach ( $this->config as $shortcode ) {
+			$shortcode = $this->sanitize_shortcode( $shortcode );
+			$tag_name  = $this->get_tag_name( $shortcode );
+
+			if ( ! empty( $shortcode['attributes'] ) ) {
+				$content = $this->translate_attributes( $content, $tag_name, $shortcode['attributes'] );
+			}
 		}
 
 		return $content;
 	}
 
+	/**
+	 * @param array $shortcode
+	 *
+	 * @return array
+	 */
+	private function sanitize_shortcode( array $shortcode ) {
+		$defaults = array(
+			'attributes' => null,
+		);
+
+		return array_merge( $defaults, $shortcode );
+	}
+
+	/**
+	 * @param array $shortcode
+	 *
+	 * @return string
+	 */
+	private function get_tag_name( $shortcode ) {
+		$tag_name = isset( $shortcode['tag']['name'] ) ? $shortcode['tag']['name'] : '';
+		return str_replace( '*', self::ALL_TAGS, $tag_name );
+	}
+
 	private function translate_attributes( $content, $tag, $attributes ) {
-		foreach ( $attributes as $attribute => $type ) {
+		foreach ( $attributes as $attribute => $data ) {
 			$pattern = '/(\[(?:' . $tag . ')(?: [^\]]* | )' . $attribute . '=")([^"]*)/';
+			$type    = isset( $data['type'] ) ? $data['type'] : '';
 			$content = preg_replace_callback( $pattern, array( $this, $this->get_callback( $type ) ), $content );
 		}
 
