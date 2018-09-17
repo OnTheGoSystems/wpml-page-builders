@@ -43,7 +43,7 @@ class Test_WPML_Page_Builders_Update_Media extends OTGS_TestCase {
 		$post->ID = mt_rand( 1, 10 );
 
 		$updater = $this->get_updater();
-		$updater->method( 'get_converted_data' )->with( $original_id )->willReturn( $original_data );
+		$updater->method( 'get_converted_data' )->with( $post->ID )->willReturn( $original_data );
 		$updater->expects( $this->once() )->method( 'save' )->with( $post->ID, $original_id, $translated_data );
 
 		$source_element = $this->get_element();

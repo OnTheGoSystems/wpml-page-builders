@@ -35,7 +35,7 @@ class WPML_Page_Builders_Update_Media implements IWPML_PB_Media_Update {
 		$lang             = $element->get_language_code();
 		$source_lang      = $source_element->get_language_code();
 		$original_post_id = $source_element->get_id();
-		$converted_data   = $this->pb_update->get_converted_data( $original_post_id );
+		$converted_data   = $this->pb_update->get_converted_data( $post->ID );
 		$converted_data   = $this->node_iterator->translate( $converted_data, $lang, $source_lang );
 		$this->pb_update->save( $post->ID, $original_post_id, $converted_data );
 	}
