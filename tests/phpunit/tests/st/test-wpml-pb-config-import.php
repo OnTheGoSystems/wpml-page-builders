@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class Test_WPML_PB_Config_Import
+ * @group media
  */
 class Test_WPML_PB_Config_Import extends \OTGS\PHPUnit\Tools\TestCase {
 	/**
@@ -11,16 +11,19 @@ class Test_WPML_PB_Config_Import extends \OTGS\PHPUnit\Tools\TestCase {
 	 * @dataProvider filter_data_provider
 	 */
 	public function test_filter( $shortcode, $expected_value ) {
+		\WP_Mock::passthruFunction( 'get_option' );
+		\WP_Mock::passthruFunction( 'update_option' );
+
 		$data     = array(
 			'wpml-config' => array(
 				'shortcodes' => array(
 					'shortcode' => array( $shortcode ),
 				),
-			),
-		);
-		$settings = $this->get_settings_mock_for_filter( $expected_value );
-		$subject  = new WPML_PB_Config_Import_Shortcode( $settings );
-		$subject->wpml_config_filter( $data );
+	),
+	);
+	$settings = $this->get_settings_mock_for_filter( $expected_value );
+	$subject  = new WPML_PB_Config_Import_Shortcode( $settings );
+	$subject->wpml_config_filter( $data );
 	}
 
 	/**
@@ -111,8 +114,171 @@ class Test_WPML_PB_Config_Import extends \OTGS\PHPUnit\Tools\TestCase {
 					'attributes' => array(),
 				),
 			),
+			'tag with media only'  => array(
+				array(
+					'tag'        => array( 'value' => 'tag1', 'attr' => array( 'media-only' => '1' ) ),
+				),
+				array(),
+			),
 
 		);
+	}
+
+	/**
+	 * @test
+	 * @dataProvider dp_update_media_shortcodes_config
+	 * @group media
+	 *
+	 * @param array $raw_media_shortcode
+	 * @param array $expected_shortcodes_config
+	 */
+	public function it_should_filter_and_update_media_shortcodes_config( $raw_media_shortcode, $expected_shortcodes_config ) {
+		$raw_config = array(
+			'wpml-config' => array(
+				'shortcodes' => array(
+					'shortcode' => $raw_media_shortcode,
+				),
+			),
+		);
+
+		\WP_Mock::userFunction( 'get_option', array(
+			'args'   => array( WPML_PB_Config_Import_Shortcode::PB_MEDIA_SHORTCODE_SETTING, array() ),
+			'return' => array( 'something' ),
+		));
+
+		\WP_Mock::userFunction( 'update_option', array(
+			'args'  => array(
+				WPML_PB_Config_Import_Shortcode::PB_MEDIA_SHORTCODE_SETTING,
+				$expected_shortcodes_config,
+				true
+			),
+			'times' => 1,
+		));
+
+		$settings = $this->get_settings_mock_for_filter();
+		$subject  = new WPML_PB_Config_Import_Shortcode( $settings );
+
+		$this->assertEquals( $raw_config, $subject->wpml_config_filter( $raw_config ) );
+	}
+
+	public function dp_update_media_shortcodes_config() {
+		return array(
+			'tag with 1 attributes' => array(
+				array(
+					array(
+						'tag'        => array( 'value' => 'tag1' ),
+						'media-attributes' => array(
+							'media-attribute' => array(
+								'value' => 'attribute1',
+								'attr' => array( 'type' => 'url' ),
+							),
+						),
+					),
+				),
+				array(
+					array(
+						'tag'        => array( 'name' => 'tag1' ),
+						'attributes' => array(
+							'attribute1' => array( 'type' => 'url' ),
+						),
+					),
+				),
+			),
+			'tag with 2 attributes' => array(
+				array(
+					array(
+						'tag'        => array( 'value' => 'tag1' ),
+						'media-attributes' => array(
+							'media-attribute' => array(
+								array( 'value' => 'attribute1', 'attr' => array( 'type' => 'url' ) ),
+								array( 'value' => 'attribute2', 'attr' => array( 'type' => 'ids' ) ),
+							),
+						),
+					),
+				),
+				array(
+					array(
+						'tag'        => array( 'name' => 'tag1' ),
+						'attributes' => array(
+							'attribute1' => array( 'type' => 'url' ),
+							'attribute2' => array( 'type' => 'ids' ),
+						),
+					),
+				),
+			),
+		);
+	}
+
+	/**
+	 * @test
+	 * @group media
+	 */
+	public function it_should_filter_and_not_update_media_shortcodes_config_if_same_value() {
+		$media_config = array(
+			array(
+				'tag'        => array( 'name' => 'tag1' ),
+				'attributes' => array(
+					'attribute1' => array( 'type' => 'url' ),
+				),
+			),
+		);
+
+		$raw_config = array(
+			'wpml-config' => array(
+				'shortcodes' => array(
+					'shortcode' => array(
+						array(
+							'tag'        => array( 'value' => 'tag1' ),
+							'media-attributes' => array(
+								'media-attribute' => array(
+									'value' => 'attribute1',
+									'attr' => array( 'type' => 'url' ),
+								),
+							),
+						),
+					),
+				),
+			),
+		);
+
+		\WP_Mock::userFunction( 'get_option', array(
+			'args'   => array( WPML_PB_Config_Import_Shortcode::PB_MEDIA_SHORTCODE_SETTING, array() ),
+			'return' => $media_config,
+		));
+
+		\WP_Mock::userFunction( 'update_option', array(
+			'times' => 0,
+		));
+
+		$settings = $this->get_settings_mock_for_filter();
+		$subject  = new WPML_PB_Config_Import_Shortcode( $settings );
+
+		$this->assertEquals( $raw_config, $subject->wpml_config_filter( $raw_config ) );
+	}
+
+	/**
+	 * @test
+	 * @group media
+	 */
+	public function it_should_return_media_settings() {
+		$media_config = array(
+			array(
+				'tag'        => array( 'name' => 'tag1' ),
+				'attributes' => array(
+					'attribute1' => array( 'type' => 'url' ),
+				),
+			),
+		);
+
+		\WP_Mock::userFunction( 'get_option', array(
+			'args'   => array( WPML_PB_Config_Import_Shortcode::PB_MEDIA_SHORTCODE_SETTING, array() ),
+			'return' => $media_config,
+		));
+
+		$settings = $this->get_settings_mock_for_filter();
+		$subject  = new WPML_PB_Config_Import_Shortcode( $settings );
+
+		$this->assertEquals( $media_config, $subject->get_media_settings() );
 	}
 
 	/**
@@ -176,17 +342,19 @@ class Test_WPML_PB_Config_Import extends \OTGS\PHPUnit\Tools\TestCase {
 
 	}
 
-	private function get_settings_mock_for_filter( $expected_value ) {
+	private function get_settings_mock_for_filter( $expected_value = null ) {
 		$settings_mock = $this->getMockBuilder( 'WPML_ST_Settings' )
 		                      ->setMethods( array( 'update_setting', 'get_setting' ) )
 		                      ->disableOriginalConstructor()
 		                      ->getMock();
 
-		$settings_mock->expects( $this->once() )
-		              ->method( 'update_setting' )
-		              ->with( WPML_PB_Config_Import_Shortcode::PB_SHORTCODE_SETTING, array(
-			              $expected_value
-		              ) );
+		if ( $expected_value ) {
+			$settings_mock->expects( $this->once() )
+			              ->method( 'update_setting' )
+			              ->with( WPML_PB_Config_Import_Shortcode::PB_SHORTCODE_SETTING, array(
+				              $expected_value
+			              ) );
+		}
 
 		return $settings_mock;
 	}

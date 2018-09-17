@@ -2,7 +2,8 @@
 
 class WPML_PB_Config_Import_Shortcode {
 
-	const PB_SHORTCODE_SETTING = 'pb_shortcode';
+	const PB_SHORTCODE_SETTING       = 'pb_shortcode';
+	const PB_MEDIA_SHORTCODE_SETTING = 'wpml_pb_media_shortcode';
 
 	/** @var  WPML_ST_Settings $st_settings */
 	private $st_settings;
@@ -16,11 +17,24 @@ class WPML_PB_Config_Import_Shortcode {
 	}
 
 	public function wpml_config_filter( $config_data ) {
+		$this->update_shortcodes_config( $config_data );
+		$this->update_media_shortcodes_config( $config_data );
+
+		return $config_data;
+	}
+
+	/** @param array $config_data */
+	private function update_shortcodes_config( $config_data ) {
 		$old_shortcode_data = $this->get_settings();
 
 		$shortcode_data = array();
 		if ( isset ( $config_data['wpml-config']['shortcodes']['shortcode'] ) ) {
 			foreach ( $config_data['wpml-config']['shortcodes']['shortcode'] as $data ) {
+
+				if ( isset( $data['tag']['attr']['media-only'] ) && $data['tag']['attr']['media-only'] ) {
+					continue;
+				}
+
 				$attributes = array();
 				if ( isset( $data['attributes']['attribute'] ) ) {
 					$single_attribute = false;
@@ -76,12 +90,68 @@ class WPML_PB_Config_Import_Shortcode {
 		if ( $shortcode_data != $old_shortcode_data ) {
 			$this->st_settings->update_setting( self::PB_SHORTCODE_SETTING, $shortcode_data, true );
 		}
+	}
 
-		return $config_data;
+	/** @param array $config_data */
+	private function update_media_shortcodes_config( $config_data ) {
+		$old_shortcode_data = $this->get_media_settings();
+		$shortcode_data     = array();
+
+		if ( isset ( $config_data['wpml-config']['shortcodes']['shortcode'] ) ) {
+
+			foreach ( $config_data['wpml-config']['shortcodes']['shortcode'] as $data ) {
+				$attributes = array();
+
+				if ( isset( $data['media-attributes']['media-attribute'] ) ) {
+					$single_attribute = false;
+
+					foreach ( $data['media-attributes']['media-attribute'] as $attribute ) {
+
+						if ( is_string( $attribute ) ) {
+							$single_attribute = true;
+							$attribute_value  = $attribute;
+							$attribute_type   = '';
+						} elseif ( isset( $attribute['value'] ) ) {
+							$attribute_value = $attribute['value'];
+						}
+
+						if ( ! empty( $attribute_value ) ) {
+
+							if ( $single_attribute ) {
+
+								if ( isset( $attribute['type'] ) ) {
+									$attribute_type = $attribute['type'];
+								}
+							} else {
+								$attribute_type = isset( $attribute['attr']['type'] ) ? $attribute['attr']['type'] : '';
+								$attributes[ $attribute_value ] = array( 'type' => $attribute_type );
+							}
+						}
+					}
+
+					if ( $single_attribute ) {
+						$attributes[ $attribute_value ] = array( 'type' => $attribute_type );
+					}
+				}
+
+				$shortcode_data[] = array(
+					'tag'        => array( 'name' => $data['tag']['value'] ),
+					'attributes' => $attributes,
+				);
+			}
+		}
+
+		if ( $shortcode_data != $old_shortcode_data ) {
+			update_option( self::PB_MEDIA_SHORTCODE_SETTING, $shortcode_data, true );
+		}
 	}
 
 	public function get_settings() {
 		return $this->st_settings->get_setting( self::PB_SHORTCODE_SETTING );
+	}
+
+	public function get_media_settings() {
+		return get_option( self::PB_MEDIA_SHORTCODE_SETTING, array() );
 	}
 
 	public function has_settings() {
