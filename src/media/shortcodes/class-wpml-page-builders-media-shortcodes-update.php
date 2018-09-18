@@ -16,6 +16,9 @@ class WPML_Page_Builders_Media_Shortcodes_Update implements IWPML_PB_Media_Updat
 		$this->media_shortcodes = $media_shortcodes;
 	}
 
+	/**
+	 * @param WP_Post $post
+	 */
 	public function translate( $post ) {
 		if ( $this->has_no_shortcode( $post->post_content ) ) {
 			return;
