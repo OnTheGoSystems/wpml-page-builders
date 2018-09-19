@@ -7,6 +7,7 @@ class Test_WPML_Page_Builders_Media_Shortcodes extends \OTGS\PHPUnit\Tools\TestC
 
 	/**
 	 * @test
+	 * @group wpmlcore-5861
 	 */
 	public function it_should_translate() {
 		$target_lang = 'fr';
@@ -36,6 +37,7 @@ class Test_WPML_Page_Builders_Media_Shortcodes extends \OTGS\PHPUnit\Tools\TestC
 		[et_pb_video_slider_item _builder_version="3.12" image_src="' . $original_url_1 . '" background_layout="dark" src_webm="http://wpml.local/video1.webm" /]
 	[/et_pb_video_slider]
 	[et_pb_video image_src="' . $original_url_1 . '" some_image_src="Should not be translated" background_image="' . $original_url_2 . '" /]
+	[shortcode_with_single_quotes gallery_ids=\'' . $original_id_1 . '\' /]
 [/et_pb_column][/et_pb_row][/et_pb_section]
 ';
 
@@ -54,6 +56,7 @@ class Test_WPML_Page_Builders_Media_Shortcodes extends \OTGS\PHPUnit\Tools\TestC
 		[et_pb_video_slider_item _builder_version="3.12" image_src="' . $translated_url_1 . '" background_layout="dark" src_webm="http://wpml.local/video1.webm" /]
 	[/et_pb_video_slider]
 	[et_pb_video image_src="' . $translated_url_1 . '" some_image_src="Should not be translated" background_image="' . $translated_url_2 . '" /]
+	[shortcode_with_single_quotes gallery_ids=\'' . $translated_id_1 . '\' /]
 [/et_pb_column][/et_pb_row][/et_pb_section]
 ';
 
@@ -72,6 +75,12 @@ class Test_WPML_Page_Builders_Media_Shortcodes extends \OTGS\PHPUnit\Tools\TestC
 			),
 			array(
 				'tag'        => array( 'name' => 'et_pb_gallery' ),
+				'attributes' => array(
+					'gallery_ids' => array( 'type' => WPML_Page_Builders_Media_Shortcodes::TYPE_IDS ),
+				),
+			),
+			array(
+				'tag'        => array( 'name' => 'shortcode_with_single_quotes' ),
 				'attributes' => array(
 					'gallery_ids' => array( 'type' => WPML_Page_Builders_Media_Shortcodes::TYPE_IDS ),
 				),

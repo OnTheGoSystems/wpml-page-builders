@@ -61,7 +61,7 @@ class WPML_Page_Builders_Media_Shortcodes {
 
 	private function translate_attributes( $content, $tag, $attributes ) {
 		foreach ( $attributes as $attribute => $data ) {
-			$pattern = '/(\[(?:' . $tag . ')(?: [^\]]* | )' . $attribute . '=")([^"]*)/';
+			$pattern = '/(\[(?:' . $tag . ')(?: [^\]]* | )' . $attribute . '=(?:"|\'))([^"\']*)/';
 			$type    = isset( $data['type'] ) ? $data['type'] : '';
 			$content = preg_replace_callback( $pattern, array( $this, $this->get_callback( $type ) ), $content );
 		}
