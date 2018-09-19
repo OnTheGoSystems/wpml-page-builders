@@ -12,7 +12,15 @@ class WPML_Page_Builders_Defined {
 	}
 
 	public function has( $page_builder ) {
-		return defined( $this->settings[ $page_builder ]['constant'] );
+		$result = false;
+
+		if ( isset( $this->settings[ $page_builder ]['constant'] ) ) {
+			$result = defined( $this->settings[ $page_builder ]['constant'] );
+		} elseif ( isset( $this->settings[ $page_builder ]['function'] ) ) {
+			$result = function_exists( $this->settings[ $page_builder ]['function'] );
+		}
+
+		return $result;
 	}
 
 	/**
@@ -27,15 +35,21 @@ class WPML_Page_Builders_Defined {
 					'beaver-builder' => 'Beaver Builder',
 					'elementor'      => 'Elementor',
 					'gutenberg'      => 'Gutenberg',
+					'cornerstone'    => 'Cornerstone',
 				) as $key => $name
 			) {
 				$components['page-builders'][ $key ] = array(
 					'name'            => $name,
-					'constant'        => $this->settings[ $key ]['constant'],
 					'notices-display' => array(
 						'wpml-translation-editor',
 					),
 				);
+
+				if ( isset( $this->settings[ $key ]['constant'] ) ) {
+					$components['page-builders'][ $key ]['constant'] = $this->settings[ $key ]['constant'];
+				} elseif ( isset( $this->settings[ $key ]['function'] ) ) {
+					$components['page-builders'][ $key ]['function'] = $this->settings[ $key ]['function'];
+				}
 			}
 		}
 
@@ -55,6 +69,10 @@ class WPML_Page_Builders_Defined {
 			'gutenberg' => array(
 				'constant' => 'GUTENBERG_VERSION',
 				'factory' => 'WPML_Gutenberg_Integration_Factory',
+			),
+			'cornerstone' => array(
+				'function' => 'cornerstone_plugin_init',
+				'factory' => 'WPML_Cornerstone_Integration_Factory',
 			),
 		);
 	}

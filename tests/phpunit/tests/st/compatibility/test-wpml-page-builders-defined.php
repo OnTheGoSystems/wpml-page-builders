@@ -32,6 +32,13 @@ class Test_WPML_Page_Builders_Defined extends WPML_PB_TestCase2 {
 					'wpml-translation-editor',
 				),
 			),
+			'cornerstone'    => array(
+				'name'            => 'Cornerstone',
+				'function'        => 'cornerstone_plugin_init',
+				'notices-display' => array(
+					'wpml-translation-editor',
+				),
+			),
 		);
 
 		$subject    = new WPML_Page_Builders_Defined();
@@ -56,6 +63,10 @@ class Test_WPML_Page_Builders_Defined extends WPML_PB_TestCase2 {
 			'gutenberg'      => array(
 				'constant' => 'GUTENBERG_VERSION',
 				'factory'  => 'WPML_Gutenberg_Integration_Factory',
+			),
+			'cornerstone'    => array(
+				'function' => 'cornerstone_plugin_init',
+				'factory'  => 'WPML_Cornerstone_Integration_Factory',
 			),
 		);
 

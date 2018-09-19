@@ -27,6 +27,7 @@ class Test_WPML_Page_Builders_Update extends \OTGS\PHPUnit\Tools\TestCase {
 
 	/**
 	 * @test
+	 * @group wpmlcore-5811
 	 */
 	public function it_should_save() {
 		$post_id = mt_rand( 1, 100 );
@@ -62,8 +63,82 @@ class Test_WPML_Page_Builders_Update extends \OTGS\PHPUnit\Tools\TestCase {
 			));
 		}
 
+		\WP_Mock::userFunction( 'wp_update_post', array(
+			'times' => 0,
+		));
+
 		$data_settings = $this->get_data_settings();
 		$data_settings->method( 'get_fields_to_save' )->willReturn( $fields_to_save );
+		$data_settings->method( 'prepare_data_for_saving' )->with( $converted_data )->willReturn( $prepared_data );
+		$data_settings->method( 'get_fields_to_copy' )->willReturn( $fields_to_copy );
+
+		$subject = $this->get_subject( $data_settings );
+
+		$subject->save( $post_id, $original_post_id, $converted_data );
+	}
+
+	/**
+	 * @test
+	 * @group wpmlcore-5811
+	 */
+	public function it_should_copy_post_body_if_data_settings_method_to_copy_returns_true() {
+		$post_id = mt_rand( 1, 100 );
+		$original_post_id = mt_rand( 101, 200 );
+		$converted_data = array( 'converted data' );
+		$prepared_data  = array( 'prepared data' );
+		$fields_to_save = array( 'the-meta-field-key-1', 'the-meta-field-key-2' );
+		$fields_to_copy = array( 'the-field-to-copy-1', 'the-field-to-copy-2' );
+
+		foreach ( $fields_to_save as $field_to_save ) {
+			\WP_Mock::userFunction( 'update_post_meta', array(
+				'args'   => array( $post_id, $field_to_save, $prepared_data ),
+				'times' => 1,
+			));
+		}
+
+		foreach ( $fields_to_copy as $field_to_copy ) {
+			$field_value = 'value of ' . $field_to_copy;
+			$filterd_value = 'filtered ' . $field_value;
+
+			\WP_Mock::userFunction( 'get_post_meta', array(
+				'args'   => array( $original_post_id, $field_to_copy, true ),
+				'return' => $field_value,
+			));
+
+			\WP_Mock::onFilter( 'wpml_pb_copy_meta_field' )
+			        ->with( $field_value, $post_id, $original_post_id, $field_to_copy )
+			        ->reply( $filterd_value );
+
+			\WP_Mock::userFunction( 'update_post_meta', array(
+				'args'   => array( $post_id, $field_to_copy, $filterd_value ),
+				'times' => 1,
+			));
+		}
+
+		$original_post = $this->getMockBuilder( 'WP_Post' )
+			->disableOriginalConstructor()
+			->getMock();
+
+		$original_post->post_content = 'the_content';
+
+		\WP_Mock::userFunction( 'get_post', array(
+			'args' => $original_post_id,
+			'return' => $original_post,
+		));
+
+		\WP_Mock::userFunction( 'wp_update_post', array(
+			'args' => array(
+				array(
+					'ID' => $post_id,
+					'post_content' => $original_post->post_content,
+				)
+			),
+			'times' => 1,
+		));
+
+		$data_settings = $this->get_data_settings();
+		$data_settings->method( 'get_fields_to_save' )->willReturn( $fields_to_save );
+		$data_settings->method( 'should_copy_post_body' )->willReturn( true );
 		$data_settings->method( 'prepare_data_for_saving' )->with( $converted_data )->willReturn( $prepared_data );
 		$data_settings->method( 'get_fields_to_copy' )->willReturn( $fields_to_copy );
 
@@ -89,6 +164,7 @@ class Test_WPML_Page_Builders_Update extends \OTGS\PHPUnit\Tools\TestCase {
 					'get_node_id_field',
 					'get_pb_name',
 					'add_hooks',
+					'should_copy_post_body'
 				)
 			)->disableOriginalConstructor()->getMock();
 	}

@@ -45,4 +45,9 @@ interface IWPML_Page_Builders_Data_Settings {
 	public function get_pb_name();
 
 	public function add_hooks();
+
+	/**
+	 * @return bool
+	 */
+	public function should_copy_post_body();
 }

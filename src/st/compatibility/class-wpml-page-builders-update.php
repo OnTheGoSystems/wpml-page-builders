@@ -27,6 +27,18 @@ class WPML_Page_Builders_Update {
 	public function save( $post_id, $original_post_id, $converted_data ) {
 		$this->save_data( $post_id, $this->data_settings->get_fields_to_save(), $this->data_settings->prepare_data_for_saving( $converted_data ) );
 		$this->copy_meta_fields( $post_id, $original_post_id, $this->data_settings->get_fields_to_copy() );
+
+		if ( $this->data_settings->should_copy_post_body() ) {
+			$this->copy_post_body( $post_id, $original_post_id );
+		}
+	}
+
+	private function copy_post_body( $post_id, $original_post_id ) {
+		$original_post = get_post( $original_post_id );
+		wp_update_post( array(
+			'ID' => $post_id,
+			'post_content' => $original_post->post_content,
+		) );
 	}
 
 	/**
