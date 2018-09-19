@@ -34,7 +34,8 @@ class Test_WPML_Page_Builders_Integration extends \OTGS\PHPUnit\Tools\TestCase {
 				'convert_data_to_array',
 				'prepare_data_for_saving',
 				'get_pb_name',
-				'add_data_custom_field_to_md5' ) )
+				'add_data_custom_field_to_md5',
+				'should_copy_post_body' ) )
 			->disableOriginalConstructor()
 			->getMock();
 	}

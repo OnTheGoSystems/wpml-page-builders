@@ -8,9 +8,43 @@ class WPML_Page_Builders_Defined {
 	private $settings;
 
 	public function __construct() {
-		$this->init_settings();
+		$this->settings = array(
+			'beaver-builder' => array(
+				'name'            => 'Beaver Builder',
+				'factory'         => 'WPML_Beaver_Builder_Integration_Factory',
+				'notices-display' => array( 'wpml-translation-editor' ),
+				'constant'        => 'FL_BUILDER_VERSION',
+				'function'        => null,
+			),
+			'elementor'      => array(
+				'name'            => 'Elementor',
+				'factory'         => 'WPML_Elementor_Integration_Factory',
+				'notices-display' => array( 'wpml-translation-editor' ),
+				'constant'        => 'ELEMENTOR_VERSION',
+				'function'        => null,
+			),
+			'gutenberg'      => array(
+				'name'            => 'Gutenberg',
+				'factory'         => 'WPML_Gutenberg_Integration_Factory',
+				'notices-display' => array( 'wpml-translation-editor' ),
+				'constant'        => 'GUTENBERG_VERSION',
+				'function'        => null,
+			),
+			'cornerstone'    => array(
+				'name'            => 'Cornerstone',
+				'factory'         => 'WPML_Cornerstone_Integration_Factory',
+				'notices-display' => array( 'wpml-translation-editor' ),
+				'constant'        => null,
+				'function'        => 'cornerstone_plugin_init',
+			),
+		);
 	}
 
+	/**
+	 * @param string $page_builder
+	 *
+	 * @return bool
+	 */
 	public function has( $page_builder ) {
 		global $wp_version;
 		if ( 'gutenberg' === $page_builder ) {
@@ -19,7 +53,15 @@ class WPML_Page_Builders_Defined {
 			}
 		}
 
-		return defined( $this->settings[ $page_builder ]['constant'] );
+		if ( $this->settings[ $page_builder ]['constant'] ) {
+			return defined( $this->settings[ $page_builder ]['constant'] );
+		}
+
+		if ( $this->settings[ $page_builder ]['function'] ) {
+			return function_exists( $this->settings[ $page_builder ]['function'] );
+		}
+
+		return false;
 	}
 
 	/**
@@ -29,45 +71,14 @@ class WPML_Page_Builders_Defined {
 	 */
 	public function add_components( $components ) {
 		if ( isset( $components['page-builders'] ) ) {
-			foreach (
-				array(
-					'beaver-builder' => 'Beaver Builder',
-					'elementor'      => 'Elementor',
-					'gutenberg'      => 'Gutenberg',
-				) as $key => $name
-			) {
-				$components['page-builders'][ $key ] = array(
-					'name'            => $name,
-					'constant'        => $this->settings[ $key ]['constant'],
-					'notices-display' => array(
-						'wpml-translation-editor',
-					),
-				);
-			}
+			$components['page-builders'] = array_merge( $components['page-builders'], $this->settings );
 		}
 
 		return $components;
 	}
 
-	public function init_settings() {
-		$this->settings = array(
-			'beaver-builder' => array(
-				'constant' => 'FL_BUILDER_VERSION',
-				'factory' => 'WPML_Beaver_Builder_Integration_Factory',
-			),
-			'elementor' => array(
-				'constant' => 'ELEMENTOR_VERSION',
-				'factory' => 'WPML_Elementor_Integration_Factory',
-			),
-			'gutenberg' => array(
-				'constant' => 'GUTENBERG_VERSION',
-				'factory' => 'WPML_Gutenberg_Integration_Factory',
-			),
-		);
-	}
-
 	/**
-	 * @return array
+	 * @return array<string,array<string,string|string[]|null>>
 	 */
 	public function get_settings() {
 		return $this->settings;

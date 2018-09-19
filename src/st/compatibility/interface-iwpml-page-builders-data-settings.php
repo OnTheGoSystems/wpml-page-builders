@@ -44,5 +44,8 @@ interface IWPML_Page_Builders_Data_Settings {
 	 */
 	public function get_pb_name();
 
+	/**
+	 * @return void
+	 */
 	public function add_hooks();
 }
