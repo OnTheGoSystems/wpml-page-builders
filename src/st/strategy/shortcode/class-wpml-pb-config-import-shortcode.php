@@ -94,15 +94,16 @@ class WPML_PB_Config_Import_Shortcode {
 
 	/** @param array $config_data */
 	private function update_media_shortcodes_config( $config_data ) {
-		$old_shortcode_data = $this->get_media_settings();
-		$shortcode_data     = array();
+		$old_shortcodes_data = $this->get_media_settings();
+		$shortcodes_data     = array();
 
 		if ( isset ( $config_data['wpml-config']['shortcodes']['shortcode'] ) ) {
 
 			foreach ( $config_data['wpml-config']['shortcodes']['shortcode'] as $data ) {
-				$attributes = array();
+				$shortcode_data = array();
 
 				if ( isset( $data['media-attributes']['media-attribute'] ) ) {
+					$attributes       = array();
 					$single_attribute = false;
 
 					foreach ( $data['media-attributes']['media-attribute'] as $attribute ) {
@@ -132,17 +133,25 @@ class WPML_PB_Config_Import_Shortcode {
 					if ( $single_attribute ) {
 						$attributes[ $attribute_value ] = array( 'type' => $attribute_type );
 					}
+
+					$shortcode_data['attributes'] = $attributes;
 				}
 
-				$shortcode_data[] = array(
-					'tag'        => array( 'name' => $data['tag']['value'] ),
-					'attributes' => $attributes,
-				);
+				if ( isset( $data['tag']['attr']['content-type'] )
+				     && 'media-url' === $data['tag']['attr']['content-type']
+				) {
+					$shortcode_data['content'] = array( 'type' => 'url' );
+				}
+
+				if ( $shortcode_data ) {
+					$shortcode_data['tag'] = array( 'name' => $data['tag']['value'] );
+					$shortcodes_data[]     = $shortcode_data;
+				}
 			}
 		}
 
-		if ( $shortcode_data != $old_shortcode_data ) {
-			update_option( self::PB_MEDIA_SHORTCODE_SETTING, $shortcode_data, true );
+		if ( $shortcodes_data != $old_shortcodes_data ) {
+			update_option( self::PB_MEDIA_SHORTCODE_SETTING, $shortcodes_data, true );
 		}
 	}
 
