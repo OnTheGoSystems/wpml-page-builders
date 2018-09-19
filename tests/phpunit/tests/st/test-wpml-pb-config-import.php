@@ -163,7 +163,7 @@ class Test_WPML_PB_Config_Import extends \OTGS\PHPUnit\Tools\TestCase {
 
 	public function dp_update_media_shortcodes_config() {
 		return array(
-			'tag with 1 attributes' => array(
+			'tag with 1 attribute' => array(
 				array(
 					array(
 						'tag'        => array( 'value' => 'tag1' ),
@@ -205,6 +205,46 @@ class Test_WPML_PB_Config_Import extends \OTGS\PHPUnit\Tools\TestCase {
 						),
 					),
 				),
+			),
+			'tag with 1 attribute and media content' => array(
+				array(
+					array(
+						'tag'        => array(
+							'value' => 'tag1',
+							'attr'  => array( 'content-type' => 'media-url' ),
+						),
+						'media-attributes' => array(
+							'media-attribute' => array(
+								'value' => 'attribute1',
+								'attr' => array( 'type' => 'url' ),
+							),
+						),
+					),
+				),
+				array(
+					array(
+						'tag'        => array( 'name' => 'tag1' ),
+						'attributes' => array(
+							'attribute1' => array( 'type' => 'url' ),
+						),
+						'content'    => array( 'type' => 'url' ),
+					),
+				),
+			),
+			'tags with no media' => array(
+				array(
+					array(
+						'tag'        => array(
+							'value' => 'tag1',
+							'attr'  => array( 'content-type' => 'not-related-to-media' ),
+						),
+						'media-attributes' => array(),
+					),
+					array(
+						'tag' => array( 'value' => 'tag1' ),
+					),
+				),
+				array(),
 			),
 		);
 	}
