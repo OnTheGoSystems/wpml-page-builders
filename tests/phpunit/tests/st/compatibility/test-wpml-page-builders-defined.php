@@ -17,6 +17,8 @@ class Test_WPML_Page_Builders_Defined extends WPML_PB_TestCase2 {
 				'notices-display' => array(
 					'wpml-translation-editor',
 				),
+				'factory'         => 'WPML_Beaver_Builder_Integration_Factory',
+				'function'        => null,
 			),
 			'elementor'      => array(
 				'name'            => 'Elementor',
@@ -24,6 +26,8 @@ class Test_WPML_Page_Builders_Defined extends WPML_PB_TestCase2 {
 				'notices-display' => array(
 					'wpml-translation-editor',
 				),
+				'factory'         => 'WPML_Elementor_Integration_Factory',
+				'function'        => null,
 			),
 			'gutenberg'      => array(
 				'name'            => 'Gutenberg',
@@ -31,6 +35,8 @@ class Test_WPML_Page_Builders_Defined extends WPML_PB_TestCase2 {
 				'notices-display' => array(
 					'wpml-translation-editor',
 				),
+				'factory'         => 'WPML_Gutenberg_Integration_Factory',
+				'function'        => null,
 			),
 			'cornerstone'    => array(
 				'name'            => 'Cornerstone',
@@ -38,6 +44,8 @@ class Test_WPML_Page_Builders_Defined extends WPML_PB_TestCase2 {
 				'notices-display' => array(
 					'wpml-translation-editor',
 				),
+				'factory'         => 'WPML_Cornerstone_Integration_Factory',
+				'constant'        => null,
 			),
 		);
 
@@ -54,19 +62,27 @@ class Test_WPML_Page_Builders_Defined extends WPML_PB_TestCase2 {
 		$pb_settings = array(
 			'beaver-builder' => array(
 				'constant' => 'FL_BUILDER_VERSION',
+				'function' => null,
 				'factory'  => 'WPML_Beaver_Builder_Integration_Factory',
+				'name'     => 'Beaver Builder',
 			),
 			'elementor'      => array(
 				'constant' => 'ELEMENTOR_VERSION',
+				'function' => null,
 				'factory'  => 'WPML_Elementor_Integration_Factory',
+				'name'     => 'Elementor',
 			),
 			'gutenberg'      => array(
 				'constant' => 'GUTENBERG_VERSION',
+				'function' => null,
 				'factory'  => 'WPML_Gutenberg_Integration_Factory',
+				'name'     => 'Gutenberg',
 			),
 			'cornerstone'    => array(
 				'function' => 'cornerstone_plugin_init',
+				'constant' => null,
 				'factory'  => 'WPML_Cornerstone_Integration_Factory',
+				'name'     => 'Cornerstone',
 			),
 		);
 

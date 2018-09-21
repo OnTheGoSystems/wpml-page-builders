@@ -21,6 +21,7 @@ class Test_WPML_PB_Handle_Custom_Fields extends \OTGS\PHPUnit\Tools\TestCase {
 			                      'prepare_data_for_saving',
 			                      'get_pb_name',
 			                      'add_hooks',
+			                      'should_copy_post_body',
 		                      ) )
 		                      ->disableOriginalConstructor()
 		                      ->getMock();
@@ -53,6 +54,7 @@ class Test_WPML_PB_Handle_Custom_Fields extends \OTGS\PHPUnit\Tools\TestCase {
 			                      'prepare_data_for_saving',
 			                      'get_pb_name',
 			                      'add_hooks',
+			                      'should_copy_post_body',
 		                      ) )
 		                      ->disableOriginalConstructor()
 		                      ->getMock();
@@ -92,6 +94,7 @@ class Test_WPML_PB_Handle_Custom_Fields extends \OTGS\PHPUnit\Tools\TestCase {
 			                      'prepare_data_for_saving',
 			                      'get_pb_name',
 			                      'add_hooks',
+			                      'should_copy_post_body',
 		                      ) )
 		                      ->disableOriginalConstructor()
 		                      ->getMock();
@@ -130,6 +133,7 @@ class Test_WPML_PB_Handle_Custom_Fields extends \OTGS\PHPUnit\Tools\TestCase {
 			                      'prepare_data_for_saving',
 			                      'get_pb_name',
 			                      'add_hooks',
+			                      'should_copy_post_body',
 		                      ) )
 		                      ->disableOriginalConstructor()
 		                      ->getMock();
@@ -178,6 +182,7 @@ class Test_WPML_PB_Handle_Custom_Fields extends \OTGS\PHPUnit\Tools\TestCase {
 			                      'prepare_data_for_saving',
 			                      'get_pb_name',
 			                      'add_hooks',
+			                      'should_copy_post_body',
 		                      ) )
 		                      ->disableOriginalConstructor()
 		                      ->getMock();

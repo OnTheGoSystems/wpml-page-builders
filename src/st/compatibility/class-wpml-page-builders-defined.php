@@ -12,15 +12,15 @@ class WPML_Page_Builders_Defined {
 	}
 
 	public function has( $page_builder ) {
-		$result = false;
-
-		if ( isset( $this->settings[ $page_builder ]['constant'] ) ) {
-			$result = defined( $this->settings[ $page_builder ]['constant'] );
-		} elseif ( isset( $this->settings[ $page_builder ]['function'] ) ) {
-			$result = function_exists( $this->settings[ $page_builder ]['function'] );
+		if ( $this->settings[ $page_builder ]['constant'] ) {
+			return defined( $this->settings[ $page_builder ]['constant'] );
 		}
 
-		return $result;
+		if ( $this->settings[ $page_builder ]['function'] ) {
+			return function_exists( $this->settings[ $page_builder ]['function'] );
+		}
+
+		return false;
 	}
 
 	/**
@@ -30,26 +30,9 @@ class WPML_Page_Builders_Defined {
 	 */
 	public function add_components( $components ) {
 		if ( isset( $components['page-builders'] ) ) {
-			foreach (
-				array(
-					'beaver-builder' => 'Beaver Builder',
-					'elementor'      => 'Elementor',
-					'gutenberg'      => 'Gutenberg',
-					'cornerstone'    => 'Cornerstone',
-				) as $key => $name
-			) {
-				$components['page-builders'][ $key ] = array(
-					'name'            => $name,
-					'notices-display' => array(
-						'wpml-translation-editor',
-					),
-				);
-
-				if ( isset( $this->settings[ $key ]['constant'] ) ) {
-					$components['page-builders'][ $key ]['constant'] = $this->settings[ $key ]['constant'];
-				} elseif ( isset( $this->settings[ $key ]['function'] ) ) {
-					$components['page-builders'][ $key ]['function'] = $this->settings[ $key ]['function'];
-				}
+			foreach ( $this->settings as $key => $data ) {
+				$components['page-builders'][ $key ] = $data;
+				$components['page-builders'][ $key ]['notices-display'] = array( 'wpml-translation-editor' );
 			}
 		}
 
@@ -59,22 +42,40 @@ class WPML_Page_Builders_Defined {
 	public function init_settings() {
 		$this->settings = array(
 			'beaver-builder' => array(
+				'name'     => 'Beaver Builder',
 				'constant' => 'FL_BUILDER_VERSION',
-				'factory' => 'WPML_Beaver_Builder_Integration_Factory',
+				'factory'  => 'WPML_Beaver_Builder_Integration_Factory',
 			),
 			'elementor' => array(
+				'name'     => 'Elementor',
 				'constant' => 'ELEMENTOR_VERSION',
-				'factory' => 'WPML_Elementor_Integration_Factory',
+				'factory'  => 'WPML_Elementor_Integration_Factory',
 			),
 			'gutenberg' => array(
+				'name'     => 'Gutenberg',
 				'constant' => 'GUTENBERG_VERSION',
-				'factory' => 'WPML_Gutenberg_Integration_Factory',
+				'factory'  => 'WPML_Gutenberg_Integration_Factory',
 			),
 			'cornerstone' => array(
+				'name'     => 'Cornerstone',
 				'function' => 'cornerstone_plugin_init',
-				'factory' => 'WPML_Cornerstone_Integration_Factory',
+				'factory'  => 'WPML_Cornerstone_Integration_Factory',
 			),
 		);
+
+		$this->adjust_settings();
+	}
+
+	private function adjust_settings() {
+		$defaults = array(
+			'constant' => null,
+			'function' => null,
+		);
+
+		foreach ( $this->settings as &$setting ) {
+			$setting = array_merge( $defaults, $setting );
+		}
+
 	}
 
 	/**
