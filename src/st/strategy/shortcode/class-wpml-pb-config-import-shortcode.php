@@ -35,46 +35,24 @@ class WPML_PB_Config_Import_Shortcode {
 
 				$attributes = array();
 				if ( isset( $data['attributes']['attribute'] ) ) {
-					$single_attribute = false;
+
+					$data['attributes']['attribute'] = $this->convert_single_attribute_to_multiple_format( $data['attributes']['attribute'] );
+
 					foreach ( $data['attributes']['attribute'] as $attribute ) {
 
 						if ( $this->is_media_attribute( $attribute ) ) {
 							continue;
 						}
 
-						if ( is_string( $attribute ) ) {
-							$single_attribute   = true;
-							$attribute_value    = $attribute;
-							$attribute_encoding = '';
-							$attribute_type     = '';
-						} else if ( isset( $attribute['value'] ) ) {
-							$attribute_value = $attribute['value'];
+						if ( ! empty( $attribute['value'] ) ) {
+							$attribute_encoding = isset( $attribute['attr']['encoding'] ) ? $attribute['attr']['encoding'] : '';
+							$attribute_type     = isset( $attribute['attr']['type'] ) ? $attribute['attr']['type'] : '';
+							$attributes[]       = array(
+								'value'    => $attribute['value'],
+								'encoding' => $attribute_encoding,
+								'type'     => $attribute_type,
+							);
 						}
-						if ( $attribute_value ) {
-							if ( $single_attribute ) {
-								if ( isset( $attribute['encoding'] ) ) {
-									$attribute_encoding = $attribute['encoding'];
-								}
-								if ( isset( $attribute['type'] ) ) {
-									$attribute_type = $attribute['type'];
-								}
-							} else {
-								$attribute_encoding = isset( $attribute['attr']['encoding'] ) ? $attribute['attr']['encoding'] : '';
-								$attribute_type     = isset( $attribute['attr']['type'] ) ? $attribute['attr']['type'] : '';
-								$attributes[]       = array(
-									'value'    => $attribute_value,
-									'encoding' => $attribute_encoding,
-									'type'     => $attribute_type,
-								);
-							}
-						}
-					}
-					if ( $single_attribute ) {
-						$attributes[] = array(
-							'value'    => $attribute_value,
-							'encoding' => $attribute_encoding,
-							'type'     => $attribute_type,
-						);
 					}
 				}
 
@@ -146,7 +124,7 @@ class WPML_PB_Config_Import_Shortcode {
 		}
 	}
 
-	private function is_media_attribute( $attribute ) {
+	private function is_media_attribute( array $attribute ) {
 		$media_attribute_types = array(
 			WPML_Page_Builders_Media_Shortcodes::TYPE_URL,
 			WPML_Page_Builders_Media_Shortcodes::TYPE_IDS,
