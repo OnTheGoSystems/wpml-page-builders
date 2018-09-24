@@ -3,8 +3,8 @@
 class WPML_Page_Builders_Media_Shortcodes {
 
 	const ALL_TAGS = '\w+';
-	const TYPE_URL = 'url';
-	const TYPE_IDS = 'ids';
+	const TYPE_URL = 'media-url';
+	const TYPE_IDS = 'media-ids';
 
 	/** @var WPML_Page_Builders_Media_Translate $media_translate */
 	private $media_translate;

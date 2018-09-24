@@ -30,15 +30,18 @@ class WPML_PB_Config_Import_Shortcode {
 		$shortcode_data = array();
 		if ( isset ( $config_data['wpml-config']['shortcodes']['shortcode'] ) ) {
 			foreach ( $config_data['wpml-config']['shortcodes']['shortcode'] as $data ) {
-
-				if ( isset( $data['tag']['attr']['media-only'] ) && $data['tag']['attr']['media-only'] ) {
-					continue;
-				}
+				$ignore_content = isset( $data['tag']['attr']['ignore-content'] )
+				                  && $data['tag']['attr']['ignore-content'];
 
 				$attributes = array();
 				if ( isset( $data['attributes']['attribute'] ) ) {
 					$single_attribute = false;
 					foreach ( $data['attributes']['attribute'] as $attribute ) {
+
+						if ( $this->is_media_attribute( $attribute ) ) {
+							continue;
+						}
+
 						if ( is_string( $attribute ) ) {
 							$single_attribute   = true;
 							$attribute_value    = $attribute;
@@ -74,16 +77,19 @@ class WPML_PB_Config_Import_Shortcode {
 						);
 					}
 				}
-				$shortcode_data[] = array(
-					'tag'        => array(
-						'value'              => $data['tag']['value'],
-						'encoding'           => isset( $data['tag']['attr']['encoding'] ) ? $data['tag']['attr']['encoding'] : '',
-						'encoding-condition' => isset( $data['tag']['attr']['encoding-condition'] ) ? $data['tag']['attr']['encoding-condition'] : '',
-						'type'               => isset( $data['tag']['attr']['type'] ) ? $data['tag']['attr']['type'] : '',
-						'raw-html'           => isset( $data['tag']['attr']['raw-html'] ) ? $data['tag']['attr']['raw-html'] : '',
-					),
-					'attributes' => $attributes,
-				);
+
+				if ( ! ( $ignore_content && empty( $attributes ) ) ) {
+					$shortcode_data[] = array(
+						'tag'        => array(
+							'value'              => $data['tag']['value'],
+							'encoding'           => isset( $data['tag']['attr']['encoding'] ) ? $data['tag']['attr']['encoding'] : '',
+							'encoding-condition' => isset( $data['tag']['attr']['encoding-condition'] ) ? $data['tag']['attr']['encoding-condition'] : '',
+							'type'               => isset( $data['tag']['attr']['type'] ) ? $data['tag']['attr']['type'] : '',
+							'raw-html'           => isset( $data['tag']['attr']['raw-html'] ) ? $data['tag']['attr']['raw-html'] : '',
+						),
+						'attributes' => $attributes,
+					);
+				}
 			}
 		}
 
@@ -102,45 +108,30 @@ class WPML_PB_Config_Import_Shortcode {
 			foreach ( $config_data['wpml-config']['shortcodes']['shortcode'] as $data ) {
 				$shortcode_data = array();
 
-				if ( isset( $data['media-attributes']['media-attribute'] ) ) {
-					$attributes       = array();
-					$single_attribute = false;
+				if ( isset( $data['attributes']['attribute'] ) ) {
+					$attributes = array();
 
-					foreach ( $data['media-attributes']['media-attribute'] as $attribute ) {
+					$data['attributes']['attribute'] = $this->convert_single_attribute_to_multiple_format( $data['attributes']['attribute'] );
 
-						if ( is_string( $attribute ) ) {
-							$single_attribute = true;
-							$attribute_value  = $attribute;
-							$attribute_type   = '';
-						} elseif ( isset( $attribute['value'] ) ) {
-							$attribute_value = $attribute['value'];
+					foreach ( $data['attributes']['attribute'] as $attribute ) {
+
+						if ( ! $this->is_media_attribute( $attribute ) ) {
+							continue;
 						}
 
-						if ( ! empty( $attribute_value ) ) {
-
-							if ( $single_attribute ) {
-
-								if ( isset( $attribute['type'] ) ) {
-									$attribute_type = $attribute['type'];
-								}
-							} else {
-								$attribute_type = isset( $attribute['attr']['type'] ) ? $attribute['attr']['type'] : '';
-								$attributes[ $attribute_value ] = array( 'type' => $attribute_type );
-							}
+						if ( ! empty( $attribute['value'] ) ) {
+							$attribute_type = isset( $attribute['attr']['type'] ) ? $attribute['attr']['type'] : '';
+							$attributes[ $attribute['value'] ] = array( 'type' => $attribute_type );
 						}
-					}
-
-					if ( $single_attribute ) {
-						$attributes[ $attribute_value ] = array( 'type' => $attribute_type );
 					}
 
 					$shortcode_data['attributes'] = $attributes;
 				}
 
-				if ( isset( $data['tag']['attr']['content-type'] )
-				     && 'media-url' === $data['tag']['attr']['content-type']
+				if ( isset( $data['tag']['attr']['type'] )
+				     && $data['tag']['attr']['type'] === WPML_Page_Builders_Media_Shortcodes::TYPE_URL
 				) {
-					$shortcode_data['content'] = array( 'type' => 'url' );
+					$shortcode_data['content'] = array( 'type' => WPML_Page_Builders_Media_Shortcodes::TYPE_URL );
 				}
 
 				if ( $shortcode_data ) {
@@ -153,6 +144,24 @@ class WPML_PB_Config_Import_Shortcode {
 		if ( $shortcodes_data != $old_shortcodes_data ) {
 			update_option( self::PB_MEDIA_SHORTCODE_SETTING, $shortcodes_data, true );
 		}
+	}
+
+	private function is_media_attribute( $attribute ) {
+		$media_attribute_types = array(
+			WPML_Page_Builders_Media_Shortcodes::TYPE_URL,
+			WPML_Page_Builders_Media_Shortcodes::TYPE_IDS,
+		);
+
+		return isset( $attribute['attr']['type'] )
+		       && in_array( $attribute['attr']['type'], $media_attribute_types, true );
+	}
+
+	private function convert_single_attribute_to_multiple_format( array $attribute ) {
+		if ( ! is_numeric( key( $attribute ) ) ) {
+			$attribute = array( $attribute );
+		}
+
+		return $attribute;
 	}
 
 	public function get_settings() {

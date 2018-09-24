@@ -114,9 +114,38 @@ class Test_WPML_PB_Config_Import extends \OTGS\PHPUnit\Tools\TestCase {
 					'attributes' => array(),
 				),
 			),
-			'tag with media only'  => array(
+			'tag only with ignore content'  => array(
 				array(
-					'tag'        => array( 'value' => 'tag1', 'attr' => array( 'media-only' => '1' ) ),
+					'tag'        => array( 'value' => 'tag1', 'attr' => array( 'ignore-content' => '1' ) ),
+				),
+				array(),
+			),
+			'tag with ignore content and 1 media attribute'  => array(
+				array(
+					'tag'        => array( 'value' => 'tag1', 'attr' => array( 'ignore-content' => '1' ) ),
+					'attributes' => array(
+						'attribute' => array(
+							'value' => 'attribute4',
+							'attr'  => array( 'type' => 'media-url' ),
+						)
+					),
+				),
+				array(),
+			),
+			'tag with ignore content and 2 media attributes'  => array(
+				array(
+					'tag'        => array( 'value' => 'tag1', 'attr' => array( 'ignore-content' => '1' ) ),
+					'attributes' => array(
+						'attribute' => array(
+							array(
+								'value' => 'attribute4',
+								'attr'  => array( 'type' => 'media-url' ),
+							),array(
+								'value' => 'attribute5',
+								'attr'  => array( 'type' => 'media-ids' ),
+							)
+						)
+					),
 				),
 				array(),
 			),
@@ -167,10 +196,10 @@ class Test_WPML_PB_Config_Import extends \OTGS\PHPUnit\Tools\TestCase {
 				array(
 					array(
 						'tag'        => array( 'value' => 'tag1' ),
-						'media-attributes' => array(
-							'media-attribute' => array(
+						'attributes' => array(
+							'attribute' => array(
 								'value' => 'attribute1',
-								'attr' => array( 'type' => 'url' ),
+								'attr'  => array( 'type' => 'media-url' ),
 							),
 						),
 					),
@@ -179,7 +208,7 @@ class Test_WPML_PB_Config_Import extends \OTGS\PHPUnit\Tools\TestCase {
 					array(
 						'tag'        => array( 'name' => 'tag1' ),
 						'attributes' => array(
-							'attribute1' => array( 'type' => 'url' ),
+							'attribute1' => array( 'type' => 'media-url' ),
 						),
 					),
 				),
@@ -188,10 +217,10 @@ class Test_WPML_PB_Config_Import extends \OTGS\PHPUnit\Tools\TestCase {
 				array(
 					array(
 						'tag'        => array( 'value' => 'tag1' ),
-						'media-attributes' => array(
-							'media-attribute' => array(
-								array( 'value' => 'attribute1', 'attr' => array( 'type' => 'url' ) ),
-								array( 'value' => 'attribute2', 'attr' => array( 'type' => 'ids' ) ),
+						'attributes' => array(
+							'attribute' => array(
+								array( 'value' => 'attribute1', 'attr' => array( 'type' => 'media-url' ) ),
+								array( 'value' => 'attribute2', 'attr' => array( 'type' => 'media-ids' ) ),
 							),
 						),
 					),
@@ -200,8 +229,8 @@ class Test_WPML_PB_Config_Import extends \OTGS\PHPUnit\Tools\TestCase {
 					array(
 						'tag'        => array( 'name' => 'tag1' ),
 						'attributes' => array(
-							'attribute1' => array( 'type' => 'url' ),
-							'attribute2' => array( 'type' => 'ids' ),
+							'attribute1' => array( 'type' => 'media-url' ),
+							'attribute2' => array( 'type' => 'media-ids' ),
 						),
 					),
 				),
@@ -211,12 +240,12 @@ class Test_WPML_PB_Config_Import extends \OTGS\PHPUnit\Tools\TestCase {
 					array(
 						'tag'        => array(
 							'value' => 'tag1',
-							'attr'  => array( 'content-type' => 'media-url' ),
+							'attr'  => array( 'type' => 'media-url' ),
 						),
-						'media-attributes' => array(
-							'media-attribute' => array(
+						'attributes' => array(
+							'attribute' => array(
 								'value' => 'attribute1',
-								'attr' => array( 'type' => 'url' ),
+								'attr' => array( 'type' => 'media-url' ),
 							),
 						),
 					),
@@ -225,9 +254,9 @@ class Test_WPML_PB_Config_Import extends \OTGS\PHPUnit\Tools\TestCase {
 					array(
 						'tag'        => array( 'name' => 'tag1' ),
 						'attributes' => array(
-							'attribute1' => array( 'type' => 'url' ),
+							'attribute1' => array( 'type' => 'media-url' ),
 						),
-						'content'    => array( 'type' => 'url' ),
+						'content'    => array( 'type' => 'media-url' ),
 					),
 				),
 			),
@@ -236,9 +265,9 @@ class Test_WPML_PB_Config_Import extends \OTGS\PHPUnit\Tools\TestCase {
 					array(
 						'tag'        => array(
 							'value' => 'tag1',
-							'attr'  => array( 'content-type' => 'not-related-to-media' ),
+							'attr'  => array( 'type' => 'not-related-to-media' ),
 						),
-						'media-attributes' => array(),
+						'attributes' => array(),
 					),
 					array(
 						'tag' => array( 'value' => 'tag1' ),
@@ -258,7 +287,7 @@ class Test_WPML_PB_Config_Import extends \OTGS\PHPUnit\Tools\TestCase {
 			array(
 				'tag'        => array( 'name' => 'tag1' ),
 				'attributes' => array(
-					'attribute1' => array( 'type' => 'url' ),
+					'attribute1' => array( 'type' => 'media-url' ),
 				),
 			),
 		);
@@ -269,10 +298,10 @@ class Test_WPML_PB_Config_Import extends \OTGS\PHPUnit\Tools\TestCase {
 					'shortcode' => array(
 						array(
 							'tag'        => array( 'value' => 'tag1' ),
-							'media-attributes' => array(
-								'media-attribute' => array(
+							'attributes' => array(
+								'attribute' => array(
 									'value' => 'attribute1',
-									'attr' => array( 'type' => 'url' ),
+									'attr' => array( 'type' => 'media-url' ),
 								),
 							),
 						),
