@@ -66,15 +66,28 @@ class Test_WPML_Page_Builders_Media_Shortcodes extends \OTGS\PHPUnit\Tools\TestC
 
 		$config = array(
 			array(
-				'tag'        => array( 'name' => '*' ),
+				'tag'        => array( 'name' => 'et_pb_cta' ),
 				'attributes' => array(
 					'background_image' => array( 'type' => WPML_Page_Builders_Media_Shortcodes::TYPE_URL ),
 				),
 			),
 			array(
-				'tag'        => array( 'name' => 'et_pb_video_slider_item|et_pb_video' ),
+				'tag'        => array( 'name' => 'et_pb_audio' ),
+				'attributes' => array(
+					'background_image' => array( 'type' => WPML_Page_Builders_Media_Shortcodes::TYPE_URL ),
+				),
+			),
+			array(
+				'tag'        => array( 'name' => 'et_pb_video_slider_item' ),
 				'attributes' => array(
 					'image_src' => array( 'type' => WPML_Page_Builders_Media_Shortcodes::TYPE_URL ),
+				),
+			),
+			array(
+				'tag'        => array( 'name' => 'et_pb_video' ),
+				'attributes' => array(
+					'image_src' => array( 'type' => WPML_Page_Builders_Media_Shortcodes::TYPE_URL ),
+					'background_image' => array( 'type' => WPML_Page_Builders_Media_Shortcodes::TYPE_URL ),
 				),
 			),
 			array(
