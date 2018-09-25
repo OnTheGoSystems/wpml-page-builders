@@ -75,6 +75,22 @@ class Test_WPML_TM_Page_Builders extends OTGS_TestCase {
 	/**
 	 * @test
 	 */
+	function it_does_not_filter_translation_job_data_when_package_has_no_strings() {
+		$translation_package = $this->prepare_translation_package( 'post' );
+		$post                = $this->get_a_post_object();
+
+		$this->set_hardcoded_wpml_post_element( null, rand_str( 2 ) );
+
+		$package_id = rand( 1, 100 );
+		$this->prepare_string_package_mock( $package_id, array(), $post );
+
+		$subject = $this->get_subject();
+		$this->assertEquals( $translation_package, $subject->translation_job_data_filter( $translation_package, $post ) );
+	}
+
+	/**
+	 * @test
+	 */
 	function it_filters_translation_job_data() {
 		$translation_package = $this->prepare_translation_package( 'post' );
 		$post                = $this->get_a_post_object();

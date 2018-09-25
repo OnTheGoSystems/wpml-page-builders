@@ -40,8 +40,6 @@ class WPML_TM_Page_Builders {
 
 			if ( $string_packages ) {
 
-				$translation_package['contents']['body']['translate'] = 0;
-
 				foreach ( $string_packages as $package_id => $string_package ) {
 
 					/* @var WPML_Package $string_package */
@@ -69,6 +67,9 @@ class WPML_TM_Page_Builders {
 								'format'    => 'base64',
 							);
 						}
+
+						$translation_package['contents']['body']['translate'] = 0;
+
 					}
 				}
 			}
