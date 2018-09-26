@@ -31,8 +31,12 @@ class Test_WPML_Page_Builders_Update_Media extends \OTGS\PHPUnit\Tools\TestCase 
 
 	/**
 	 * @test
+	 * @dataProvider dp_has_media_usage
+	 * @group wpmlcore-5834
+	 *
+	 * @param bool $has_media_usage
 	 */
-	public function it_should_translate_if_post_is_a_translation() {
+	public function it_should_translate_if_post_is_a_translation( $has_media_usage ) {
 		$lang            = 'fr';
 		$source_lang     = 'en';
 		$original_id     = mt_rand( 11, 20 );
@@ -60,13 +64,26 @@ class Test_WPML_Page_Builders_Update_Media extends \OTGS\PHPUnit\Tools\TestCase 
 		$iterator = $this->get_node_iterator();
 		$iterator->expects( $this->once() )->method( 'translate' )->with( $original_data )->willReturn( $translated_data );
 
-		$subject = $this->get_subject( $updater, $factory, $iterator );
+		$media_usage = null;
+		if ( $has_media_usage ) {
+			$media_usage = $this->get_media_usage();
+			$media_usage->expects( $this->once() )->method( 'update' )->with( $original_id );
+		}
+
+		$subject = $this->get_subject( $updater, $factory, $iterator, $media_usage );
 
 		$subject->translate( $post );
 	}
 
-	private function get_subject( $updater = null, $factory = null, $iterator = null ) {
-		return new WPML_Page_Builders_Update_Media( $updater, $factory, $iterator );
+	public function dp_has_media_usage() {
+		return array(
+			'without media usage' => array( false ),
+			'with media usage'    => array( true ),
+		);
+	}
+
+	private function get_subject( $updater = null, $factory = null, $iterator = null, $media_usage = null ) {
+		return new WPML_Page_Builders_Update_Media( $updater, $factory, $iterator, $media_usage );
 	}
 
 	private function get_updater() {
@@ -90,6 +107,12 @@ class Test_WPML_Page_Builders_Update_Media extends \OTGS\PHPUnit\Tools\TestCase 
 	private function get_node_iterator() {
 		return $this->getMockBuilder( 'IWPML_PB_Media_Nodes_Iterator' )
 		            ->setMethods( array( 'translate' ) )
+		            ->disableOriginalConstructor()->getMock();
+	}
+
+	private function get_media_usage() {
+		return $this->getMockBuilder( 'WPML_Page_Builders_Media_Usage' )
+		            ->setMethods( array( 'update' ) )
 		            ->disableOriginalConstructor()->getMock();
 	}
 }

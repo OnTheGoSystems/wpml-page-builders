@@ -14,6 +14,9 @@ class WPML_Page_Builders_Media_Translate {
 	/** @var WP_Post[] $translated_posts */
 	protected $translated_posts = array();
 
+	/** @var array $translated_ids */
+	private $translated_ids = array();
+
 	public function __construct(
 		WPML_Translation_Element_Factory $element_factory,
 		WPML_Media_Image_Translate $image_translate
@@ -33,11 +36,18 @@ class WPML_Page_Builders_Media_Translate {
 		$key = $url . $lang . $source_lang;
 
 		if ( ! array_key_exists( $key, $this->translated_urls ) ) {
-			$translated_url = $this->image_translate->get_translated_image_by_url( $url, $source_lang, $lang );
 			$this->translated_urls[ $key ] = $url;
 
-			if ( $translated_url ) {
-				$this->translated_urls[ $key ] = $translated_url;
+			$attachment_id = $this->image_translate->get_attachment_id_by_url( $url, $source_lang );
+
+			if ( $attachment_id ) {
+				$this->add_translated_id( $attachment_id );
+				$translated_url = $this->image_translate->get_translated_image_by_url( $url, $source_lang, $lang );
+				$this->translated_urls[ $key ] = $url;
+
+				if ( $translated_url ) {
+					$this->translated_urls[ $key ] = $translated_url;
+				}
 			}
 		}
 
@@ -51,6 +61,7 @@ class WPML_Page_Builders_Media_Translate {
 	 * @return int
 	 */
 	public function translate_id( $id, $lang ) {
+		$this->add_translated_id( $id );
 		$translated_attachment = $this->get_translated_attachment( $id, $lang );
 
 		if ( isset( $translated_attachment->ID ) ) {
@@ -81,5 +92,21 @@ class WPML_Page_Builders_Media_Translate {
 
 
 		return $this->translated_posts[ $key ];
+	}
+
+	/** @param int */
+	private function add_translated_id( $id ) {
+		if ( ! in_array( $id, $this->translated_ids, true ) ) {
+			$this->translated_ids[] = $id;
+		}
+	}
+
+	public function reset_translated_ids() {
+		$this->translated_ids = array();
+	}
+
+	/** @return array */
+	public function get_translated_ids() {
+		return $this->translated_ids;
 	}
 }
