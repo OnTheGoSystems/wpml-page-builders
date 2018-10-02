@@ -33,6 +33,7 @@ class Test_WPML_PB_Visual_Composer_Links extends WPML_PB_TestCase {
 		$this->shortcode_strategy->shouldReceive( 'get_shortcode_tag_encoding' )->andReturn( '' );
 		$this->shortcode_strategy->shouldReceive( 'get_shortcode_tag_encoding_condition' )->andReturn( '' );
 		$this->shortcode_strategy->shouldReceive( 'get_shortcode_tag_type' )->with( 'vc_btn' )->andReturn( 'VISUAL' );
+		$this->shortcode_strategy->shouldReceive( 'get_shortcode_ignore_content' )->with( 'vc_btn' )->andReturn( false );
 		$this->shortcode_strategy->shouldReceive( 'get_shortcode_attribute_encoding' )->andReturnValues( array(
 			                                                                                                 '',
 			                                                                                                 WPML_PB_Shortcode_Encoding::ENCODE_TYPES_VISUAL_COMPOSER_LINK

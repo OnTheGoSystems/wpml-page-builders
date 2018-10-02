@@ -42,7 +42,7 @@ class Test_WPML_PB_Config_Import extends \OTGS\PHPUnit\Tools\TestCase {
 					),
 				),
 				array(
-					'tag'        => array( 'value' => 'tag1', 'encoding' => '', 'encoding-condition' => '', 'type' => '', 'raw-html' => '' ),
+					'tag'        => array( 'value' => 'tag1', 'encoding' => '', 'encoding-condition' => '', 'type' => '', 'raw-html' => '', 'ignore-content' => false ),
 					'attributes' => array(
 						array( 'value' => 'attribute1', 'encoding' => '', 'type' => '' ),
 						array( 'value' => 'attribute2', 'encoding' => '', 'type' => '' ),
@@ -55,7 +55,7 @@ class Test_WPML_PB_Config_Import extends \OTGS\PHPUnit\Tools\TestCase {
 					'attributes' => array( 'attribute' => array( 'value' => 'attribute3' ) ),
 				),
 				array(
-					'tag'        => array( 'value' => 'tag2', 'encoding' => '', 'encoding-condition' => '', 'type' => '', 'raw-html' => '' ),
+					'tag'        => array( 'value' => 'tag2', 'encoding' => '', 'encoding-condition' => '', 'type' => '', 'raw-html' => '', 'ignore-content' => false ),
 					'attributes' => array(
 						array( 'value' => 'attribute3', 'encoding' => '', 'type' => '' ),
 					),
@@ -66,7 +66,7 @@ class Test_WPML_PB_Config_Import extends \OTGS\PHPUnit\Tools\TestCase {
 					'tag' => array( 'value' => 'tag3' ),
 				),
 				array(
-					'tag'        => array( 'value' => 'tag3', 'encoding' => '', 'encoding-condition' => '', 'type' => '', 'raw-html' => '' ),
+					'tag'        => array( 'value' => 'tag3', 'encoding' => '', 'encoding-condition' => '', 'type' => '', 'raw-html' => '', 'ignore-content' => false ),
 					'attributes' => array(),
 				),
 			),
@@ -75,7 +75,7 @@ class Test_WPML_PB_Config_Import extends \OTGS\PHPUnit\Tools\TestCase {
 					'tag' => array( 'value' => 'tag4', 'attr' => array( 'encoding' => 'encoding1' ) ),
 				),
 				array(
-					'tag'        => array( 'value' => 'tag4', 'encoding' => 'encoding1', 'encoding-condition' => '', 'type' => '', 'raw-html' => '' ),
+					'tag'        => array( 'value' => 'tag4', 'encoding' => 'encoding1', 'encoding-condition' => '', 'type' => '', 'raw-html' => '', 'ignore-content' => false ),
 					'attributes' => array(),
 				),
 			),
@@ -84,7 +84,7 @@ class Test_WPML_PB_Config_Import extends \OTGS\PHPUnit\Tools\TestCase {
 					'tag' => array( 'value' => 'tag4', 'attr' => array( 'encoding' => 'encoding1', 'encoding-condition' => 'option:something=1' ) ),
 				),
 				array(
-					'tag'        => array( 'value' => 'tag4', 'encoding' => 'encoding1', 'encoding-condition' => 'option:something=1', 'type' => '', 'raw-html' => '' ),
+					'tag'        => array( 'value' => 'tag4', 'encoding' => 'encoding1', 'encoding-condition' => 'option:something=1', 'type' => '', 'raw-html' => '', 'ignore-content' => false ),
 					'attributes' => array(),
 				),
 			),
@@ -99,7 +99,7 @@ class Test_WPML_PB_Config_Import extends \OTGS\PHPUnit\Tools\TestCase {
 					),
 				),
 				array(
-					'tag'        => array( 'value' => 'tag5', 'encoding' => '', 'encoding-condition' => '', 'type' => '', 'raw-html' => '' ),
+					'tag'        => array( 'value' => 'tag5', 'encoding' => '', 'encoding-condition' => '', 'type' => '', 'raw-html' => '', 'ignore-content' => false ),
 					'attributes' => array(
 						array( 'value' => 'attribute4', 'encoding' => 'encoding2', 'type' => '' ),
 					),
@@ -110,7 +110,7 @@ class Test_WPML_PB_Config_Import extends \OTGS\PHPUnit\Tools\TestCase {
 					'tag'        => array( 'value' => 'tag1', 'attr' => array( 'raw-html' => '1' ) ),
 				),
 				array(
-					'tag'        => array( 'value' => 'tag1', 'encoding' => '', 'encoding-condition' => '', 'type' => '', 'raw-html' => '1' ),
+					'tag'        => array( 'value' => 'tag1', 'encoding' => '', 'encoding-condition' => '', 'type' => '', 'raw-html' => '1', 'ignore-content' => false ),
 					'attributes' => array(),
 				),
 			),
@@ -148,6 +148,24 @@ class Test_WPML_PB_Config_Import extends \OTGS\PHPUnit\Tools\TestCase {
 					),
 				),
 				array(),
+			),
+			/** @link https://onthegosystems.myjetbrains.com/youtrack/issue/wpmlcore-5894 */
+			'tag with ignore content and a string attribute'  => array(
+				array(
+					'tag'        => array( 'value' => 'tag1', 'attr' => array( 'ignore-content' => '1' ) ),
+					'attributes' => array(
+						'attribute' => array(
+							'value' => 'attribute4',
+							'attr'  => array(),
+						)
+					),
+				),
+				array(
+					'tag'        => array( 'value' => 'tag1', 'encoding' => '', 'encoding-condition' => '', 'type' => '', 'raw-html' => '', 'ignore-content' => true ),
+					'attributes' => array(
+						array( 'value' => 'attribute4', 'encoding' => '', 'type' => '' ),
+					),
+				),
 			),
 
 		);
@@ -398,7 +416,7 @@ class Test_WPML_PB_Config_Import extends \OTGS\PHPUnit\Tools\TestCase {
 		);
 
 		$expected_value = array(
-			'tag'        => array( 'value' => 'tag1', 'encoding' => '', 'encoding-condition' => '', 'type' => 'link', 'raw-html' => '' ),
+			'tag'        => array( 'value' => 'tag1', 'encoding' => '', 'encoding-condition' => '', 'type' => 'link', 'raw-html' => '', 'ignore-content' => false ),
 			'attributes' => array(
 				array( 'value' => 'attribute1', 'encoding' => '', 'type' => 'link' ),
 				array( 'value' => 'attribute2', 'encoding' => '', 'type' => '' ),

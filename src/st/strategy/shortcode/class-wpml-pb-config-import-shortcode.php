@@ -64,6 +64,7 @@ class WPML_PB_Config_Import_Shortcode {
 							'encoding-condition' => isset( $data['tag']['attr']['encoding-condition'] ) ? $data['tag']['attr']['encoding-condition'] : '',
 							'type'               => isset( $data['tag']['attr']['type'] ) ? $data['tag']['attr']['type'] : '',
 							'raw-html'           => isset( $data['tag']['attr']['raw-html'] ) ? $data['tag']['attr']['raw-html'] : '',
+							'ignore-content'     => $ignore_content,
 						),
 						'attributes' => $attributes,
 					);

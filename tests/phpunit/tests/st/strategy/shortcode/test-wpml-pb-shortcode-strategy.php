@@ -59,6 +59,51 @@ class Test_WPML_PB_Shortcode_Strategy extends \OTGS\PHPUnit\Tools\TestCase {
 		);
 	}
 
+	/**
+	 * @test
+	 * @dataProvider dp_add_ignore_content
+	 * @group wpmlcore-5894
+	 *
+	 * @param array $shortcode_data
+	 * @param bool  $ignore_content
+	 */
+	public function it_should_add_ignore_content( $shortcode_data, $ignore_content ) {
+
+		$page_builder_settings = $this->get_page_builder_settings();
+
+		$subject = $this->get_subject( $page_builder_settings );
+
+		$subject->add_shortcodes( array( $shortcode_data ) );
+
+		$this->assertSame(
+			$ignore_content,
+			$subject->get_shortcode_ignore_content( $shortcode_data['tag']['value'] )
+		);
+	}
+
+	public function dp_add_ignore_content() {
+		return array(
+			'ignore content not set' => array(
+				array(
+					'tag' => array( 'value' => 'tag1', 'encoding' => '' ),
+				),
+				false,
+			),
+			'ignore content 0' => array(
+				array(
+					'tag' => array( 'value' => 'tag1', 'encoding' => '', 'ignore-content' => '0' ),
+				),
+				false,
+			),
+			'ignore content ' => array(
+				array(
+					'tag' => array( 'value' => 'tag1', 'encoding' => '', 'ignore-content' => '1' ),
+				),
+				true,
+			),
+		);
+	}
+
 	private function get_subject( $page_builder_settings ) {
 		return new WPML_PB_Shortcode_Strategy( $page_builder_settings );
 	}

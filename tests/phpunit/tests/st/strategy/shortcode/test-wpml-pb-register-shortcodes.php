@@ -157,33 +157,19 @@ class Test_WPML_PB_Register_Shortcodes extends WPML_PB_TestCase {
 			'return' => array( 'title' => WPML_PB_Shortcode_Encoding::ENCODE_TYPES_BASE64 ? base64_encode( $shortcode_attr_value ) : $shortcode_attr_value ),
 		) );
 
-		$pb_shortcodes_mock = $this->getMockBuilder( 'WPML_PB_Shortcodes' )
-		                           ->setMethods( array( 'get_shortcodes' ) )
-		                           ->disableOriginalConstructor()
-		                           ->getMock();
-		$pb_shortcodes_mock->method( 'get_shortcodes' )->willReturn( array(
+		$pb_shortcodes_mock = $this->get_pb_shortcodes_mock(
 			array(
-				'content'    => $shortcode_content,
-				'tag'        => 'dummy_shortcode',
-				'attributes' => array()
+				array(
+					'content'    => $shortcode_content,
+					'tag'        => 'dummy_shortcode',
+					'attributes' => array()
+				),
 			)
-		) );
+		);
 
 		$string_handler_mock = $this->get_wpml_pb_handle_strings_mock();
-		/** @var WPML_PB_Shortcode_Strategy|PHPUnit_Framework_MockObject_MockObject $strategy */
-		$strategy            = $this->getMockBuilder( 'WPML_PB_Shortcode_Strategy' )
-		                            ->setMethods( array(
-			                            'get_shortcode_parser',
-			                            'get_package_strings',
-			                            'get_shortcode_tag_encoding',
-			                            'get_shortcode_tag_type',
-			                            'get_shortcode_attributes',
-			                            'get_shortcode_attribute_encoding',
-			                            'get_shortcode_tag_encoding_condition',
-			                            'remove_string'
-		                            ) )
-		                            ->disableOriginalConstructor()
-		                            ->getMock();
+		$strategy            = $this->get_strategy_mock();
+
 		$string_data         = array(
 			'dummy_data' => array(
 				'context'    => 'dummy_context',
@@ -252,4 +238,111 @@ class Test_WPML_PB_Register_Shortcodes extends WPML_PB_TestCase {
 
 	}
 
+	/**
+	 * @test
+	 * @group wpmlcore-5894
+	 */
+	public function it_should_not_register_string_of_ignored_content() {
+		$post_id             = mt_rand();
+		$text_to_ignore      = rand_str();
+		$string_handler_mock = $this->get_wpml_pb_handle_strings_mock();
+		$strategy            = $this->get_strategy_mock();
+
+		$pb_shortcodes_mock  = $this->get_pb_shortcodes_mock(
+			array(
+				array(
+					'content'    => $text_to_ignore,
+					'tag'        => 'tag_with_ignore_content',
+					'attributes' => array()
+				),
+			)
+		);
+
+		$strategy->method( 'get_shortcode_parser' )->willReturn( $pb_shortcodes_mock );
+		$strategy->method( 'get_shortcode_ignore_content' )->with( 'tag_with_ignore_content' )->willReturn( true );
+
+		\WP_Mock::wpFunction( 'shortcode_parse_atts', array( 'return' => array() ) );
+		\WP_Mock::wpFunction( 'update_post_meta', array() );
+
+		$content = '[tag_with_ignore_content]' . $text_to_ignore . '[/tag_with_ignore_content]';
+
+		$string_handler_mock->expects( $this->never() )->method( 'register_string' );
+
+		$shortcode_handler = new WPML_PB_Register_Shortcodes( $string_handler_mock, $strategy, new WPML_PB_Shortcode_Encoding() );
+		$shortcode_handler->register_shortcode_strings( $post_id, $content );
+	}
+
+	/**
+	 * @test
+	 * @dataProvider dp_media_tag_type
+	 * @group wpmlcore-5894
+	 *
+	 * @param string $type
+	 */
+	public function it_should_not_register_string_of_media_content( $type ) {
+		$post_id             = mt_rand();
+		$text_to_ignore      = rand_str();
+		$string_handler_mock = $this->get_wpml_pb_handle_strings_mock();
+		$strategy            = $this->get_strategy_mock();
+
+		$pb_shortcodes_mock  = $this->get_pb_shortcodes_mock(
+			array(
+				array(
+					'content'    => $text_to_ignore,
+					'tag'        => 'tag_with_media_content',
+					'attributes' => array()
+				),
+			)
+		);
+
+		$strategy->method( 'get_shortcode_parser' )->willReturn( $pb_shortcodes_mock );
+		$strategy->method( 'get_shortcode_ignore_content' )->with( 'tag_with_media_content' )->willReturn( false );
+		$strategy->method( 'get_shortcode_tag_type' )->with( 'tag_with_media_content' )->willReturn( $type );
+
+		\WP_Mock::wpFunction( 'shortcode_parse_atts', array( 'return' => array() ) );
+		\WP_Mock::wpFunction( 'update_post_meta', array() );
+
+		$content = '[tag_with_media_content]' . $text_to_ignore . '[/tag_with_media_content]';
+
+		$string_handler_mock->expects( $this->never() )->method( 'register_string' );
+
+		$shortcode_handler = new WPML_PB_Register_Shortcodes( $string_handler_mock, $strategy, new WPML_PB_Shortcode_Encoding() );
+		$shortcode_handler->register_shortcode_strings( $post_id, $content );
+	}
+
+	public function dp_media_tag_type() {
+		return array(
+			'media-url' => array( 'media-url' ),
+			'media-ids' => array( 'media-ids' ),
+		);
+	}
+
+	/** @return WPML_PB_Shortcode_Strategy|PHPUnit_Framework_MockObject_MockObject */
+	private function get_strategy_mock() {
+		return $this->getMockBuilder( 'WPML_PB_Shortcode_Strategy' )
+                    ->setMethods( array(
+                                      'get_shortcode_parser',
+                                      'get_package_strings',
+                                      'get_shortcode_tag_encoding',
+                                      'get_shortcode_tag_type',
+                                      'get_shortcode_attributes',
+                                      'get_shortcode_attribute_encoding',
+                                      'get_shortcode_tag_encoding_condition',
+                                      'get_shortcode_ignore_content',
+                                      'remove_string'
+                                  ) )
+                    ->disableOriginalConstructor()
+                    ->getMock();
+	}
+
+	/** @return WPML_PB_Shortcodes|PHPUnit_Framework_MockObject_MockObject */
+	private function get_pb_shortcodes_mock( array $shortcodes ) {
+		$pb_shortcodes_mock = $this->getMockBuilder( 'WPML_PB_Shortcodes' )
+		                           ->setMethods( array( 'get_shortcodes' ) )
+		                           ->disableOriginalConstructor()
+		                           ->getMock();
+		$pb_shortcodes_mock->method( 'get_shortcodes' )->willReturn( $shortcodes );
+
+		return $pb_shortcodes_mock;
+	}
 }
