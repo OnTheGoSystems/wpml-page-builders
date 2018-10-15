@@ -250,6 +250,97 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 		$pb_integration->do_shutdown_action();
 	}
 
+	/**
+	 * @dataProvider dp_do_shutdown_action
+	 * @group wpmlcore-5935
+	 *
+	 * @param bool $wpml_media_enabled
+	 */
+	public function test_do_shutdown_action_with_resaved_post_element_without_string_packages( $wpml_media_enabled ) {
+		$target_lang        = 'fr';
+		$original_post      = $this->get_post( 1 );
+		$original_element   = $this->get_post_element( $original_post->ID, $original_post, 'en' );
+		$translated_post    = $this->get_post( 2 );
+		$translated_element = $this->get_post_element( $translated_post->ID, $translated_post, $target_lang, $original_element );
+
+		\WP_Mock::wpFunction( 'did_action', array(
+             'args'   => array( 'shutdown' ),
+             'return' => 0,
+         ));
+
+		$wp_api = $this->getMockBuilder( 'constant' )->setMethods( array( 'constant' ) )->getMock();
+		$wp_api->method( 'constant' )->with( 'WPML_MEDIA_VERSION' )->willReturn( $wpml_media_enabled );
+
+		$sitepress_mock  = $this->get_sitepress_mock();
+		$sitepress_mock->method( 'get_wp_api' )->willReturn( $wp_api );
+		$sitepress_mock->method( 'get_original_element_id' )
+		               ->willReturnCallback( function( $id ) use ( $original_post ) {
+			               if ( $id !== $original_post->ID ) {
+				               return $original_post->ID;
+			               }
+
+			               return $id;
+		               });
+
+		$updated_package = $this->getMockBuilder( 'WPML_Package' )
+								->disableOriginalConstructor()->getMock();
+
+		$string_translation = $this->getMockBuilder( 'WPML_PB_String_Translation' )
+		                           ->disableOriginalConstructor()
+		                           ->getMock();
+
+		$factory_mock = $this->getMockBuilder( 'WPML_PB_Factory' )
+		                ->setMethods( array(
+				                'get_update_translated_posts_from_original',
+				                'get_string_translations',
+				                'get_package_strings_resave',
+				                'get_handle_post_body',
+                            )
+		                )->disableOriginalConstructor()
+		                ->getMock();
+
+		$strategy = $this->get_shortcode_strategy( $factory_mock );
+
+		$factory_mock->method( 'get_string_translations' )->with( $strategy )->willReturn( $string_translation );
+
+		$package_strings_resave = $this->getMockBuilder( 'WPML_PB_Package_Strings_Resave' )
+									->setMethods( array( 'from_element' ) )->disableOriginalConstructor()->getMock();
+		$package_strings_resave->expects( $this->once() )->method( 'from_element' )
+			->with( $translated_element )->willReturn( array() );
+
+		$factory_mock->method( 'get_package_strings_resave' )->willReturn( $package_strings_resave );
+
+		$handle_post_body = $this->getMockBuilder( 'WPML_PB_Handle_Post_Body' )
+			->setMethods( array( 'copy' ) )->disableOriginalConstructor()->getMock();
+
+		$handle_post_body->expects( $this->once() )
+			->method( 'copy' )->with( $translated_post->ID, $original_post->ID, array() );
+
+		$factory_mock->method( 'get_handle_post_body' )->willReturn( $handle_post_body );
+
+		$pb_integration = new WPML_PB_Integration( $sitepress_mock, $factory_mock );
+		$pb_integration->add_strategy( $strategy );
+		$pb_integration->resave_post_translation_in_shutdown( $original_element );
+		$pb_integration->resave_post_translation_in_shutdown( $translated_element );
+
+		\WP_Mock::wpFunction( 'remove_action', array(
+             'times' => 1,
+             'args'  => array( 'icl_st_add_string_translation', array( $pb_integration, 'new_translation' ), 10, 1 ),
+         ));
+
+		if ( $wpml_media_enabled ) {
+			$media_updater = $this->getMockBuilder( 'IWPML_PB_Media_Update' )
+			                      ->setMethods( array( 'translate' ) )->getMock();
+			$media_updater->expects( $this->once() )->method( 'translate' )->with( $translated_post );
+
+			\WP_Mock::onFilter( 'wmpl_pb_get_media_updaters' )
+			        ->with( array() )
+			        ->reply( array( $media_updater ) );
+		}
+
+		$pb_integration->do_shutdown_action();
+	}
+
 	public function dp_do_shutdown_action() {
 		return array(
 			'WPML Media deactivated' => array( false ),

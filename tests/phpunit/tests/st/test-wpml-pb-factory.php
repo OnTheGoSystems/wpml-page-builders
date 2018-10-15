@@ -63,6 +63,17 @@ class Test_WPML_PB_Factory extends WPML_PB_TestCase {
 		$this->assertInstanceOf( 'WPML_PB_Package_Strings_Resave', $package );
 	}
 
+	/**
+	 * @test
+	 * @group wpmlcore-5935
+	 */
+	public function test_get_handle_post_body() {
+		$this->getMockBuilder( 'WPML_Config_Built_With_Page_Builders' )->disableOriginalConstructor()->getMock();
+		$factory          = $this->get_factory_with_mocks();
+		$handle_post_body = $factory->get_handle_post_body();
+		$this->assertInstanceOf( 'WPML_PB_Handle_Post_Body', $handle_post_body );
+	}
+
 	private function get_factory_with_mocks() {
 		global $wpdb;
 

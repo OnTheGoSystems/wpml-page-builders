@@ -68,6 +68,14 @@ class WPML_PB_Integration {
 
 		$updated_packages = $this->factory->get_package_strings_resave()->from_element( $post_element );
 
+		if ( ! $updated_packages ) {
+			$this->factory->get_handle_post_body()->copy(
+				$post_element->get_id(),
+				$post_element->get_source_element()->get_id(),
+				array()
+			);
+		}
+
 		foreach ( $this->strategies as $strategy ) {
 
 			foreach ( $updated_packages as $package ) {
