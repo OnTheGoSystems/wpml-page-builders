@@ -12,6 +12,13 @@ class WPML_Page_Builders_Defined {
 	}
 
 	public function has( $page_builder ) {
+		global $wp_version;
+		if ( 'gutenberg' === $page_builder ) {
+			if ( version_compare( $wp_version, '5.0-beta1', '>=' ) ) {
+				return true;
+			}
+		}
+
 		return defined( $this->settings[ $page_builder ]['constant'] );
 	}
 
