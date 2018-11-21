@@ -12,6 +12,12 @@ class Test_WPML_PB_Shortcode_Strategy extends \OTGS\PHPUnit\Tools\TestCase {
 	 * @param array $expected_shortcodes
 	 */
 	public function it_should_add_shortcodes_with_raw_html( $shortcode_data, $is_translatable, $expected_shortcodes ) {
+
+		$expected_shortcodes = array_merge(
+			array( WPML_PB_Shortcode_Content_Wrapper::WRAPPER_SHORTCODE_NAME ),
+			$expected_shortcodes
+		);
+
 		$page_builder_settings = $this->get_page_builder_settings();
 		$page_builder_settings->method( 'is_raw_html_translatable' )->willReturn( $is_translatable );
 

@@ -97,6 +97,9 @@ class Test_WPML_PB_Update_Shortcodes_In_Content extends WPML_PB_TestCase {
 			define( 'ICL_TM_COMPLETE', 10 );
 		}
 
+		$long_original    = rand_long_str( WPML_PB_Update_Shortcodes_In_Content::LONG_STRING_THRESHOLD + 1 );
+		$long_translation = rand_long_str( WPML_PB_Update_Shortcodes_In_Content::LONG_STRING_THRESHOLD + 2 );
+
 		return array(
 			array(
 				'[et_row][et_shortcode1 name="Shortcode 1 name"]Some inner text [gallery][/et_shortcode1][et_shortcode2]Shortcode 2 inner text[/et_shortcode2][/et_row]',
@@ -290,6 +293,126 @@ class Test_WPML_PB_Update_Shortcodes_In_Content extends WPML_PB_TestCase {
 						'fr' => array(
 							'status' => ICL_TM_COMPLETE,
 							'value'  => '$123.each',
+						),
+					),
+				),
+			),
+			'Wrapped content - https://onthegosystems.myjetbrains.com/youtrack/issue/wpmltm-2970' => array(
+				'[shortcode_A]Unwrapped text[shortcode_B title="My title"][/shortcode_A]',
+				'[shortcode_A]FR Unwrapped text[shortcode_B title="FR My title"][/shortcode_A]',
+				array( 'shortcode_A', 'shortcode_B' ),
+				array( 'shortcode_B' => array( 'title' ) ),
+				array(
+					array(
+						'block'      => '[shortcode_A][wpml_string_wrapper]Unwrapped text[/wpml_string_wrapper][shortcode_B title="My title"][/shortcode_A]',
+						'tag'        => 'shortcode_A',
+						'attributes' => '',
+						'content'    => '[wpml_string_wrapper]Unwrapped text[/wpml_string_wrapper][shortcode_B title="My title"]',
+					),
+					array(
+						'block'      => '[wpml_string_wrapper]Unwrapped text[/wpml_string_wrapper]',
+						'tag'        => 'wpml_string_wrapper',
+						'attributes' => '',
+						'content'    => 'Unwrapped text',
+					),
+					array(
+						'block'      => '[shortcode_B title="My title"]',
+						'tag'        => 'shortcode_B',
+						'attributes' => ' title="My title"',
+						'content'    => '',
+					),
+				),
+				array(
+					md5( 'Unwrapped text' ) => array(
+						'fr' => array(
+							'status' => ICL_TM_COMPLETE,
+							'value'  => 'FR Unwrapped text',
+						),
+					),
+					md5( 'My title' ) => array(
+						'fr' => array(
+							'status' => ICL_TM_COMPLETE,
+							'value'  => 'FR My title',
+						),
+					),
+				),
+			),
+			'Wrapped content same as attribute name - https://onthegosystems.myjetbrains.com/youtrack/issue/wpmltm-2970' => array(
+				'[shortcode_A][shortcode_B title="My title"]title[/shortcode_A]',
+				'[shortcode_A][shortcode_B title="FR My title"]FR title[/shortcode_A]',
+				array( 'shortcode_A', 'shortcode_B' ),
+				array( 'shortcode_B' => array( 'title' ) ),
+				array(
+					array(
+						'block'      => '[shortcode_A][shortcode_B title="My title"][wpml_string_wrapper]title[/wpml_string_wrapper][/shortcode_A]',
+						'tag'        => 'shortcode_A',
+						'attributes' => '',
+						'content'    => '[shortcode_B title="My title"][wpml_string_wrapper]title[/wpml_string_wrapper]',
+					),
+					array(
+						'block'      => '[shortcode_B title="My title"]',
+						'tag'        => 'shortcode_B',
+						'attributes' => ' title="My title"',
+						'content'    => '',
+					),
+					array(
+						'block'      => '[wpml_string_wrapper]title[/wpml_string_wrapper]',
+						'tag'        => 'wpml_string_wrapper',
+						'attributes' => '',
+						'content'    => 'title',
+					),
+				),
+				array(
+					md5( 'My title' ) => array(
+						'fr' => array(
+							'status' => ICL_TM_COMPLETE,
+							'value'  => 'FR My title',
+						),
+					),
+					md5( 'title' ) => array(
+						'fr' => array(
+							'status' => ICL_TM_COMPLETE,
+							'value'  => 'FR title',
+						),
+					),
+				),
+			),
+			'Long wrapped content - https://onthegosystems.myjetbrains.com/youtrack/issue/wpmltm-2970' => array(
+				'[shortcode_A]' . $long_original . '[shortcode_B title="My title"][/shortcode_A]',
+				'[shortcode_A]' . $long_translation . '[shortcode_B title="FR My title"][/shortcode_A]',
+				array( 'shortcode_A', 'shortcode_B' ),
+				array( 'shortcode_B' => array( 'title' ) ),
+				array(
+					array(
+						'block'      => '[shortcode_A][wpml_string_wrapper]' . $long_original . '[/wpml_string_wrapper][shortcode_B title="My title"][/shortcode_A]',
+						'tag'        => 'shortcode_A',
+						'attributes' => '',
+						'content'    => '[wpml_string_wrapper]' . $long_original . '[/wpml_string_wrapper][shortcode_B title="My title"]',
+					),
+					array(
+						'block'      => '[wpml_string_wrapper]'. $long_original . '[/wpml_string_wrapper]',
+						'tag'        => 'wpml_string_wrapper',
+						'attributes' => '',
+						'content'    => $long_original,
+					),
+					array(
+						'block'      => '[shortcode_B title="My title"]',
+						'tag'        => 'shortcode_B',
+						'attributes' => ' title="My title"',
+						'content'    => '',
+					),
+				),
+				array(
+					md5( $long_original ) => array(
+						'fr' => array(
+							'status' => ICL_TM_COMPLETE,
+							'value'  => $long_translation,
+						),
+					),
+					md5( 'My title' ) => array(
+						'fr' => array(
+							'status' => ICL_TM_COMPLETE,
+							'value'  => 'FR My title',
 						),
 					),
 				),
