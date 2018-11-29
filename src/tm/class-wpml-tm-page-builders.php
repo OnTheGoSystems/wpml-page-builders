@@ -187,7 +187,7 @@ class WPML_TM_Page_Builders {
 
 		$status = $wpml_tm_translation_status->filter_translation_status( null, $trid, $lang );
 
-		if ( WPML_TM_Translation_Status_Display::BLOCKED_LINK !== $link && ICL_TM_NEEDS_UPDATE === $status ) {
+		if ( $link && ICL_TM_NEEDS_UPDATE === $status ) {
 			$args = array(
 				'update_needed' => 1,
 				'trid'          => $trid,

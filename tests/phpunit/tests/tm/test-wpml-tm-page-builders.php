@@ -525,7 +525,7 @@ class Test_WPML_TM_Page_Builders extends \OTGS\PHPUnit\Tools\TestCase {
 		$link = 'http://' . rand_str() . '/';
 
 		return array(
-			'With blocked link' => array( WPML_TM_Translation_Status_Display::BLOCKED_LINK, ICL_TM_NEEDS_UPDATE, false ),
+			'With blocked link' => array( '', ICL_TM_NEEDS_UPDATE, false ),
 			'With status not ICL_TM_NEEDS_UPDATE' => array( $link, ICL_TM_COMPLETE, false ),
 			'With status ICL_TM_NEEDS_UPDATE' => array( $link, ICL_TM_NEEDS_UPDATE, true ),
 			'With already query args in link' => array( $link . '?foo=bar', ICL_TM_NEEDS_UPDATE, true ),
