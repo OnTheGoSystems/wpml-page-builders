@@ -248,6 +248,8 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 				                'get_update_translated_posts_from_original',
 				                'get_string_translations',
 				                'get_package_strings_resave',
+				                'get_last_translation_edit_mode',
+				                'get_post_element',
                             )
 		                )->disableOriginalConstructor()
 		                ->getMock();
@@ -255,6 +257,15 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 		$strategy = $this->get_shortcode_strategy( $factory_mock );
 
 		$factory_mock->method( 'get_string_translations' )->with( $strategy )->willReturn( $string_translation );
+
+		$last_edit_mode = $this->get_last_edit_mode();
+		$last_edit_mode->method( 'is_native_editor' )->willReturn( false );
+
+		$factory_mock->method( 'get_last_translation_edit_mode' )->willReturn( $last_edit_mode );
+
+		$post_element = $this->getMockBuilder( 'WPML_Post_Element' )
+		                     ->setMethods( array( 'get_source_language_code' ) )->getMock();
+		$factory_mock->method( 'get_post_element' )->willReturn( $post_element );
 
 		$package_strings_resave = $this->getMockBuilder( 'WPML_PB_Package_Strings_Resave' )
 									->setMethods( array( 'from_element' ) )->disableOriginalConstructor()->getMock();
@@ -325,6 +336,8 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 				                'get_string_translations',
 				                'get_package_strings_resave',
 				                'get_handle_post_body',
+				                'get_last_translation_edit_mode',
+				                'get_post_element',
                             )
 		                )->disableOriginalConstructor()
 		                ->getMock();
@@ -332,6 +345,15 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 		$strategy = $this->get_shortcode_strategy( $factory_mock );
 
 		$factory_mock->method( 'get_string_translations' )->with( $strategy )->willReturn( $string_translation );
+
+		$last_edit_mode = $this->get_last_edit_mode();
+		$last_edit_mode->method( 'is_native_editor' )->willReturn( false );
+
+		$factory_mock->method( 'get_last_translation_edit_mode' )->willReturn( $last_edit_mode );
+
+		$post_element = $this->getMockBuilder( 'WPML_Post_Element' )
+		                     ->setMethods( array( 'get_source_language_code' ) )->getMock();
+		$factory_mock->method( 'get_post_element' )->willReturn( $post_element );
 
 		$package_strings_resave = $this->getMockBuilder( 'WPML_PB_Package_Strings_Resave' )
 									->setMethods( array( 'from_element' ) )->disableOriginalConstructor()->getMock();
@@ -597,6 +619,128 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 		$subject->migrate_location( $post->ID, 'anything' );
 	}
 
+	/**
+	 * @test
+	 * @group wpmlcore-6120
+	 */
+	public function it_should_not_resave_translation_if_last_edit_mode_is_native_editor() {
+		$post_id = 123;
+
+		$source_element = $this->get_post_element( 99, $this->get_post( 99 ) );
+		$post_element   = $this->get_post_element( $post_id, $this->get_post( $post_id ), 'fr', $source_element );
+
+		$sitepress = $this->get_sitepress_mock();
+		$factory   = $this->getMockBuilder( 'WPML_PB_Factory' )
+			->setMethods( array( 'get_last_translation_edit_mode', 'get_package_strings_resave' ) )
+			->disableOriginalConstructor()->getMock();
+
+		$last_edit_mode = $this->get_last_edit_mode();
+		$last_edit_mode->method( 'is_native_editor' )->with( $post_id )->willReturn( true );
+
+		$factory->expects( $this->once() )->method( 'get_last_translation_edit_mode' )->willReturn( $last_edit_mode );
+
+		$factory->expects( $this->never() )->method( 'get_package_strings_resave' );
+
+		$subject = new WPML_PB_Integration( $sitepress, $factory );
+		
+		$subject->resave_post_translation_in_shutdown( $post_element );
+	}
+
+	/**
+	 * @test
+	 * @group wpmlcore-6120
+	 */
+	public function it_should_not_update_last_editor_mode_if_source_post() {
+		$post_id      = 123;
+		$post         = $this->get_post( $post_id );
+		$post_element = $this->get_post_element( $post_id, $post );
+
+		$sitepress = $this->get_sitepress_mock();
+		$factory   = $this->getMockBuilder( 'WPML_PB_Factory' )
+			->setMethods( array( 'get_post_element', 'get_last_translation_edit_mode' ) )
+			->disableOriginalConstructor()->getMock();
+
+		$factory->method( 'get_post_element' )->with( $post_id )->willReturn( $post_element );
+
+		$factory->expects( $this->never() )->method( 'get_last_translation_edit_mode' );
+
+		$subject = new WPML_PB_Integration( $sitepress, $factory );
+
+		$subject->queue_save_post_actions( $post_id, $post );
+	}
+
+	/**
+	 * @test
+	 * @group wpmlcore-6120
+	 */
+	public function it_should_set_last_editor_mode_to_native_editor() {
+		$_POST = array(
+			'action' => 'editpost',
+		);
+
+		$post_id      = 123;
+		$post         = $this->get_post( $post_id );
+		$post_element = $this->get_post_element( $post_id, $post );
+		$post_element->method( 'get_source_language_code' )->willReturn( 'en' );
+
+		$sitepress = $this->get_sitepress_mock();
+		$factory   = $this->getMockBuilder( 'WPML_PB_Factory' )
+			->setMethods( array( 'get_post_element', 'get_last_translation_edit_mode' ) )
+			->disableOriginalConstructor()->getMock();
+
+		$factory->method( 'get_post_element' )->with( $post_id )->willReturn( $post_element );
+
+		$last_edit_mode = $this->get_last_edit_mode();
+		$last_edit_mode->expects( $this->once() )->method( 'set_native_editor' )->with( $post_id );
+		$last_edit_mode->expects( $this->never() )->method( 'set_translation_editor' )->with( $post_id );
+
+		$factory->method( 'get_last_translation_edit_mode' )->willReturn( $last_edit_mode );
+
+		$subject = new WPML_PB_Integration( $sitepress, $factory );
+
+		$subject->queue_save_post_actions( $post_id, $post );
+	}
+
+	/**
+	 * @test
+	 * @dataProvider dp_post_payload_not_from_native_editor
+	 * @group wpmlcore-6120
+	 *
+	 * @param array $_post_payloaad
+	 */
+	public function it_should_set_last_editor_mode_to_translation_editor( $_post_payloaad ) {
+		$_POST = $_post_payloaad;
+
+		$post_id      = 123;
+		$post         = $this->get_post( $post_id );
+		$post_element = $this->get_post_element( $post_id, $post );
+		$post_element->method( 'get_source_language_code' )->willReturn( 'en' );
+
+		$sitepress = $this->get_sitepress_mock();
+		$factory   = $this->getMockBuilder( 'WPML_PB_Factory' )
+			->setMethods( array( 'get_post_element', 'get_last_translation_edit_mode' ) )
+			->disableOriginalConstructor()->getMock();
+
+		$factory->method( 'get_post_element' )->with( $post_id )->willReturn( $post_element );
+
+		$last_edit_mode = $this->get_last_edit_mode();
+		$last_edit_mode->expects( $this->never() )->method( 'set_native_editor' )->with( $post_id );
+		$last_edit_mode->expects( $this->once() )->method( 'set_translation_editor' )->with( $post_id );
+
+		$factory->method( 'get_last_translation_edit_mode' )->willReturn( $last_edit_mode );
+
+		$subject = new WPML_PB_Integration( $sitepress, $factory );
+
+		$subject->queue_save_post_actions( $post_id, $post );
+	}
+
+	public function dp_post_payload_not_from_native_editor() {
+		return array(
+			array( array() ),
+			array( array( 'action' => 'something' ) ),
+		);
+	}
+
 	private function get_factory_mock_for_shutdown() {
 		$register_shortcodes_mock = $this->getMockBuilder( 'WPML_PB_Register_Shortcodes' )
 		                                 ->setMethods( array( 'register_shortcode_strings' ) )
@@ -605,13 +749,31 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 		$register_shortcodes_mock->expects( $this->once() )
 		                         ->method( 'register_shortcode_strings' );
 
+		$last_translation_edit_mode = $this->get_last_edit_mode();
+		$last_translation_edit_mode->method( 'is_native_editor' )->willReturn( false );
+
 		$factory = $this->getMockBuilder( 'WPML_PB_Factory' )
-		                ->setMethods( array( 'get_register_shortcodes', 'get_update_translated_posts_from_original' ) )
+		                ->setMethods(
+		                	array(
+		                		'get_register_shortcodes',
+				                'get_update_translated_posts_from_original',
+				                'get_last_translation_edit_mode',
+				                'get_post_element',
+			                )
+		                )
 		                ->disableOriginalConstructor()
 		                ->getMock();
 		$factory->expects( $this->once() )
 		        ->method( 'get_register_shortcodes' )
 		        ->willReturn( $register_shortcodes_mock );
+
+		$factory->method( 'get_last_translation_edit_mode' )->willReturn( $last_translation_edit_mode );
+
+		$post_element = $this->getMockBuilder( 'WPML_Post_Element' )
+		                     ->setMethods( array( 'get_source_language_code' ) )
+		                     ->getMock();
+
+		$factory->method( 'get_post_element' )->willReturn( $post_element );
 
 		return $factory;
 
@@ -686,6 +848,7 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 		                        'get_id',
 		                        'get_wp_object',
 		                        'get_language_code',
+		                        'get_source_language_code',
 		                        'get_source_element',
 		                	)
 		                )->disableOriginalConstructor()->getMock();
@@ -694,5 +857,16 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 		$element->method( 'get_language_code' )->willReturn( $lang );
 		$element->method( 'get_source_element' )->willReturn( $source_element );
 		return $element;
+	}
+
+	private function get_last_edit_mode() {
+		return $this->getMockBuilder( 'WPML_PB_Last_Translation_Edit_Mode' )
+		     ->setMethods(
+		     	array(
+		     		'is_native_editor',
+		     		'set_native_editor',
+		     		'set_translation_editor',
+		        )
+		     )->getMock();
 	}
 }

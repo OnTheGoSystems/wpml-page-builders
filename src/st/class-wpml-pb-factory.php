@@ -81,4 +81,13 @@ class WPML_PB_Factory {
 			)
 		);
 	}
+
+	public function get_last_translation_edit_mode() {
+		return new WPML_PB_Last_Translation_Edit_Mode();
+	}
+
+	public function get_post_element( $post_id ) {
+		$factory = new WPML_Translation_Element_Factory( $this->sitepress );
+		return $factory->create_post( $post_id );
+	}
 }
