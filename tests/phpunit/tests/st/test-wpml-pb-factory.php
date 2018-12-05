@@ -74,6 +74,15 @@ class Test_WPML_PB_Factory extends WPML_PB_TestCase {
 		$this->assertInstanceOf( 'WPML_PB_Handle_Post_Body', $handle_post_body );
 	}
 
+	/**
+	 * @test
+	 * @group wpmlcore-6120
+	 */
+	public function test_get_last_translation_edit_mode() {
+		$factory = $this->get_factory_with_mocks();
+		$this->assertInstanceOf( 'WPML_PB_Last_Translation_Edit_Mode', $factory->get_last_translation_edit_mode() );
+	}
+
 	private function get_factory_with_mocks() {
 		global $wpdb;
 

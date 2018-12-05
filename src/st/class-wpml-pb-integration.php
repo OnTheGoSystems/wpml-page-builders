@@ -67,6 +67,10 @@ class WPML_PB_Integration {
 			return;
 		}
 
+		if ( $this->factory->get_last_translation_edit_mode()->is_native_editor( $post_element->get_id() ) ) {
+			return;
+		}
+
 		$updated_packages = $this->factory->get_package_strings_resave()->from_element( $post_element );
 
 		if ( ! $updated_packages ) {
@@ -94,7 +98,29 @@ class WPML_PB_Integration {
 	 * @param $post
 	 */
 	public function queue_save_post_actions( $post_id, $post ) {
+		$this->update_last_editor_mode( $post_id );
 		$this->save_post_queue[ $post_id ] = $post;
+	}
+
+	/** @param int $post_id */
+	private function update_last_editor_mode( $post_id ) {
+		$post_element = $this->factory->get_post_element( $post_id );
+
+		if ( ! $post_element->get_source_language_code() ) {
+			return;
+		}
+
+		$last_edit_mode = $this->factory->get_last_translation_edit_mode();
+
+		if ( $this->is_editing_translation_with_native_editor() ) {
+			$last_edit_mode->set_native_editor( $post_id );
+		} else {
+			$last_edit_mode->set_translation_editor( $post_id );
+		}
+	}
+
+	private function is_editing_translation_with_native_editor() {
+		return isset( $_POST['action'] ) && 'editpost' === $_POST['action'];
 	}
 
 	/**
