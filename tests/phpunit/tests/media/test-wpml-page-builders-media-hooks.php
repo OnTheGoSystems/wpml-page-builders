@@ -22,6 +22,7 @@ class Test_WPML_Page_Builders_Media_Hooks extends \OTGS\PHPUnit\Tools\TestCase {
 		$subject = $this->get_subject();
 		\WP_Mock::expectFilterAdded( 'wmpl_pb_get_media_updaters', array( $subject, 'add_media_updater' ) );
 		\WP_Mock::expectFilterAdded( 'wpml_media_content_for_media_usage', array( $subject, 'add_package_strings_content' ), 10, 2 );
+		\WP_Mock::expectFilterAdded( 'wpml_pb_should_body_be_translated', array( $subject, 'force_body_translation_with_native_editor' ), PHP_INT_MAX, 3 );
 		$subject->add_hooks();
 	}
 
@@ -106,6 +107,53 @@ class Test_WPML_Page_Builders_Media_Hooks extends \OTGS\PHPUnit\Tools\TestCase {
 		$this->assertSame(
 			$content . PHP_EOL . $string1->value . PHP_EOL . $string2->value,
 			$subject->add_package_strings_content( $content, $post )
+		);
+	}
+
+	/**
+	 * @test
+	 * @dataProvider dp_should_NOT_force_body_translation
+	 * @group wpmlcore-6120
+	 *
+	 * @param bool   $should_translate_body
+	 * @param array  $_post_payload
+	 * @param string $context
+	 */
+	public function it_should_NOT_force_body_translation( $should_translate_body, $_post_payload, $context ) {
+		$_POST = $_post_payload;
+
+		$post = $this->get_post();
+
+		$subject = $this->get_subject();
+
+		$this->assertSame(
+			$should_translate_body,
+			$subject->force_body_translation_with_native_editor( $should_translate_body, $post, $context )
+		);
+	}
+
+	public function dp_should_NOT_force_body_translation() {
+		return array(
+			'should already translate body' => array( true, array(), 'translate_images_in_post_content' ),
+			'POST action not set'           => array( false, array(), 'translate_images_in_post_content' ),
+			'POST action not matching'      => array( false, array( 'action' => 'something' ), 'translate_images_in_post_content' ),
+			'wrong context'                 => array( false, array( 'action' => 'editpost' ), 'wrong_context' ),
+		);
+	}
+
+	/**
+	 * @test
+	 * @group wpmlcore-6120
+	 */
+	public function it_should_force_body_translation_with_native_editor() {
+		$_POST['action'] = 'editpost';
+
+		$post = $this->get_post();
+
+		$subject = $this->get_subject();
+
+		$this->assertTrue(
+			$subject->force_body_translation_with_native_editor( false, $post, 'translate_images_in_post_content' )
 		);
 	}
 

@@ -21,6 +21,7 @@ class WPML_Page_Builders_Media_Hooks implements IWPML_Action {
 	public function add_hooks() {
 		add_filter( 'wmpl_pb_get_media_updaters', array( $this, 'add_media_updater' ) );
 		add_filter( 'wpml_media_content_for_media_usage', array( $this, 'add_package_strings_content' ), 10, 2 );
+		add_filter( 'wpml_pb_should_body_be_translated', array( $this, 'force_body_translation_with_native_editor' ), PHP_INT_MAX, 3 );
 	}
 	/**
 	 * @param IWPML_PB_Media_Update[] $updaters
@@ -53,5 +54,20 @@ class WPML_Page_Builders_Media_Hooks implements IWPML_Action {
 		}
 
 		return $content;
+	}
+
+	/**
+	 * @param bool    $should_translate_body
+	 * @param WP_Post $post
+	 * @param string  $context
+	 */
+	public function force_body_translation_with_native_editor( $should_translate_body, $post, $context = null ) {
+		// To narrow down, if `! $should_translate_body` is `true`, we are dealing with a PB post.
+		if ( ! $should_translate_body && 'translate_images_in_post_content' === $context ) {
+			$is_native_editor_update = isset( $_POST['action'] ) && 'editpost' === $_POST['action'];
+			return $is_native_editor_update;
+		}
+
+		return $should_translate_body;
 	}
 }
