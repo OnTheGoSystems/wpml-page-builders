@@ -31,6 +31,37 @@ class Test_WPML_Page_Builders_Update_Media extends \OTGS\PHPUnit\Tools\TestCase 
 
 	/**
 	 * @test
+	 * @group wpmlcore-6134
+	 */
+	public function it_should_not_translate_if_post_has_no_page_builder_data() {
+		$post     = $this->getMockBuilder( 'WP_Post' )->getMock();
+		$post->ID = 456;
+
+		$updater = $this->get_updater();
+		$updater->expects( $this->once() )->method( 'get_converted_data' )->with( $post->ID )->willReturn( null );
+		$updater->expects( $this->never() )->method( 'save' );
+
+		$source_element = $this->get_element();
+		$source_element->method( 'get_language_code' )->willReturn( 'en' );
+		$source_element->method( 'get_id' )->willReturn( 123 );
+
+		$element = $this->get_element();
+		$element->method( 'get_source_element' )->willReturn( $source_element );
+		$element->method( 'get_language_code' )->willReturn( 'fr' );
+
+		$factory = $this->get_element_factory();
+		$factory->method( 'create_post' )->with( $post->ID )->willReturn( $element );
+
+		$iterator = $this->get_node_iterator();
+		$iterator->expects( $this->never() )->method( 'translate' );
+
+		$subject = $this->get_subject( $updater, $factory, $iterator );
+
+		$subject->translate( $post );
+	}
+
+	/**
+	 * @test
 	 * @dataProvider dp_has_media_usage
 	 * @group wpmlcore-5834
 	 *
