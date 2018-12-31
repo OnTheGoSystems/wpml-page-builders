@@ -274,6 +274,45 @@ class Test_WPML_PB_Register_Shortcodes extends WPML_PB_TestCase {
 
 	/**
 	 * @test
+	 * @group wpmlcore-6189
+	 */
+	public function it_should_not_register_string_when_filtered() {
+		$post_id             = mt_rand();
+		$text_to_ignore      = rand_str();
+		$string_handler_mock = $this->get_wpml_pb_handle_strings_mock();
+		$strategy            = $this->get_strategy_mock();
+
+		$shortcode = array(
+			'content'    => $text_to_ignore,
+			'tag'        => 'any_tag',
+			'attributes' => ''
+		);
+
+		$pb_shortcodes_mock  = $this->get_pb_shortcodes_mock(
+			array(
+				$shortcode,
+			)
+		);
+
+		$strategy->method( 'get_shortcode_parser' )->willReturn( $pb_shortcodes_mock );
+
+		\WP_Mock::wpFunction( 'shortcode_parse_atts', array( 'return' => array() ) );
+		\WP_Mock::wpFunction( 'update_post_meta', array() );
+		\WP_Mock::onFilter( 'wpml_pb_should_handle_content' )
+			->with( true, $shortcode )
+			->reply( false );
+
+		$content = '[any_tag]' . $text_to_ignore . '[/any_tag]';
+
+		$string_handler_mock->expects( $this->never() )->method( 'register_string' );
+
+		$shortcode_handler = new WPML_PB_Register_Shortcodes( $string_handler_mock, $strategy, new WPML_PB_Shortcode_Encoding() );
+		$shortcode_handler->register_shortcode_strings( $post_id, $content );
+	}
+
+
+	/**
+	 * @test
 	 * @dataProvider dp_media_tag_type
 	 * @group wpmlcore-5894
 	 *
