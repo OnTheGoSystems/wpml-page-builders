@@ -12,6 +12,11 @@ class WPML_PB_Loader {
 
 		$page_builder_strategies = array();
 
+		$required = apply_filters( 'wpml_page_builder_support_required', array() );
+		foreach ( $required as $plugin ) {
+			$page_builder_strategies[] = new WPML_PB_API_Hooks_Strategy( $plugin );
+		}
+
 		$page_builder_config_import = new WPML_PB_Config_Import_Shortcode( $st_settings );
 		$page_builder_config_import->add_hooks();
 		if ( $page_builder_config_import->has_settings() ) {
@@ -36,11 +41,6 @@ class WPML_PB_Loader {
 			);
 
 			$post_body_handler->add_hooks();
-		}
-
-		$required = apply_filters( 'wpml_page_builder_support_required', array() );
-		foreach ( $required as $plugin ) {
-			$page_builder_strategies[] = new WPML_PB_API_Hooks_Strategy( $plugin );
 		}
 
 		if ( $page_builder_strategies ) {

@@ -29,10 +29,18 @@ class Test_WPML_PB_Loader extends WPML_PB_TestCase {
 		new WPML_PB_Loader( $this->get_sitepress_mock(), $this->get_wpdb_mock(), $st_settings, $integration_mock );
 	}
 
-	public function test_two_strategies() {
+	/**
+	 * @group wpmlcore-6208
+	 */
+	public function test_two_strategies_and_assert_shortcode_strategy_is_the_last() {
+		\WP_Mock::userFunction( 'is_admin', array( 'return' => false ) );
+
 		$integration_mock = $this->get_pb_integration_mock();
 		$integration_mock->expects( $this->exactly( 1 ) )->method( 'add_hooks' );
-		$integration_mock->expects( $this->exactly( 2 ) )->method( 'add_strategy' );
+		$integration_mock->expects( $this->at( 1 ) )->method( 'add_strategy' )
+			->with( $this->isInstanceOf( 'WPML_PB_API_Hooks_Strategy' ) );
+		$integration_mock->expects( $this->at( 2 ) )->method( 'add_strategy' )
+			->with( $this->isInstanceOf( 'WPML_PB_Shortcode_Strategy' ) );
 		WP_Mock::onFilter( 'wpml_page_builder_support_required' )->with( array() )->reply( array( 'something' ) );
 		new WPML_PB_Loader( $this->get_sitepress_mock(),
 		                    $this->get_wpdb_mock(),
