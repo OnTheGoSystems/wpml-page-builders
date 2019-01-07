@@ -12,6 +12,17 @@ class WPML_PB_Loader {
 
 		$page_builder_strategies = array();
 
+		/**
+		 * This filter hook provide the API page builders names that need to be supported.
+		 *
+		 * For each PB name, we will create a dedicated strategy and a proper string package namespace.
+		 *
+		 * It's called in 2 places:
+		 * - `WPML_Page_Builders_Integration` for external plugins
+		 * - `WPML_Gutenberg_Integration` for WordPress Core block editor
+		 *
+		 * @param string[] Required plugin names (e.g. `Beaver Builder`, `Gutenberg`)
+		 */
 		$required = apply_filters( 'wpml_page_builder_support_required', array() );
 		foreach ( $required as $plugin ) {
 			$page_builder_strategies[] = new WPML_PB_API_Hooks_Strategy( $plugin );
