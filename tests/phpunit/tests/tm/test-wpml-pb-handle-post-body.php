@@ -194,4 +194,42 @@ class Test_WPML_PB_Handle_Post_Body extends \OTGS\PHPUnit\Tools\TestCase {
 		$subject = new WPML_PB_Handle_Post_Body( $page_builders_built );
 		$subject->copy( $new_post_id, $original_post_id, $fields );
 	}
+
+	/**
+	 * @test
+	 * @group wpmlcore-6222
+	 */
+	public function it_does_not_copy_post_body_if_post_object_is_not_set() {
+		$page_builders_built = $this->getMockBuilder( 'WPML_Page_Builders_Page_Built' )
+		                            ->disableOriginalConstructor()
+		                            ->getMock();
+
+		$new_post_id                 = 2;
+		$original_post_id            = 1;
+		$original_post               = null;
+
+		$page_builders_built->method( 'is_page_builder_page' )
+		                    ->with( $original_post )
+		                    ->willReturn( true );
+
+		$fields = array(
+			'package-something' => 'something',
+		);
+
+		\WP_Mock::wpFunction( 'get_post', array(
+			'args'   => $original_post_id,
+			'return' => $original_post,
+		) );
+
+		\WP_Mock::wpFunction( 'wp_update_post', array(
+			'times' => 0,
+		) );
+
+		$page_builders_built->method( 'is_page_builder_page' )
+		                    ->with( $original_post )
+		                    ->willReturn( true );
+
+		$subject = new WPML_PB_Handle_Post_Body( $page_builders_built );
+		$subject->copy( $new_post_id, $original_post_id, $fields );
+	}
 }
