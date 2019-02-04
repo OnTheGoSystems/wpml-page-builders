@@ -105,11 +105,12 @@ class Test_WPML_TM_Page_Builders extends \OTGS\PHPUnit\Tools\TestCase {
 		$expected_translation_package = $translation_package;
 		$expected_translation_package['contents']['body']['translate'] = 0;
 		foreach ( $strings as $string ) {
-			$key = WPML_TM_Page_Builders_Field_Wrapper::generate_field_slug( $package_id, $string->id );
+			$key = WPML_TM_Page_Builders_Field_Wrapper::generate_field_slug( $package_id, $string );
 			$expected_translation_package['contents'][ $key ] = array(
 				'translate' => 1,
 				'data'      => base64_encode( $string->value ),
 				'format'    => 'base64',
+				'wrap_tag'  => '',
 			);
 		}
 
@@ -166,11 +167,12 @@ class Test_WPML_TM_Page_Builders extends \OTGS\PHPUnit\Tools\TestCase {
 		$expected_translation_package['contents']['body']['translate'] = 0;
 		foreach ( $strings as $string ) {
 			$string_value = $string_translations[ $string->name ][ $job_lang_from ]['value'];
-			$key = WPML_TM_Page_Builders_Field_Wrapper::generate_field_slug( $package_id, $string->id );
+			$key = WPML_TM_Page_Builders_Field_Wrapper::generate_field_slug( $package_id, $string );
 			$expected_translation_package['contents'][ $key ] = array(
 				'translate' => 1,
 				'data'      => base64_encode( $string_value ),
 				'format'    => 'base64',
+				'wrap_tag'  => '',
 			);
 		}
 
@@ -336,10 +338,12 @@ class Test_WPML_TM_Page_Builders extends \OTGS\PHPUnit\Tools\TestCase {
 	 */
 	public function pro_translation_completed_action_data_provider() {
 		$data['string_package_id']  = rand( 1, 50 );
+
 		$data['string1_id']         = rand( 1, 50 );
 		$data['string2_id']         = rand( 51, 100 );
-		$data['string1_field_name'] = WPML_TM_Page_Builders_Field_Wrapper::generate_field_slug( $data['string_package_id'], $data['string1_id'] );
-		$data['string2_field_name'] = WPML_TM_Page_Builders_Field_Wrapper::generate_field_slug( $data['string_package_id'], $data['string2_id'] );
+
+		$data['string1_field_name'] = WPML_TM_Page_Builders_Field_Wrapper::generate_field_slug( $data['string_package_id'], $this->get_string( $data[ 'string1_id' ]  ) );
+		$data['string2_field_name'] = WPML_TM_Page_Builders_Field_Wrapper::generate_field_slug( $data['string_package_id'], $this->get_string( $data[ 'string2_id' ] ) );
 
 		$local_fields = array(
 			'title'                     => array(
@@ -431,9 +435,9 @@ class Test_WPML_TM_Page_Builders extends \OTGS\PHPUnit\Tools\TestCase {
 	 */
 	function it_adjusts_translation_fields_filter() {
 		$slugs = array(
-			WPML_TM_Page_Builders_Field_Wrapper::generate_field_slug( 1, 11 ),
-			WPML_TM_Page_Builders_Field_Wrapper::generate_field_slug( 2, 12 ),
-			WPML_TM_Page_Builders_Field_Wrapper::generate_field_slug( 3, 13 ),
+			WPML_TM_Page_Builders_Field_Wrapper::generate_field_slug( 1, $this->get_string( 11 ) ),
+			WPML_TM_Page_Builders_Field_Wrapper::generate_field_slug( 2, $this->get_string( 12 ) ),
+			WPML_TM_Page_Builders_Field_Wrapper::generate_field_slug( 3, $this->get_string( 13 ) ),
 		);
 
 		$fields = array_map( function ( $slug ) {
@@ -546,5 +550,19 @@ class Test_WPML_TM_Page_Builders extends \OTGS\PHPUnit\Tools\TestCase {
 		$post->ID        = rand( 1, 100 );
 		$post->post_type = rand_str();
 		return $post;
+	}
+
+	/**
+	 * @param string $id
+	 * @param string $name
+	 *
+	 * @return stdClass
+	 */
+	private function get_string( $id, $name = 'string_name' ) {
+		$string       = new stdClass();
+		$string->id   = $id;
+		$string->name = $name;
+
+		return $string;
 	}
 }
