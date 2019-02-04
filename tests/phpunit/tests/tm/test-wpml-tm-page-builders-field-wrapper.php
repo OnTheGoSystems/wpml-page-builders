@@ -9,6 +9,7 @@ class Test_WPML_TM_Page_Builders_Field_Wrapper extends \OTGS\PHPUnit\Tools\TestC
 
 	private $package_id;
 	private $string_id;
+	private $string;
 	private $string_title;
 
 	function setUp() {
@@ -26,7 +27,12 @@ class Test_WPML_TM_Page_Builders_Field_Wrapper extends \OTGS\PHPUnit\Tools\TestC
 		) );
 
 		$this->package_id = 10;
-		$this->string_id = 12;
+		$this->string_id  = 12;
+
+		$this->string       = new stdClass();
+		$this->string->id   = $this->string_id;
+		$this->string->name = 'string_name';
+
 		$this->string_title = rand_str( 10 );
 
 		\WP_Mock::onFilter( 'wpml_string_title_from_id' )
@@ -91,6 +97,11 @@ class Test_WPML_TM_Page_Builders_Field_Wrapper extends \OTGS\PHPUnit\Tools\TestC
 	function it_validates_without_checking_of_package( $package_id, $string_id, $expected_result ) {
 		$this->package_id = $package_id;
 		$this->string_id = $string_id;
+
+		$this->string       = new stdClass();
+		$this->string->id   = $this->string_id;
+		$this->string->name = 'string_name';
+
 		$subject = $this->create_subject();
 
 		$this->assertEquals( $expected_result, $subject->is_valid() );
@@ -138,7 +149,7 @@ class Test_WPML_TM_Page_Builders_Field_Wrapper extends \OTGS\PHPUnit\Tools\TestC
 	 * @test
 	 */
 	function it_gets_field_slug() {
-		$slug    = WPML_TM_Page_Builders_Field_Wrapper::generate_field_slug( $this->package_id, $this->string_id );
+		$slug    = WPML_TM_Page_Builders_Field_Wrapper::generate_field_slug( $this->package_id, $this->string );
 		$subject = new WPML_TM_Page_Builders_Field_Wrapper( $slug );
 
 		$this->assertEquals( $slug, $subject->get_field_slug() );
@@ -197,7 +208,7 @@ class Test_WPML_TM_Page_Builders_Field_Wrapper extends \OTGS\PHPUnit\Tools\TestC
 	 * @return WPML_TM_Page_Builders_Field_Wrapper
 	 */
 	private function create_subject() {
-		$slug    = WPML_TM_Page_Builders_Field_Wrapper::generate_field_slug( $this->package_id, $this->string_id );
+		$slug    = WPML_TM_Page_Builders_Field_Wrapper::generate_field_slug( $this->package_id, $this->string );
 		return new WPML_TM_Page_Builders_Field_Wrapper( $slug );
 	}
 }
