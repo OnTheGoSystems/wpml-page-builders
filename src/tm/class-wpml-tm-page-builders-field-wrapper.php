@@ -94,13 +94,34 @@ class WPML_TM_Page_Builders_Field_Wrapper {
 	}
 
 	/**
-	 * @param int $package_id
-	 * @param int $string_id
+	 * @param string $string_name
 	 *
 	 * @return string
 	 */
-	public static function generate_field_slug( $package_id, $string_id ) {
-		return self::SLUG_BASE . $package_id . '-' . $string_id;
+	public static function get_wrap( $string_name ) {
+		$heading = '';
+		if ( strpos( $string_name, '-heading-' ) ) {
+			$name_arr = explode( '-', $string_name );
+			if ( isset( $name_arr[3] ) ) {
+				$heading = $name_arr[3];
+			}
+		}
+
+		return $heading;
+	}
+
+	/**
+	 * @param int $package_id
+	 * @param stdClass $string
+	 *
+	 * @return string
+	 */
+	public static function generate_field_slug( $package_id, $string ) {
+		$wrap = self::get_wrap( $string->name );
+		if ( '' !== $wrap ) {
+			$wrap = '-' . $wrap;
+		}
+		return self::SLUG_BASE . $package_id . '-' . $string->id . $wrap;
 	}
 
 	/**

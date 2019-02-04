@@ -59,11 +59,12 @@ class WPML_TM_Page_Builders {
 								$string_value = $string_translations[ $string->name ][ $job_lang_from ]['value'];
 							}
 
-							$field_name = WPML_TM_Page_Builders_Field_Wrapper::generate_field_slug( $package_id, $string->id );
+							$field_name = WPML_TM_Page_Builders_Field_Wrapper::generate_field_slug( $package_id, $string );
 
 							$translation_package['contents'][ $field_name ] = array(
 								'translate' => 1,
 								'data'      => base64_encode( $string_value ),
+								'wrap_tag'  => WPML_TM_Page_Builders_Field_Wrapper::get_wrap( $string->name ),
 								'format'    => 'base64',
 							);
 						}
