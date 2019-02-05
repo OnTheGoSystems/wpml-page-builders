@@ -205,6 +205,32 @@ class Test_WPML_TM_Page_Builders_Field_Wrapper extends \OTGS\PHPUnit\Tools\TestC
 	}
 
 	/**
+	 * @test
+	 * @dataProvider get_wrap_data_provider
+	 * @group wpmltm-3081
+	 *
+	 * @param string $string_name
+	 * @param string $expected
+	 */
+	public function get_wrap( $string_name, $expected ) {
+		$wrap = WPML_TM_Page_Builders_Field_Wrapper::get_wrap( $string_name );
+		$this->assertEquals( $expected, $wrap );
+	}
+
+	/**
+	 * @return array
+	 */
+	function get_wrap_data_provider() {
+		return array(
+			'Empty string'       => array( '', '' ),
+			'Normal string'      => array( 'title-heading-f327e9c', '' ),
+			'Text editor string' => array( 'editor-text-editor-c12e1e6', '' ),
+			'Heading'            => array( 'title-heading-8e0908e', '' ),
+			'Heading h2'         => array( 'title-heading-8e0908e-h2', 'h2' ),
+		);
+	}
+
+	/**
 	 * @return WPML_TM_Page_Builders_Field_Wrapper
 	 */
 	private function create_subject() {
