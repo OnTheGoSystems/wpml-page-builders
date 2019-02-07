@@ -94,20 +94,14 @@ class WPML_TM_Page_Builders_Field_Wrapper {
 	}
 
 	/**
-	 * @param string $string_name
+	 * Get string wrap.
+	 *
+	 * @param stdClass $string WPML string.
 	 *
 	 * @return string
 	 */
-	public static function get_wrap( $string_name ) {
-		$heading = '';
-		if ( strpos( $string_name, '-heading-' ) ) {
-			$name_arr = explode( '-', $string_name );
-			if ( isset( $name_arr[3] ) ) {
-				$heading = $name_arr[3];
-			}
-		}
-
-		return $heading;
+	public static function get_wrap( $string ) {
+		return isset( $string->wrap ) ? $string->wrap : '';
 	}
 
 	/**
@@ -117,11 +111,7 @@ class WPML_TM_Page_Builders_Field_Wrapper {
 	 * @return string
 	 */
 	public static function generate_field_slug( $package_id, $string ) {
-		$wrap = self::get_wrap( $string->name );
-		if ( '' !== $wrap ) {
-			$wrap = '-' . $wrap;
-		}
-		return self::SLUG_BASE . $package_id . '-' . $string->id . $wrap;
+		return self::SLUG_BASE . $package_id . '-' . $string->id;
 	}
 
 	/**

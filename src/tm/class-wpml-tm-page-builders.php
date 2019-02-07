@@ -45,7 +45,7 @@ class WPML_TM_Page_Builders {
 					/* @var WPML_Package $string_package */
 					$strings             = $string_package->get_package_strings();
 					$string_translations = array();
-					
+
 					if ( $job_source_is_not_post_source ) {
 						$string_translations = $string_package->get_translated_strings( array() );
 					}
@@ -64,7 +64,7 @@ class WPML_TM_Page_Builders {
 							$translation_package['contents'][ $field_name ] = array(
 								'translate' => 1,
 								'data'      => base64_encode( $string_value ),
-								'wrap_tag'  => WPML_TM_Page_Builders_Field_Wrapper::get_wrap( $string->name ),
+								'wrap_tag'  => WPML_TM_Page_Builders_Field_Wrapper::get_wrap( $string ),
 								'format'    => 'base64',
 							);
 						}
