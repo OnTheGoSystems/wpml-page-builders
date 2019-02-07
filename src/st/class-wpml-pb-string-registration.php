@@ -65,16 +65,19 @@ class WPML_PB_String_Registration {
 	}
 
 	/**
-	 * @param int $post_id
-	 * @param string $content
-	 * @param string $type
-	 * @param string $title
-	 * @param string $name
-	 * @param int $location
+	 * Register string.
+	 *
+	 * @param int    $post_id  Post Id.
+	 * @param string $content  String content.
+	 * @param string $type     String editor type.
+	 * @param string $title    String title.
+	 * @param string $name     String name.
+	 * @param int    $location String location.
+	 * @param string $wrap     String wrap.
 	 *
 	 * @return int $string_id
 	 */
-	public function register_string( $post_id, $content = '', $type = 'LINE', $title = '', $name = '', $location = 0 ) {
+	public function register_string( $post_id, $content = '', $type = 'LINE', $title = '', $name = '', $location = 0, $wrap = '' ) {
 
 		$string_id = 0;
 
@@ -86,6 +89,7 @@ class WPML_PB_String_Registration {
 
 				$string_id = $this->get_string_id_from_package( $post_id, $content, $string_name );
 				$this->set_location( $string_id, $location );
+				$this->set_wrap( $string_id, $wrap );
 
 			} else {
 
@@ -100,6 +104,7 @@ class WPML_PB_String_Registration {
 
 				$string_id = $this->get_string_id_from_package( $post_id, $content, $string_name );
 				$this->set_location( $string_id, $location );
+				$this->set_wrap( $string_id, $wrap );
 
 				if ( 'LINK' === $type ) {
 					$this->set_link_translations( $string_id );
@@ -117,6 +122,17 @@ class WPML_PB_String_Registration {
 	private function set_location( $string_id, $location ) {
 		$string = $this->string_factory->find_by_id( $string_id );
 		$string->set_location( $location );
+	}
+
+	/**
+	 * Set string wrap.
+	 *
+	 * @param int $string_id String id.
+	 * @param int $wrap String wrap.
+	 */
+	private function set_wrap( $string_id, $wrap ) {
+		$string = $this->string_factory->find_by_id( $string_id );
+		$string->set_wrap( $wrap );
 	}
 
 	private function set_link_translations( $string_id ) {

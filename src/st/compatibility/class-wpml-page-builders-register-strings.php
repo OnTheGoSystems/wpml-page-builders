@@ -77,7 +77,8 @@ abstract class WPML_Page_Builders_Register_Strings {
 				$string->get_editor_type(),
 				$string->get_title(),
 				$string->get_name(),
-				$this->string_location
+				$this->string_location,
+				$string->get_wrap()
 			);
 
 			$this->string_location++;
