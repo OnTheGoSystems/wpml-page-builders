@@ -209,11 +209,11 @@ class Test_WPML_TM_Page_Builders_Field_Wrapper extends \OTGS\PHPUnit\Tools\TestC
 	 * @dataProvider get_wrap_data_provider
 	 * @group wpmltm-3081
 	 *
-	 * @param string $string_name
+	 * @param stdClass $string
 	 * @param string $expected
 	 */
-	public function get_wrap( $string_name, $expected ) {
-		$wrap = WPML_TM_Page_Builders_Field_Wrapper::get_wrap( $string_name );
+	public function get_wrap( $string, $expected ) {
+		$wrap = WPML_TM_Page_Builders_Field_Wrapper::get_wrap( $string );
 		$this->assertEquals( $expected, $wrap );
 	}
 
@@ -222,11 +222,11 @@ class Test_WPML_TM_Page_Builders_Field_Wrapper extends \OTGS\PHPUnit\Tools\TestC
 	 */
 	function get_wrap_data_provider() {
 		return array(
-			'Empty string'       => array( '', '' ),
-			'Normal string'      => array( 'title-heading-f327e9c', '' ),
-			'Text editor string' => array( 'editor-text-editor-c12e1e6', '' ),
-			'Heading'            => array( 'title-heading-8e0908e', '' ),
-			'Heading h2'         => array( 'title-heading-8e0908e-h2', 'h2' ),
+			'Empty string'       => array( $this->get_string( 10, '', '' ), '' ),
+			'Normal string'      => array( $this->get_string( 10, 'title-heading-f327e9c', '' ), '' ),
+			'Text editor string' => array( $this->get_string( 10, 'editor-text-editor-c12e1e6', '' ), '' ),
+			'Heading'            => array( $this->get_string( 10, 'title-heading-8e0908e', '' ), '' ),
+			'Heading h2'         => array( $this->get_string( 10, 'title-heading-8e0908e', 'h2' ), 'h2' ),
 		);
 	}
 
@@ -236,5 +236,20 @@ class Test_WPML_TM_Page_Builders_Field_Wrapper extends \OTGS\PHPUnit\Tools\TestC
 	private function create_subject() {
 		$slug    = WPML_TM_Page_Builders_Field_Wrapper::generate_field_slug( $this->package_id, $this->string );
 		return new WPML_TM_Page_Builders_Field_Wrapper( $slug );
+	}
+
+	/**
+	 * @param string $id
+	 * @param string $name
+	 * @param string $wrap
+	 *
+	 * @return stdClass
+	 */
+	private function get_string( $id, $name = 'string_name', $wrap = '' ) {
+		$string       = new stdClass();
+		$string->id   = $id;
+		$string->name = $name;
+		$string->wrap = $wrap;
+		return $string;
 	}
 }
