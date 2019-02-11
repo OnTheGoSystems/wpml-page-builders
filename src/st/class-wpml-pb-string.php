@@ -15,9 +15,9 @@ class WPML_PB_String {
 	/**
 	 * String wrap tag.
 	 *
-	 * @var  string $wrap
+	 * @var  string $wrap_tag
 	 */
-	private $wrap;
+	private $wrap_tag;
 
 	/**
 	 * WPML_PB_String constructor.
@@ -26,14 +26,14 @@ class WPML_PB_String {
 	 * @param string $name        String name.
 	 * @param string $title       String title.
 	 * @param string $editor_type Editor type used.
-	 * @param string $wrap        String wrap tag.
+	 * @param string $wrap_tag    String wrap tag.
 	 */
-	public function __construct( $value, $name, $title, $editor_type, $wrap = '' ) {
+	public function __construct( $value, $name, $title, $editor_type, $wrap_tag = '' ) {
 		$this->value       = $value;
 		$this->name        = $name;
 		$this->title       = $title;
 		$this->editor_type = $editor_type;
-		$this->wrap        = $wrap;
+		$this->wrap_tag    = $wrap_tag;
 	}
 
 	/**
@@ -76,7 +76,7 @@ class WPML_PB_String {
 	 *
 	 * @return string
 	 */
-	public function get_wrap() {
-		return $this->wrap;
+	public function get_wrap_tag() {
+		return $this->wrap_tag;
 	}
 }

@@ -64,7 +64,7 @@ class WPML_TM_Page_Builders {
 							$translation_package['contents'][ $field_name ] = array(
 								'translate' => 1,
 								'data'      => base64_encode( $string_value ),
-								'wrap_tag'  => WPML_TM_Page_Builders_Field_Wrapper::get_wrap( $string ),
+								'wrap_tag'  => WPML_TM_Page_Builders_Field_Wrapper::get_wrap_tag( $string ),
 								'format'    => 'base64',
 							);
 						}
