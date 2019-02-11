@@ -212,7 +212,7 @@ class Test_WPML_TM_Page_Builders_Field_Wrapper extends \OTGS\PHPUnit\Tools\TestC
 	 * @param stdClass $string
 	 * @param string $expected
 	 */
-	public function get_wrap( $string, $expected ) {
+	public function get_wrap_tag( $string, $expected ) {
 		$wrap = WPML_TM_Page_Builders_Field_Wrapper::get_wrap_tag( $string );
 		$this->assertEquals( $expected, $wrap );
 	}
