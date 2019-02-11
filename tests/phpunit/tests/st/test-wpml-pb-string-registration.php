@@ -39,7 +39,7 @@ class Test_WPML_PB_String_Registration extends WPML_PB_TestCase {
 		$string_factory = $this->get_string_factory_mock();
 		$string         = \Mockery::mock( 'WPML_ST_String' );
 		$string->shouldReceive( 'set_location' )->once()->with( $location );
-		$string->shouldReceive( 'set_wrap' )->once()->with( $wrap );
+		$string->shouldReceive( 'set_wrap_tag' )->once()->with( $wrap );
 		$string_factory->shouldReceive( 'find_by_id' )->andReturn( $string );
 
 		$string_handler = new WPML_PB_String_Registration( $strategy,
@@ -117,7 +117,7 @@ class Test_WPML_PB_String_Registration extends WPML_PB_TestCase {
 		$string->shouldReceive( 'get_value' )->andReturn( $shortcode_content );
 		$string->shouldReceive( 'set_translation' )->once()->with( 'fr', $shortcode_content );
 		$string->shouldReceive( 'set_location' )->once()->with( $location );
-		$string->shouldReceive( 'set_wrap' )->once()->with( $wrap );
+		$string->shouldReceive( 'set_wrap_tag' )->once()->with( $wrap );
 
 		$string_factory = $this->get_string_factory_mock();
 		$string_factory->shouldReceive( 'find_by_id' )->andReturn( $string );
@@ -168,7 +168,7 @@ class Test_WPML_PB_String_Registration extends WPML_PB_TestCase {
 		$string = \Mockery::mock( 'WPML_ST_String' );
 		$string->shouldReceive( 'get_translation_statuses' )->andReturn( array() );
 		$string->shouldReceive( 'set_location' )->times( 2 )->with( $location );
-		$string->shouldReceive( 'set_wrap' )->times( 2 )->with( $wrap );
+		$string->shouldReceive( 'set_wrap_tag' )->times( 2 )->with( $wrap );
 
 		$string_factory = $this->get_string_factory_mock();
 		$string_factory->shouldReceive( 'find_by_id' )->andReturn( $string );
@@ -219,7 +219,7 @@ class Test_WPML_PB_String_Registration extends WPML_PB_TestCase {
 
 		$string = \Mockery::mock( 'WPML_ST_String' );
 		$string->shouldReceive( 'set_location' )->times( 1 )->with( $location );
-		$string->shouldReceive( 'set_wrap' )->times( 1 )->with( $wrap );
+		$string->shouldReceive( 'set_wrap_tag' )->times( 1 )->with( $wrap );
 
 		$string_factory = $this->get_string_factory_mock();
 		$string_factory->shouldReceive( 'find_by_id' )->andReturn( $string );
