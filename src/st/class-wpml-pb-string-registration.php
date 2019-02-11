@@ -73,11 +73,11 @@ class WPML_PB_String_Registration {
 	 * @param string $title    String title.
 	 * @param string $name     String name.
 	 * @param int    $location String location.
-	 * @param string $wrap     String wrap.
+	 * @param string $wrap_tag String wrap tag.
 	 *
 	 * @return int $string_id
 	 */
-	public function register_string( $post_id, $content = '', $type = 'LINE', $title = '', $name = '', $location = 0, $wrap = '' ) {
+	public function register_string( $post_id, $content = '', $type = 'LINE', $title = '', $name = '', $location = 0, $wrap_tag = '' ) {
 
 		$string_id = 0;
 
@@ -89,7 +89,7 @@ class WPML_PB_String_Registration {
 
 				$string_id = $this->get_string_id_from_package( $post_id, $content, $string_name );
 				$this->set_location( $string_id, $location );
-				$this->set_wrap( $string_id, $wrap );
+				$this->set_wrap_tag( $string_id, $wrap_tag );
 
 			} else {
 
@@ -104,7 +104,7 @@ class WPML_PB_String_Registration {
 
 				$string_id = $this->get_string_id_from_package( $post_id, $content, $string_name );
 				$this->set_location( $string_id, $location );
-				$this->set_wrap( $string_id, $wrap );
+				$this->set_wrap_tag( $string_id, $wrap_tag );
 
 				if ( 'LINK' === $type ) {
 					$this->set_link_translations( $string_id );
@@ -125,14 +125,15 @@ class WPML_PB_String_Registration {
 	}
 
 	/**
-	 * Set string wrap.
+	 * Set string wrap tag.
+	 * Used for SEO significance, can contain values as h1 ... h6, etc.
 	 *
-	 * @param int $string_id String id.
-	 * @param int $wrap String wrap.
+	 * @param int    $string_id String id.
+	 * @param string $wrap_tag  String wrap tag.
 	 */
-	private function set_wrap( $string_id, $wrap ) {
+	private function set_wrap_tag( $string_id, $wrap_tag ) {
 		$string = $this->string_factory->find_by_id( $string_id );
-		$string->set_wrap( $wrap );
+		$string->set_wrap_tag( $wrap_tag );
 	}
 
 	private function set_link_translations( $string_id ) {

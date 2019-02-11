@@ -213,7 +213,7 @@ class Test_WPML_TM_Page_Builders_Field_Wrapper extends \OTGS\PHPUnit\Tools\TestC
 	 * @param string $expected
 	 */
 	public function get_wrap( $string, $expected ) {
-		$wrap = WPML_TM_Page_Builders_Field_Wrapper::get_wrap( $string );
+		$wrap = WPML_TM_Page_Builders_Field_Wrapper::get_wrap_tag( $string );
 		$this->assertEquals( $expected, $wrap );
 	}
 
@@ -241,15 +241,16 @@ class Test_WPML_TM_Page_Builders_Field_Wrapper extends \OTGS\PHPUnit\Tools\TestC
 	/**
 	 * @param string $id
 	 * @param string $name
-	 * @param string $wrap
+	 * @param string $wrap_tag
 	 *
 	 * @return stdClass
 	 */
-	private function get_string( $id, $name = 'string_name', $wrap = '' ) {
-		$string       = new stdClass();
-		$string->id   = $id;
-		$string->name = $name;
-		$string->wrap = $wrap;
+	private function get_string( $id, $name = 'string_name', $wrap_tag = '' ) {
+		$string           = new stdClass();
+		$string->id       = $id;
+		$string->name     = $name;
+		$string->wrap_tag = $wrap_tag;
+
 		return $string;
 	}
 }

@@ -94,14 +94,14 @@ class WPML_TM_Page_Builders_Field_Wrapper {
 	}
 
 	/**
-	 * Get string wrap.
+	 * Get string wrap tag.
 	 *
 	 * @param stdClass $string WPML string.
 	 *
 	 * @return string
 	 */
-	public static function get_wrap( $string ) {
-		return isset( $string->wrap ) ? $string->wrap : '';
+	public static function get_wrap_tag( $string ) {
+		return isset( $string->wrap_tag ) ? $string->wrap_tag : '';
 	}
 
 	/**
