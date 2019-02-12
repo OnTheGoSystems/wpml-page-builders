@@ -105,13 +105,15 @@ class WPML_TM_Page_Builders_Field_Wrapper {
 	}
 
 	/**
-	 * @param int $package_id
-	 * @param stdClass $string
+	 * Generate field slug.
+	 *
+	 * @param int $package_id Package id.
+	 * @param int $string_id String id.
 	 *
 	 * @return string
 	 */
-	public static function generate_field_slug( $package_id, $string ) {
-		return self::SLUG_BASE . $package_id . '-' . $string->id;
+	public static function generate_field_slug( $package_id, $string_id ) {
+		return self::SLUG_BASE . $package_id . '-' . $string_id;
 	}
 
 	/**
