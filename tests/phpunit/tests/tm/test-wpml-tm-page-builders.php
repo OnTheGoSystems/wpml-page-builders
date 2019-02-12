@@ -438,6 +438,7 @@ class Test_WPML_TM_Page_Builders extends \OTGS\PHPUnit\Tools\TestCase {
 	/**
 	 * @test
 	 * @group page-builders
+	 * @group wpmltm-3081
 	 */
 	function it_adjusts_translation_fields_filter() {
 		$slugs = array(
@@ -454,6 +455,11 @@ class Test_WPML_TM_Page_Builders extends \OTGS\PHPUnit\Tools\TestCase {
 		$expected_result[0]['field_style'] = 1;
 		$expected_result[1]['field_style'] = 2;
 		$expected_result[2]['field_style'] = 0;
+
+		$fields[0]['field_wrap_tag'] = 'h2';
+
+		$expected_result[0]['field_wrap_tag'] = 'h2';
+		$expected_result[0]['title'] = ' (h2)';
 
 		$that = $this;
 		$callback = function ( $slug ) use ( $slugs, $that ) {
