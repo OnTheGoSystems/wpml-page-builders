@@ -79,15 +79,12 @@ class Test_WPML_TM_Page_Builders_Hooks extends \OTGS\PHPUnit\Tools\TestCase {
 	 * Test adjust_translation_fields_filter().
 	 *
 	 * @test
-	 * @dataProvider adjust_translation_fields_filter_data_provider
-	 *
-	 * @group        page-builders
-	 *
-	 * @param array $input_array  Test input.
-	 * @param array $output_array Test output.
+	 * @group page-builders
 	 */
-	public function adjust_translation_fields_filter( $input_array, $output_array ) {
-		$job = new stdClass();
+	public function adjust_translation_fields_filter() {
+		$input_array  = array( rand_str( 12 ) );
+		$job          = new stdClass();
+		$output_array = array( rand_str( 9 ) );
 		$this->worker
 			->expects( $this->once() )
 			->method( 'adjust_translation_fields_filter' )
@@ -97,29 +94,6 @@ class Test_WPML_TM_Page_Builders_Hooks extends \OTGS\PHPUnit\Tools\TestCase {
 		$subject         = $this->get_subject( $this->worker );
 		$filtered_result = $subject->adjust_translation_fields_filter( $input_array, $job );
 		$this->assertEquals( $output_array, $filtered_result );
-	}
-
-	/**
-	 * Data provider for adjust_translation_fields_filter().
-	 *
-	 * @return array
-	 */
-	public function adjust_translation_fields_filter_data_provider() {
-		return array(
-			array( array( rand_str( 12 ) ), array( rand_str( 9 ) ) ),
-			array(
-				array(
-					rand_str( 12 ),
-					'title'          => 'Heading',
-					'field_wrap_tag' => 'h2',
-				),
-				array(
-					rand_str( 9 ),
-					'title'          => 'Heading (h2)',
-					'field_wrap_tag' => 'h2',
-				),
-			),
-		);
 	}
 
 	/**
