@@ -118,8 +118,10 @@ class WPML_TM_Page_Builders {
 	}
 
 	/**
-	 * @param array    $fields
-	 * @param stdClass $job
+	 * Adjust translation fields.
+	 *
+	 * @param array    $fields Translation fields.
+	 * @param stdClass $job    Translation job.
 	 *
 	 * @return array
 	 */
@@ -131,6 +133,12 @@ class WPML_TM_Page_Builders {
 
 			if ( $string_title ) {
 				$field['title'] = $string_title;
+			}
+
+			if ( isset( $field['field_wrap_tag'] ) && $field['field_wrap_tag'] ) {
+				$field['title'] = isset( $field['title'] ) ? $field['title'] : '';
+
+				$field['title'] .= ' (' . $field['field_wrap_tag'] . ')';
 			}
 
 			if ( false !== $type ) {

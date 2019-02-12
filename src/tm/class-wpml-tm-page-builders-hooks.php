@@ -49,8 +49,10 @@ class WPML_TM_Page_Builders_Hooks {
 	}
 
 	/**
-	 * @param array    $fields
-	 * @param stdClass $job
+	 * Filter translation fields.
+	 *
+	 * @param array    $fields Translation fields.
+	 * @param stdClass $job    Translation job.
 	 *
 	 * @return array
 	 */
@@ -58,11 +60,7 @@ class WPML_TM_Page_Builders_Hooks {
 		$worker = $this->get_worker();
 
 		$fields = $worker->adjust_translation_fields_filter( $fields, $job );
-		foreach ( $fields as &$field ) {
-			if ( isset( $field['field_wrap_tag'] ) && $field['field_wrap_tag'] ) {
-				$field['title'] .= ' (' . $field['field_wrap_tag'] . ')';
-			}
-		}
+
 		return $fields;
 	}
 
