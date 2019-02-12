@@ -60,7 +60,7 @@ class WPML_TM_Page_Builders_Hooks {
 		$fields = $worker->adjust_translation_fields_filter( $fields, $job );
 		foreach ( $fields as &$field ) {
 			if ( isset( $field['field_wrap_tag'] ) && $field['field_wrap_tag'] ) {
-				$field['title'] = $field['field_wrap_tag'];
+				$field['title'] .= ' (' . $field['field_wrap_tag'] . ')';
 			}
 		}
 		return $fields;

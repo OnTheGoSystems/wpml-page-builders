@@ -149,7 +149,7 @@ class Test_WPML_TM_Page_Builders_Field_Wrapper extends \OTGS\PHPUnit\Tools\TestC
 	 * @test
 	 */
 	function it_gets_field_slug() {
-		$slug    = WPML_TM_Page_Builders_Field_Wrapper::generate_field_slug( $this->package_id, $this->string );
+		$slug    = WPML_TM_Page_Builders_Field_Wrapper::generate_field_slug( $this->package_id, $this->string->id );
 		$subject = new WPML_TM_Page_Builders_Field_Wrapper( $slug );
 
 		$this->assertEquals( $slug, $subject->get_field_slug() );
@@ -234,7 +234,7 @@ class Test_WPML_TM_Page_Builders_Field_Wrapper extends \OTGS\PHPUnit\Tools\TestC
 	 * @return WPML_TM_Page_Builders_Field_Wrapper
 	 */
 	private function create_subject() {
-		$slug    = WPML_TM_Page_Builders_Field_Wrapper::generate_field_slug( $this->package_id, $this->string );
+		$slug    = WPML_TM_Page_Builders_Field_Wrapper::generate_field_slug( $this->package_id, $this->string->id );
 		return new WPML_TM_Page_Builders_Field_Wrapper( $slug );
 	}
 

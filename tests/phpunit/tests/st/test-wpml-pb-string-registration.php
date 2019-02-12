@@ -17,7 +17,7 @@ class Test_WPML_PB_String_Registration extends WPML_PB_TestCase {
 		$post->ID        = $post_id;
 		$post->post_type = 'page';
 		$location        = mt_rand( 1, 100 );
-		$wrap            = '';
+		$wrap_tag            = 'h2';
 
 		$expected_package_data = $this->get_expected_package( $post_id );
 		$shortcode_content     = rand_long_str( 10 );
@@ -39,7 +39,7 @@ class Test_WPML_PB_String_Registration extends WPML_PB_TestCase {
 		$string_factory = $this->get_string_factory_mock();
 		$string         = \Mockery::mock( 'WPML_ST_String' );
 		$string->shouldReceive( 'set_location' )->once()->with( $location );
-		$string->shouldReceive( 'set_wrap_tag' )->once()->with( $wrap );
+		$string->shouldReceive( 'set_wrap_tag' )->once()->with( $wrap_tag );
 		$string_factory->shouldReceive( 'find_by_id' )->andReturn( $string );
 
 		$string_handler = new WPML_PB_String_Registration( $strategy,
@@ -54,7 +54,7 @@ class Test_WPML_PB_String_Registration extends WPML_PB_TestCase {
 			$string_title,
 			$string_name,
 			$location,
-			$wrap
+			$wrap_tag
 		);
 		unset( $post );
 	}
@@ -88,7 +88,7 @@ class Test_WPML_PB_String_Registration extends WPML_PB_TestCase {
 		$post->ID        = $post_id;
 		$post->post_type = 'page';
 		$location        = mt_rand();
-		$wrap            = '';
+		$wrap_tag            = 'h2';
 
 		$expected_package_data = $this->get_expected_package( $post_id );
 		$shortcode_content     = 'http://somelink.com';
@@ -117,7 +117,7 @@ class Test_WPML_PB_String_Registration extends WPML_PB_TestCase {
 		$string->shouldReceive( 'get_value' )->andReturn( $shortcode_content );
 		$string->shouldReceive( 'set_translation' )->once()->with( 'fr', $shortcode_content );
 		$string->shouldReceive( 'set_location' )->once()->with( $location );
-		$string->shouldReceive( 'set_wrap_tag' )->once()->with( $wrap );
+		$string->shouldReceive( 'set_wrap_tag' )->once()->with( $wrap_tag );
 
 		$string_factory = $this->get_string_factory_mock();
 		$string_factory->shouldReceive( 'find_by_id' )->andReturn( $string );
@@ -137,7 +137,7 @@ class Test_WPML_PB_String_Registration extends WPML_PB_TestCase {
 			'',
 			'',
 			$location,
-			$wrap
+			$wrap_tag
 		);
 		unset( $post );
 	}
@@ -152,7 +152,7 @@ class Test_WPML_PB_String_Registration extends WPML_PB_TestCase {
 		$offsite_link_url = 'http://www.google.com';
 		$title            = rand_str();
 		$location         = mt_rand();
-		$wrap             = '';
+		$wrap_tag             = 'h2';
 
 		$translate_link_targets = \Mockery::mock( 'WPML_Translate_Link_Targets' );
 		$translate_link_targets->shouldReceive( 'is_internal_url' )->with( $offsite_link_url )->andReturn( false );
@@ -168,7 +168,7 @@ class Test_WPML_PB_String_Registration extends WPML_PB_TestCase {
 		$string = \Mockery::mock( 'WPML_ST_String' );
 		$string->shouldReceive( 'get_translation_statuses' )->andReturn( array() );
 		$string->shouldReceive( 'set_location' )->times( 2 )->with( $location );
-		$string->shouldReceive( 'set_wrap_tag' )->times( 2 )->with( $wrap );
+		$string->shouldReceive( 'set_wrap_tag' )->times( 2 )->with( $wrap_tag );
 
 		$string_factory = $this->get_string_factory_mock();
 		$string_factory->shouldReceive( 'find_by_id' )->andReturn( $string );
@@ -185,7 +185,7 @@ class Test_WPML_PB_String_Registration extends WPML_PB_TestCase {
 		                        $strategy->get_package_key( $post_id ),
 		                        $title,
 		                        'LINK' );
-		$string_handler->register_string( $post_id, $local_link_url, 'LINK', $title, '', $location, $wrap );
+		$string_handler->register_string( $post_id, $local_link_url, 'LINK', $title, '', $location, $wrap_tag );
 
 		\WP_Mock::expectAction( 'wpml_register_string',
 		                        $offsite_link_url,
@@ -194,7 +194,7 @@ class Test_WPML_PB_String_Registration extends WPML_PB_TestCase {
 		                        $title,
 		                        'LINE'  // Offsite links should be changed to LINE
 		);
-		$string_handler->register_string( $post_id, $offsite_link_url, 'LINK', $title, '', $location, $wrap );
+		$string_handler->register_string( $post_id, $offsite_link_url, 'LINK', $title, '', $location, $wrap_tag );
 	}
 
 	/**
@@ -210,7 +210,7 @@ class Test_WPML_PB_String_Registration extends WPML_PB_TestCase {
 
 		$post_id  = mt_rand();
 		$location = mt_rand();
-		$wrap     = '';
+		$wrap_tag     = 'h2';
 
 		$sitepress_mock = $this->get_sitepress_mock();
 		$wpdb           = null;
@@ -219,7 +219,7 @@ class Test_WPML_PB_String_Registration extends WPML_PB_TestCase {
 
 		$string = \Mockery::mock( 'WPML_ST_String' );
 		$string->shouldReceive( 'set_location' )->times( 1 )->with( $location );
-		$string->shouldReceive( 'set_wrap_tag' )->times( 1 )->with( $wrap );
+		$string->shouldReceive( 'set_wrap_tag' )->times( 1 )->with( $wrap_tag );
 
 		$string_factory = $this->get_string_factory_mock();
 		$string_factory->shouldReceive( 'find_by_id' )->andReturn( $string );
@@ -244,7 +244,7 @@ class Test_WPML_PB_String_Registration extends WPML_PB_TestCase {
 		} else {
 			\WP_Mock::expectAction( 'wpml_register_string', $content, $string_name, $package, $title, $type );
 		}
-		$string_handler->register_string( $post_id, $content, $type, $title, '', $location, $wrap );
+		$string_handler->register_string( $post_id, $content, $type, $title, '', $location, $wrap_tag );
 	}
 
 	public function on_wpml_register_string_action() {
