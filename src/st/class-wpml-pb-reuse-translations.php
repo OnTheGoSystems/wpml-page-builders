@@ -16,6 +16,21 @@ class WPML_PB_Reuse_Translations {
 	}
 
 	/**
+	 * We receive arrays of strings with this structure:
+	 *
+	 * array(
+	 *  'gf4544ds454sds542122sd' => array(
+	 *      'value'      => 'The string value',
+	 *      'context'    => 'the-string-context',
+	 *      'name'       => 'the-string-name',
+	 *      'id'         => 123,
+	 *      'package_id' => 123,
+	 *      'location'   => 123,
+	 *     ),
+	 *  )
+	 *
+	 * The key is the string hash.
+	 *
 	 * @param array[] $original_strings
 	 * @param array[] $current_strings
 	 * @param array[] $leftover_strings
