@@ -75,7 +75,7 @@ class WPML_PB_String_Registration {
 	 * @param int    $location String location.
 	 * @param string $wrap_tag String wrap tag.
 	 *
-	 * @return int $string_id
+	 * @return null|integer $string_id
 	 */
 	public function register_string(
 		$post_id,
