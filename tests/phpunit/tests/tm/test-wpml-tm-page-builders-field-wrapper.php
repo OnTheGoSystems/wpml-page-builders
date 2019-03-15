@@ -1,4 +1,9 @@
 <?php
+/**
+ * Test_WPML_TM_Page_Builders_Field_Wrapper class file.
+ *
+ * @package wpml-page-builders
+ */
 
 /**
  * Class Test_WPML_TM_Page_Builders_Field_Wrapper
@@ -7,24 +12,53 @@
  */
 class Test_WPML_TM_Page_Builders_Field_Wrapper extends \OTGS\PHPUnit\Tools\TestCase {
 
+	/**
+	 * Package id.
+	 *
+	 * @var int
+	 */
 	private $package_id;
+
+	/**
+	 * String id.
+	 *
+	 * @var int
+	 */
 	private $string_id;
+
+	/**
+	 * String.
+	 *
+	 * @var string
+	 */
 	private $string;
+
+	/**
+	 * String title.
+	 *
+	 * @var string
+	 */
 	private $string_title;
 
-	function setUp() {
+	/**
+	 * Setup test.
+	 */
+	public function setUp() {
 		parent::setUp();
 
-		WP_Mock::wpFunction( 'wp_list_pluck', array(
-			'return' => function ( $list, $field, $index_key ) {
-				$result = array();
-				foreach ( $list as $row ) {
-					$result[ $row[ $index_key ] ] = $row[ $field ];
-				}
+		WP_Mock::wpFunction(
+			'wp_list_pluck',
+			array(
+				'return' => function ( $list, $field, $index_key ) {
+					$result = array();
+					foreach ( $list as $row ) {
+						$result[ $row[ $index_key ] ] = $row[ $field ];
+					}
 
-				return $result;
-			}
-		) );
+					return $result;
+				},
+			)
+		);
 
 		$this->package_id = 10;
 		$this->string_id  = 12;
@@ -41,31 +75,37 @@ class Test_WPML_TM_Page_Builders_Field_Wrapper extends \OTGS\PHPUnit\Tools\TestC
 	}
 
 	/**
+	 * It gets package id.
+	 *
 	 * @test
 	 */
-	function it_gets_package_id() {
+	public function it_gets_package_id() {
 		$subject = $this->create_subject();
 
 		$this->assertEquals( $this->package_id, $subject->get_package_id() );
 	}
 
 	/**
+	 * It gets string id.
+	 *
 	 * @test
 	 */
-	function it_gets_string_id() {
+	public function it_gets_string_id() {
 		$subject = $this->create_subject();
 
 		$this->assertEquals( $this->string_id, $subject->get_string_id() );
 	}
 
 	/**
+	 * It gets package.
+	 *
 	 * @test
 	 * @depends it_gets_package_id
 	 */
-	function it_gets_package() {
+	public function it_gets_package() {
 		$subject = $this->create_subject();
 
-		$expected_result = new stdClass();
+		$expected_result     = new stdClass();
 		$expected_result->id = 1;
 
 		\WP_Mock::onFilter( 'wpml_st_get_string_package' )
@@ -76,27 +116,31 @@ class Test_WPML_TM_Page_Builders_Field_Wrapper extends \OTGS\PHPUnit\Tools\TestC
 	}
 
 	/**
+	 * It cannot get package when id is invalid.
+	 *
 	 * @test
 	 * @depends it_gets_package_id
 	 */
-	function it_cannnot_get_package_when_id_is_invalid() {
+	public function it_cannnot_get_package_when_id_is_invalid() {
 		$this->package_id = 'text';
-		$subject = $this->create_subject();
+		$subject          = $this->create_subject();
 
 		$this->assertNull( $subject->get_package() );
 	}
 
 	/**
+	 * It validates without checking of package.
+	 *
 	 * @test
 	 * @dataProvider is_valid_data_provider
 	 *
-	 * @param mixed $package_id
-	 * @param mixed $string_id
-	 * @param bool $expected_result
+	 * @param mixed $package_id      Package id.
+	 * @param mixed $string_id       String id.
+	 * @param bool  $expected_result Expected result.
 	 */
-	function it_validates_without_checking_of_package( $package_id, $string_id, $expected_result ) {
+	public function it_validates_without_checking_of_package( $package_id, $string_id, $expected_result ) {
 		$this->package_id = $package_id;
-		$this->string_id = $string_id;
+		$this->string_id  = $string_id;
 
 		$this->string       = new stdClass();
 		$this->string->id   = $this->string_id;
@@ -108,9 +152,11 @@ class Test_WPML_TM_Page_Builders_Field_Wrapper extends \OTGS\PHPUnit\Tools\TestC
 	}
 
 	/**
+	 * Data provider for it_validates_without_checking_of_package().
+	 *
 	 * @return array
 	 */
-	function is_valid_data_provider() {
+	public function is_valid_data_provider() {
 		return array(
 			'Validation successful'         => array( 10, 12, true ),
 			'Invalid package id'            => array( 'text', 12, false ),
@@ -120,9 +166,11 @@ class Test_WPML_TM_Page_Builders_Field_Wrapper extends \OTGS\PHPUnit\Tools\TestC
 	}
 
 	/**
+	 * It validates with chacking of package when package exists
+	 *
 	 * @test
 	 */
-	function it_validates_with_checking_of_package_when_package_exists() {
+	public function it_validates_with_checking_of_package_when_package_exists() {
 		$subject = $this->create_subject();
 
 		\WP_Mock::onFilter( 'wpml_st_get_string_package' )
@@ -133,9 +181,11 @@ class Test_WPML_TM_Page_Builders_Field_Wrapper extends \OTGS\PHPUnit\Tools\TestC
 	}
 
 	/**
+	 * It validates with chacking of package when package does not exist
+	 *
 	 * @test
 	 */
-	function it_validates_with_checking_of_package_when_package_does_not_exist() {
+	public function it_validates_with_checking_of_package_when_package_does_not_exist() {
 		$subject = $this->create_subject();
 
 		\WP_Mock::onFilter( 'wpml_st_get_string_package' )
@@ -146,9 +196,11 @@ class Test_WPML_TM_Page_Builders_Field_Wrapper extends \OTGS\PHPUnit\Tools\TestC
 	}
 
 	/**
+	 * It gets field slug.
+	 *
 	 * @test
 	 */
-	function it_gets_field_slug() {
+	public function it_gets_field_slug() {
 		$slug    = WPML_TM_Page_Builders_Field_Wrapper::generate_field_slug( $this->package_id, $this->string->id );
 		$subject = new WPML_TM_Page_Builders_Field_Wrapper( $slug );
 
@@ -156,21 +208,35 @@ class Test_WPML_TM_Page_Builders_Field_Wrapper extends \OTGS\PHPUnit\Tools\TestC
 	}
 
 	/**
+	 * It gets string type
+	 *
 	 * @test
 	 */
-	function it_gets_string_type() {
+	public function it_gets_string_type() {
 		$subject = $this->create_subject();
 
 		$package_strings = array(
-			array( 'id' => 9, 'name' => 'name9', 'type' => 'AREA' ),
-			array( 'id' => 12, 'name' => 'name12', 'type' => 'VISUAL' ),
-			array( 'id' => 15, 'name' => 'name15', 'type' => 'TEXT' ),
+			array(
+				'id'   => 9,
+				'name' => 'name9',
+				'type' => 'AREA',
+			),
+			array(
+				'id'   => 12,
+				'name' => 'name12',
+				'type' => 'VISUAL',
+			),
+			array(
+				'id'   => 15,
+				'name' => 'name15',
+				'type' => 'TEXT',
+			),
 		);
 
 		$package = $this->getMockBuilder( 'WPML_Package' )
 		                ->disableOriginalConstructor()
 		                ->setMethods( array( 'get_package_strings' ) )
-						->getMock();
+		                ->getMock();
 
 		$package->method( 'get_package_strings' )->willReturn( $package_strings );
 
@@ -182,16 +248,20 @@ class Test_WPML_TM_Page_Builders_Field_Wrapper extends \OTGS\PHPUnit\Tools\TestC
 	}
 
 	/**
+	 * It cannot get string type when slug is invalid.
+	 *
 	 * @test
 	 */
-	function it_cannot_get_string_type_when_slug_is_invalid() {
+	public function it_cannot_get_string_type_when_slug_is_invalid() {
 		$this->package_id = 'text';
-		$subject = $this->create_subject();
+		$subject          = $this->create_subject();
 
 		$this->assertFalse( $subject->get_string_type() );
 	}
 
 	/**
+	 * Get string title
+	 *
 	 * @test
 	 */
 	public function get_string_title() {
@@ -205,12 +275,14 @@ class Test_WPML_TM_Page_Builders_Field_Wrapper extends \OTGS\PHPUnit\Tools\TestC
 	}
 
 	/**
+	 * Get wrap tag
+	 *
 	 * @test
 	 * @dataProvider get_wrap_data_provider
-	 * @group wpmltm-3081
+	 * @group        wpmltm-3081
 	 *
-	 * @param stdClass $string
-	 * @param string $expected
+	 * @param stdClass $string String.
+	 * @param string   $expected Expected string.
 	 */
 	public function get_wrap_tag( $string, $expected ) {
 		$wrap = WPML_TM_Page_Builders_Field_Wrapper::get_wrap_tag( $string );
@@ -218,9 +290,11 @@ class Test_WPML_TM_Page_Builders_Field_Wrapper extends \OTGS\PHPUnit\Tools\TestC
 	}
 
 	/**
+	 * Data provider for get_wrap_tag().
+	 *
 	 * @return array
 	 */
-	function get_wrap_data_provider() {
+	public function get_wrap_data_provider() {
 		return array(
 			'Empty string'       => array( $this->get_string( 10, '', '' ), '' ),
 			'Normal string'      => array( $this->get_string( 10, 'title-heading-f327e9c', '' ), '' ),
@@ -231,17 +305,22 @@ class Test_WPML_TM_Page_Builders_Field_Wrapper extends \OTGS\PHPUnit\Tools\TestC
 	}
 
 	/**
+	 * Create subject.
+	 *
 	 * @return WPML_TM_Page_Builders_Field_Wrapper
 	 */
 	private function create_subject() {
-		$slug    = WPML_TM_Page_Builders_Field_Wrapper::generate_field_slug( $this->package_id, $this->string->id );
+		$slug = WPML_TM_Page_Builders_Field_Wrapper::generate_field_slug( $this->package_id, $this->string->id );
+
 		return new WPML_TM_Page_Builders_Field_Wrapper( $slug );
 	}
 
 	/**
-	 * @param string $id
-	 * @param string $name
-	 * @param string $wrap_tag
+	 * Get string.
+	 *
+	 * @param string $id String id.
+	 * @param string $name String name.
+	 * @param string $wrap_tag String wrap tag.
 	 *
 	 * @return stdClass
 	 */
