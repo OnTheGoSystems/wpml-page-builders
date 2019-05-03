@@ -43,6 +43,10 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 		$sitepress_mock = $this->get_sitepress_mock();
 		$factory_mock   = $this->get_factory( null, $sitepress_mock );
 		$pb_integration = new WPML_PB_Integration( $sitepress_mock, $factory_mock );
+		\WP_Mock::expectActionAdded( 'pre_post_update', array(
+			$pb_integration,
+			'migrate_location'
+		) );
 		\WP_Mock::expectActionAdded( 'save_post', array(
 			$pb_integration,
 			'queue_save_post_actions'
@@ -473,7 +477,7 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 		) );
 
 		$subject = new WPML_PB_Integration( $sitepress_mock, $factory_mock );
-		$subject->migrate_location( $post_id, 'anything' );
+		$subject->migrate_location( $post_id );
 	}
 
 	/**
@@ -514,7 +518,7 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 		) );
 
 		$subject = new WPML_PB_Integration( $sitepress_mock, $factory_mock );
-		$subject->migrate_location( $post_id, new stdClass() );
+		$subject->migrate_location( $post_id );
 	}
 
 	/**
@@ -559,7 +563,7 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 		) );
 
 		$subject = new WPML_PB_Integration( $sitepress_mock, $factory_mock );
-		$subject->migrate_location( $post_id, 'anything' );
+		$subject->migrate_location( $post_id );
 	}
 
 	/**
@@ -616,7 +620,7 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 		$strategy->shouldReceive( 'migrate_location' )->once()->with( $post->ID, $post->post_content );
 		$subject->add_strategy( $strategy );
 
-		$subject->migrate_location( $post->ID, 'anything' );
+		$subject->migrate_location( $post->ID );
 	}
 
 	/**
