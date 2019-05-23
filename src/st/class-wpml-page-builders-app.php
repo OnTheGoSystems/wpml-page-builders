@@ -25,7 +25,7 @@ class WPML_Page_Builders_App {
 	}
 
 	public function load_integration() {
-		if ( ! class_exists( 'WPML_ST_Package_Factory' ) ) {
+		if ( ! class_exists( 'WPML_ST_Package_Factory' ) || ! defined( 'WPML_TM_VERSION' ) ) {
 			return;
 		}
 
