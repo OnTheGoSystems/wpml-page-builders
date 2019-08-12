@@ -532,11 +532,15 @@ class Test_WPML_PB_Update_Shortcodes_In_Content extends WPML_PB_TestCase {
 			'return' => $translated_post,
 		) );
 
-		\WP_Mock::wpFunction( 'wp_update_post', array(
-			'return' => $translated_post,
-			'times'  => 1,
-			'args'   => array( array( 'ID' => $translated_post_id, 'post_content' => $original_post->post_content ) ),
-		) );
+		\WP_Mock::userFunction( 'wpml_update_escaped_post', [
+			'times' => 1,
+			'args'  => [
+				[
+					'ID'           => $translated_post_id,
+					'post_content' => $original_post->post_content,
+				]
+			],
+		] );
 
 		$subject = new WPML_PB_Update_Shortcodes_In_Content( $this->shortcode_strategy, new WPML_PB_Shortcode_Encoding() );
 		$subject->update( $translated_post_id, $original_post, $string_translations, $lang );
@@ -565,10 +569,16 @@ class Test_WPML_PB_Update_Shortcodes_In_Content extends WPML_PB_TestCase {
 			'return' => null,
 		) );
 
-		\WP_Mock::wpFunction( 'wp_update_post', array(
+		\WP_Mock::userFunction( 'wpml_update_escaped_post', [
 			'times' => 1,
-			'args'  => array( array( 'ID' => $translated_post_id, 'post_content' => $original_post->post_content ) ),
-		) );
+			'args'  => [
+				[
+					'ID'           => $translated_post_id,
+					'post_content' => $original_post->post_content,
+				]
+			],
+		] );
+
 
 		$subject = new WPML_PB_Update_Shortcodes_In_Content( $this->shortcode_strategy, new WPML_PB_Shortcode_Encoding() );
 		$subject->update( $translated_post_id, $original_post, $string_translations, $lang );
@@ -614,10 +624,16 @@ class Test_WPML_PB_Update_Shortcodes_In_Content extends WPML_PB_TestCase {
 			'return' => $translated_post,
 		) );
 
-		\WP_Mock::wpFunction( 'wp_update_post', array(
+		\WP_Mock::userFunction( 'wpml_update_escaped_post', [
 			'times' => 1,
-			'args'  => array( array( 'ID' => $translated_post_id, 'post_content' => $filtered_content ) ),
-		) );
+			'args'  => [
+				[
+					'ID'           => $translated_post_id,
+					'post_content' => $filtered_content,
+				]
+			],
+		] );
+
 
 		$subject = new WPML_PB_Update_Shortcodes_In_Content( $this->shortcode_strategy, new WPML_PB_Shortcode_Encoding() );
 		$subject->update( $translated_post_id, $original_post, $string_translations, $lang );
@@ -657,19 +673,19 @@ class Test_WPML_PB_Update_Shortcodes_In_Content extends WPML_PB_TestCase {
 		) );
 
 		if ( $saved ) {
-			\WP_Mock::wpFunction( 'wp_update_post', array(
+			\WP_Mock::wpFunction( 'wpml_update_escaped_post', array(
 				'times' => 0,
 			) );
 		} else {
-			\WP_Mock::wpFunction( 'wp_update_post', array(
+			\WP_Mock::userFunction( 'wpml_update_escaped_post', [
 				'times' => 1,
-				'args'  => array(
-					array(
+				'args'  => [
+					[
 						'ID'           => $translated_post_id,
-						'post_content' => $original_post->post_content
-					)
-				),
-			) );
+						'post_content' => $original_post->post_content,
+					]
+				],
+			] );
 		}
 
 		$subject = new WPML_PB_Update_Shortcodes_In_Content( $this->shortcode_strategy, new WPML_PB_Shortcode_Encoding() );
