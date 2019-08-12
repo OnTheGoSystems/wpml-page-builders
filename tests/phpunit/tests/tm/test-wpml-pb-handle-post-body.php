@@ -92,12 +92,15 @@ class Test_WPML_PB_Handle_Post_Body extends \OTGS\PHPUnit\Tools\TestCase {
 			'return' => $original_post,
 		) );
 
-		\WP_Mock::wpFunction( 'wp_update_post', array(
-			'times' => 1,
-			'args'  => array(
-				array( 'ID' => $new_post_id, 'post_content' => $original_post->post_content ),
-			)
-		) );
+		\WP_Mock::wpFunction( 'wpml_update_escaped_post', [
+			'times'      => 1,
+			'args'       => [
+				[
+					'ID'           => $new_post_id,
+					'post_content' => $original_post->post_content,
+				]
+			],
+		] );
 
 		$page_builders_built->method( 'is_page_builder_page' )
 		                    ->with( $original_post )

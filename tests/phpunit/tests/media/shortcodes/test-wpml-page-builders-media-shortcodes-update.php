@@ -14,7 +14,7 @@ class Test_WPML_Page_Builders_Media_Shortcodes_Update extends \OTGS\PHPUnit\Tool
 	public function it_should_not_translate_if_post_is_source() {
 		$post = $this->get_post( '[shortcodeA]Hello[/shortcodeA]' );
 
-		\WP_Mock::userFunction( 'wp_update_post', array(
+		\WP_Mock::userFunction( 'wpml_update_escaped_post', array(
 			'times' => 0,
 		));
 
@@ -47,7 +47,7 @@ class Test_WPML_Page_Builders_Media_Shortcodes_Update extends \OTGS\PHPUnit\Tool
 		);
 
 		\WP_Mock::userFunction(
-			'wp_update_post',
+			'wpml_update_escaped_post',
 			array(
 				'times' => 0,
 			)
@@ -95,7 +95,7 @@ class Test_WPML_Page_Builders_Media_Shortcodes_Update extends \OTGS\PHPUnit\Tool
 			)
 		);
 
-		\WP_Mock::userFunction( 'wp_update_post', array(
+		\WP_Mock::userFunction( 'wpml_update_escaped_post', array(
 			'times' => 1,
 		));
 

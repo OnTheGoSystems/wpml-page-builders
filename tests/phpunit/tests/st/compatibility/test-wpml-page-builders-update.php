@@ -56,15 +56,15 @@ class Test_WPML_Page_Builders_Update extends \OTGS\PHPUnit\Tools\TestCase {
 					'return' => $original_post,
 				));
 
-				\WP_Mock::userFunction( 'wp_update_post', array(
-					'args' => array(
-						array(
-							'ID' => $post_id,
-							'post_content' => $original_post->post_content,
-						)
-					),
+				\WP_Mock::userFunction( 'wpml_update_escaped_post', [
 					'times' => 1,
-				));
+					'args'  => [
+						[
+							'ID'           => $post_id,
+							'post_content' => $original_post->post_content,
+						]
+					],
+				] );
 
 				continue;
 			}
