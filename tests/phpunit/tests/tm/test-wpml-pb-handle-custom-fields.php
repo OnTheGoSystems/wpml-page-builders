@@ -1,5 +1,7 @@
 <?php
 
+use tad\FunctionMocker\FunctionMocker;
+
 /**
  * Class Test_WPML_PB_Handle_Custom_Fields
  *
@@ -7,6 +9,16 @@
  */
 class Test_WPML_PB_Handle_Custom_Fields extends \OTGS\PHPUnit\Tools\TestCase {
 
+	public function setUp() {
+		parent::setUp();
+		\WP_Mock::userFunction( 'wp_slash',
+			[
+				'return' => function ( $data ) {
+					return addslashes( $data );
+				}
+			]
+		);
+	}
 	/**
 	 * @test
 	 */
@@ -137,7 +149,6 @@ class Test_WPML_PB_Handle_Custom_Fields extends \OTGS\PHPUnit\Tools\TestCase {
 		$subject = new WPML_PB_Handle_Custom_Fields( $data_settings );
 
 		$field                = 'my-custom-field';
-		$original_field_value = 'something';
 
 		$new_post_id      = 1;
 		$original_post_id = 2;
@@ -151,17 +162,11 @@ class Test_WPML_PB_Handle_Custom_Fields extends \OTGS\PHPUnit\Tools\TestCase {
 		$data_settings->method( 'get_fields_to_save' )
 		              ->willReturn( array() );
 
-		\WP_Mock::wpFunction( 'get_post_meta', array(
-			'args'   => array( $original_post_id, $field, true ),
-			'return' => $original_field_value,
-		) );
-
-		\WP_Mock::wpFunction( 'update_post_meta', array(
-			'args'  => array( $new_post_id, $field, $original_field_value ),
-			'times' => 1,
-		) );
+		$copy_mock = FunctionMocker::replace( 'WPML_PB_Handle_Custom_Fields::copy_field' );
 
 		$subject->copy_custom_fields( $new_post_id, $original_post_id );
+
+		$copy_mock->wasCalledWithOnce( [ $new_post_id, $original_post_id, $field ] );
 	}
 
 	/**
@@ -209,5 +214,52 @@ class Test_WPML_PB_Handle_Custom_Fields extends \OTGS\PHPUnit\Tools\TestCase {
 		) );
 
 		$subject->copy_custom_fields( $new_post_id, $original_post_id );
+	}
+
+	/**
+	 * @test
+	 */
+	public function it_copies_fields() {
+		$original = 1;
+		$new = 2;
+		$field = 'field_name';
+		$data = 'some data';
+
+		\WP_Mock::userFunction( 'get_post_meta',
+			[
+				'args' => [ $original, $field, true ],
+				'return' => $data
+			]
+		);
+
+		\WP_Mock::userFunction( 'update_post_meta',
+			[
+				'times' => 1,
+				'args' => [ $new, $field, $data ],
+			]
+		);
+
+		$slash_json_mock = FunctionMocker::replace( 'WPML_PB_Handle_Custom_Fields::slash_json', $data );
+
+		WPML_PB_Handle_Custom_Fields::copy_field( $new, $original, $field );
+
+		$slash_json_mock->wasCalledWithOnce( [ $data ] );
+	}
+
+	/**
+	 * @test
+	 */
+	public function it_does_not_slash_non_json() {
+		$not_json = 'do not escape these - \\ " \'';
+		$this->assertEquals( $not_json, WPML_PB_Handle_Custom_Fields::slash_json( $not_json ) );
+	}
+	/**
+	 * @test
+	 */
+	public function it_slashes_json() {
+		$json = [ 'data' => 'something' ];
+		$json_string = json_encode( $json );
+
+		$this->assertEquals( addslashes( $json_string ), WPML_PB_Handle_Custom_Fields::slash_json( $json_string ) );
 	}
 }
