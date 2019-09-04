@@ -46,7 +46,7 @@ class Test_WPML_PB_String_Registration extends WPML_PB_TestCase {
 		                                                   $string_factory,
 		                                                   $this->get_package_factory_mock(),
 		                                                   Mockery::mock( 'WPML_Translate_Link_Targets' ),
-		                                                   array() );
+		                                                   function() {} );
 		$string_handler->register_string(
 			$post_id,
 			$shortcode_content,
@@ -77,7 +77,7 @@ class Test_WPML_PB_String_Registration extends WPML_PB_TestCase {
 		                                                   $this->get_string_factory_mock(),
 		                                                   $this->get_package_factory_mock(),
 		                                                   Mockery::mock( 'WPML_Translate_Link_Targets' ),
-		                                                   array() );
+		                                                   function() {} );
 		$string_handler->register_string( $post_id, ' ', 'VISUAL' );
 	}
 
@@ -125,11 +125,13 @@ class Test_WPML_PB_String_Registration extends WPML_PB_TestCase {
 		$translate_link_targets = Mockery::mock( 'WPML_Translate_Link_Targets' );
 		$translate_link_targets->shouldReceive( 'is_internal_url' )->andReturn( true );
 
-		$string_handler = new WPML_PB_String_Registration( $strategy,
-		                                                   $string_factory,
-		                                                   $package_factory,
-		                                                   $translate_link_targets,
-		                                                   array( array( 'code' => 'fr' ) ) );
+		$string_handler = new WPML_PB_String_Registration(
+			$strategy,
+			$string_factory,
+			$package_factory,
+			$translate_link_targets,
+			WPML\PB\TranslateLinks::getTranslatorForString( $string_factory, [ [ 'code' => 'fr' ] ] )
+		);
 		$string_handler->register_string(
 			$post_id,
 			$shortcode_content,
@@ -173,11 +175,13 @@ class Test_WPML_PB_String_Registration extends WPML_PB_TestCase {
 		$string_factory = $this->get_string_factory_mock();
 		$string_factory->shouldReceive( 'find_by_id' )->andReturn( $string );
 
-		$string_handler = new WPML_PB_String_Registration( $strategy,
-		                                                   $string_factory,
-		                                                   $package_factory,
-		                                                   $translate_link_targets,
-		                                                   array() );
+		$string_handler = new WPML_PB_String_Registration(
+			$strategy,
+			$string_factory,
+			$package_factory,
+			$translate_link_targets,
+			WPML\PB\TranslateLinks::getTranslatorForString( $string_factory, [] )
+		);
 
 		\WP_Mock::expectAction( 'wpml_register_string',
 		                        $local_link_url,
@@ -227,10 +231,10 @@ class Test_WPML_PB_String_Registration extends WPML_PB_TestCase {
 		$package_factory = $this->get_package_factory_mock();
 
 		$string_handler = new WPML_PB_String_Registration( $strategy,
-		                                                   $string_factory,
-		                                                   $package_factory,
-		                                                   \Mockery::mock( 'WPML_Translate_Link_Targets' ),
-		                                                   array(),
+			$string_factory,
+			$package_factory,
+			\Mockery::mock( 'WPML_Translate_Link_Targets' ),
+			function () {},
 			$migration_mode );
 
 		$content     = 'something';

@@ -39,6 +39,12 @@ class Test_WPML_PB_Factory extends WPML_PB_TestCase {
 	public function test_get_register_shortcodes() {
 		$factory             = $this->get_factory_with_mocks();
 
+		\WP_Mock::userFunction( 'WPML\Container\make', [
+			'times' => 1,
+			'args' => [ 'WPML_Translate_Link_Targets' ],
+			'return' => Mockery::mock( 'WPML_Translate_Link_Targets' ),
+		] );
+
 		$register_shortcodes = $factory->get_register_shortcodes( $this->get_shortcode_strategy( $factory ) );
 		$this->assertInstanceOf( 'WPML_PB_Register_Shortcodes', $register_shortcodes );
 	}
