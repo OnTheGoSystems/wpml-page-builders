@@ -23,7 +23,7 @@ class WPML_PB_Handle_Custom_Fields {
 	 * @return bool
 	 */
 	public function is_page_builder_page_filter( $is_page_builder_page, WP_Post $post ) {
-		if ( get_post_meta( $post->ID, $this->data_settings->get_meta_field() ) ) {
+		if ( $this->data_settings->is_handling_post( $post->ID ) ) {
 			$is_page_builder_page = true;
 		}
 

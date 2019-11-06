@@ -23,19 +23,7 @@ class Test_WPML_PB_Handle_Custom_Fields extends \OTGS\PHPUnit\Tools\TestCase {
 	 * @test
 	 */
 	public function it_adds_hooks() {
-		$data_settings = $this->getMockBuilder( 'IWPML_Page_Builders_Data_Settings' )
-		                      ->setMethods( array(
-			                      'get_node_id_field',
-			                      'get_fields_to_copy',
-			                      'get_fields_to_save',
-			                      'get_meta_field',
-			                      'convert_data_to_array',
-			                      'prepare_data_for_saving',
-			                      'get_pb_name',
-			                      'add_hooks',
-		                      ) )
-		                      ->disableOriginalConstructor()
-		                      ->getMock();
+		$data_settings = $this->getDataSettings();
 
 		$subject = new WPML_PB_Handle_Custom_Fields( $data_settings );
 
@@ -55,19 +43,7 @@ class Test_WPML_PB_Handle_Custom_Fields extends \OTGS\PHPUnit\Tools\TestCase {
 	 * @test
 	 */
 	public function it_returns_true_when_post_has_the_custom_field() {
-		$data_settings = $this->getMockBuilder( 'IWPML_Page_Builders_Data_Settings' )
-		                      ->setMethods( array(
-			                      'get_node_id_field',
-			                      'get_fields_to_copy',
-			                      'get_fields_to_save',
-			                      'get_meta_field',
-			                      'convert_data_to_array',
-			                      'prepare_data_for_saving',
-			                      'get_pb_name',
-			                      'add_hooks',
-		                      ) )
-		                      ->disableOriginalConstructor()
-		                      ->getMock();
+		$data_settings = $this->getDataSettings();
 
 		$subject = new WPML_PB_Handle_Custom_Fields( $data_settings );
 
@@ -76,16 +52,10 @@ class Test_WPML_PB_Handle_Custom_Fields extends \OTGS\PHPUnit\Tools\TestCase {
 		             ->getMock();
 
 		$post->ID    = 10;
-		$field       = 'my-custom-field';
-		$field_value = 'something';
 
-		$data_settings->method( 'get_meta_field' )
-		              ->willReturn( $field );
-
-		\WP_Mock::wpFunction( 'get_post_meta', array(
-			'args'   => array( $post->ID, $field ),
-			'return' => $field_value,
-		) );
+		$data_settings->method( 'is_handling_post' )
+			->with( $post->ID )
+			->willReturn( true );
 
 		$this->assertTrue( $subject->is_page_builder_page_filter( false, $post ) );
 	}
@@ -94,19 +64,7 @@ class Test_WPML_PB_Handle_Custom_Fields extends \OTGS\PHPUnit\Tools\TestCase {
 	 * @test
 	 */
 	public function it_returns_unfiltered_result_when_post_does_not_have_the_custom_field() {
-		$data_settings = $this->getMockBuilder( 'IWPML_Page_Builders_Data_Settings' )
-		                      ->setMethods( array(
-			                      'get_node_id_field',
-			                      'get_fields_to_copy',
-			                      'get_fields_to_save',
-			                      'get_meta_field',
-			                      'convert_data_to_array',
-			                      'prepare_data_for_saving',
-			                      'get_pb_name',
-			                      'add_hooks',
-		                      ) )
-		                      ->disableOriginalConstructor()
-		                      ->getMock();
+		$data_settings = $this->getDataSettings();
 
 		$subject = new WPML_PB_Handle_Custom_Fields( $data_settings );
 
@@ -115,15 +73,10 @@ class Test_WPML_PB_Handle_Custom_Fields extends \OTGS\PHPUnit\Tools\TestCase {
 		             ->getMock();
 
 		$post->ID = 10;
-		$field    = 'my-custom-field';
 
-		$data_settings->method( 'get_meta_field' )
-		              ->willReturn( $field );
-
-		\WP_Mock::wpFunction( 'get_post_meta', array(
-			'args'   => array( $post->ID, $field ),
-			'return' => false,
-		) );
+		$data_settings->method( 'is_handling_post' )
+		              ->with( $post->ID )
+		              ->willReturn( false );
 
 		$this->assertFalse( $subject->is_page_builder_page_filter( false, $post ) );
 	}
@@ -132,19 +85,7 @@ class Test_WPML_PB_Handle_Custom_Fields extends \OTGS\PHPUnit\Tools\TestCase {
 	 * @test
 	 */
 	public function it_copies_custom_fields_when_original_custom_field_exists() {
-		$data_settings = $this->getMockBuilder( 'IWPML_Page_Builders_Data_Settings' )
-		                      ->setMethods( array(
-			                      'get_node_id_field',
-			                      'get_fields_to_copy',
-			                      'get_fields_to_save',
-			                      'get_meta_field',
-			                      'convert_data_to_array',
-			                      'prepare_data_for_saving',
-			                      'get_pb_name',
-			                      'add_hooks',
-		                      ) )
-		                      ->disableOriginalConstructor()
-		                      ->getMock();
+		$data_settings = $this->getDataSettings();
 
 		$subject = new WPML_PB_Handle_Custom_Fields( $data_settings );
 
@@ -173,19 +114,7 @@ class Test_WPML_PB_Handle_Custom_Fields extends \OTGS\PHPUnit\Tools\TestCase {
 	 * @test
 	 */
 	public function it_does_not_copy_custom_fields_when_original_custom_field_does_not_exists() {
-		$data_settings = $this->getMockBuilder( 'IWPML_Page_Builders_Data_Settings' )
-		                      ->setMethods( array(
-			                      'get_node_id_field',
-			                      'get_fields_to_copy',
-			                      'get_fields_to_save',
-			                      'get_meta_field',
-			                      'convert_data_to_array',
-			                      'prepare_data_for_saving',
-			                      'get_pb_name',
-			                      'add_hooks',
-		                      ) )
-		                      ->disableOriginalConstructor()
-		                      ->getMock();
+		$data_settings = $this->getDataSettings();
 
 		$subject = new WPML_PB_Handle_Custom_Fields( $data_settings );
 
@@ -274,5 +203,24 @@ class Test_WPML_PB_Handle_Custom_Fields extends \OTGS\PHPUnit\Tools\TestCase {
 		$json_string = json_encode( $json );
 
 		$this->assertEquals( addslashes( $json_string ), WPML_PB_Handle_Custom_Fields::slash_json( $json_string ) );
+	}
+
+	private function getDataSettings() {
+		return $this->getMockBuilder( 'IWPML_Page_Builders_Data_Settings' )
+		                      ->setMethods(
+								[
+									'get_node_id_field',
+									'get_fields_to_copy',
+									'get_fields_to_save',
+									'get_meta_field',
+									'convert_data_to_array',
+									'prepare_data_for_saving',
+									'get_pb_name',
+									'add_hooks',
+									'is_handling_post',
+								]
+		                      )
+		                      ->disableOriginalConstructor()
+		                      ->getMock();
 	}
 }
