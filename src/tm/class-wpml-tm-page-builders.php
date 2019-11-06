@@ -25,6 +25,14 @@ class WPML_TM_Page_Builders {
 	 */
 	public function translation_job_data_filter( array $translation_package, $post ) {
 		if ( self::PACKAGE_TYPE_EXTERNAL !== $translation_package['type'] && isset( $post->ID ) ) {
+
+			$translation_package['contents']['body']['translate'] = (int) apply_filters( 'wpml_pb_should_body_be_translated', $translation_package['contents']['body']['translate'], $post );
+
+			if ( $translation_package['contents']['body']['translate'] ) {
+				// If eventually, the post body must be translated, we won't include the package strings.
+				return $translation_package;
+			}
+
 			$post_element        = new WPML_Post_Element( $post->ID, $this->sitepress );
 			$source_post_id      = $post->ID;
 			$source_post_element = $post_element->get_source_element();
@@ -37,8 +45,6 @@ class WPML_TM_Page_Builders {
 			$job_source_is_not_post_source = $post->ID !== $source_post_id;
 
 			$string_packages = apply_filters( 'wpml_st_get_post_string_packages', false, $source_post_id );
-
-			$translation_package['contents']['body']['translate'] = apply_filters( 'wpml_pb_should_body_be_translated', $translation_package['contents']['body']['translate'], $post );
 
 			if ( $string_packages ) {
 

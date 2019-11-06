@@ -93,6 +93,7 @@ class Test_WPML_TM_Page_Builders extends \OTGS\PHPUnit\Tools\TestCase {
 		$translation_package = $this->prepare_translation_package( 'post' );
 		$post                = $this->get_a_post_object();
 
+		$this->mock_should_body_be_translated_filter( false, $translation_package['contents']['body']['translate'], $post );
 		$this->set_hardcoded_wpml_post_element( null, rand_str( 2 ) );
 
 		$strings    = $this->prepare_package_strings();
@@ -128,6 +129,7 @@ class Test_WPML_TM_Page_Builders extends \OTGS\PHPUnit\Tools\TestCase {
 			$strings[ $key ]->type = 'LINK';
 		}
 
+		$this->mock_should_body_be_translated_filter( false, $translation_package['contents']['body']['translate'], $post );
 		$this->set_hardcoded_wpml_post_element( null, rand_str( 2 ) );
 
 		$package_id = rand( 1, 100 );
@@ -152,6 +154,7 @@ class Test_WPML_TM_Page_Builders extends \OTGS\PHPUnit\Tools\TestCase {
 		$translation_package = $this->prepare_translation_package( 'post' );
 		$post                = $this->get_a_post_object();
 
+		$this->mock_should_body_be_translated_filter( false, $translation_package['contents']['body']['translate'], $post );
 		$this->set_hardcoded_wpml_post_element( $source_post_id, $job_lang_from );
 
 		$strings    = $this->prepare_package_strings();
@@ -180,6 +183,21 @@ class Test_WPML_TM_Page_Builders extends \OTGS\PHPUnit\Tools\TestCase {
 		$filtered_translation_package = $subject->translation_job_data_filter( $translation_package, $post );
 
 		$this->assertEquals( $expected_translation_package, $filtered_translation_package );
+	}
+
+	/**
+	 * @test
+	 * @group wpmlcore-6929)
+	 */
+	public function it_should_not_include_package_strings_if_body_should_be_translated() {
+		$translation_package = $this->prepare_translation_package( 'post' );
+		$post                = $this->get_a_post_object();
+
+		$this->mock_should_body_be_translated_filter( true, $translation_package['contents']['body']['translate'], $post );
+
+		$subject = $this->get_subject();
+
+		$this->assertSame( $translation_package, $subject->translation_job_data_filter( $translation_package, $post ) );
 	}
 
 	private function set_hardcoded_wpml_post_element( $post_source_id, $job_lang_from ) {
@@ -562,5 +580,16 @@ class Test_WPML_TM_Page_Builders extends \OTGS\PHPUnit\Tools\TestCase {
 		$post->ID        = rand( 1, 100 );
 		$post->post_type = rand_str();
 		return $post;
+	}
+
+	/**
+	 * @param bool             $shouldBeTranslated
+	 * @param int              $originalValue
+	 * @param stdClass|WP_Post $post
+	 */
+	private function mock_should_body_be_translated_filter( $shouldBeTranslated, $originalValue, $post ) {
+		\WP_Mock::onFilter( 'wpml_pb_should_body_be_translated' )
+			->with( $originalValue, $post )
+			->reply( $shouldBeTranslated );
 	}
 }

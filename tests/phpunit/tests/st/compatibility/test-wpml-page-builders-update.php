@@ -114,6 +114,7 @@ class Test_WPML_Page_Builders_Update extends \OTGS\PHPUnit\Tools\TestCase {
 					'get_node_id_field',
 					'get_pb_name',
 					'add_hooks',
+					'is_handling_post',
 				)
 			)->disableOriginalConstructor()->getMock();
 	}

@@ -25,16 +25,20 @@ class Test_WPML_Page_Builders_Integration extends \OTGS\PHPUnit\Tools\TestCase {
 		                           ->getMock();
 
 		$this->data_settings = $this->getMockBuilder( 'IWPML_Page_Builders_Data_Settings' )
-			->setMethods( array(
-				'add_hooks',
-				'get_meta_field',
-				'get_node_id_field',
-				'get_fields_to_copy',
-				'get_fields_to_save',
-				'convert_data_to_array',
-				'prepare_data_for_saving',
-				'get_pb_name',
-				'add_data_custom_field_to_md5' ) )
+			->setMethods(
+				[
+					'add_hooks',
+					'get_meta_field',
+					'get_node_id_field',
+					'get_fields_to_copy',
+					'get_fields_to_save',
+					'convert_data_to_array',
+					'prepare_data_for_saving',
+					'get_pb_name',
+					'add_data_custom_field_to_md5',
+					'is_handling_post',
+				]
+			)
 			->disableOriginalConstructor()
 			->getMock();
 	}
