@@ -158,6 +158,7 @@ class WPML_PB_Integration {
 	 * Add all actions filters.
 	 */
 	public function add_hooks() {
+		\WPML\PB\PublicApi\Factory::create()->addHooks();
 		add_action( 'pre_post_update', array( $this, 'migrate_location' ) );
 		add_action( 'save_post', array( $this, 'queue_save_post_actions' ), PHP_INT_MAX, 2 );
 		add_action( 'wpml_pb_resave_post_translation', array( $this, 'resave_post_translation_in_shutdown' ), 10, 1 );

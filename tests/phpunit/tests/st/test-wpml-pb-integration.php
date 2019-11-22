@@ -1,5 +1,7 @@
 <?php
 
+use tad\FunctionMocker\FunctionMocker;
+
 /**
  * Class Test_WPML_PB_Integration
  *
@@ -43,6 +45,14 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 		$sitepress_mock = $this->get_sitepress_mock();
 		$factory_mock   = $this->get_factory( null, $sitepress_mock );
 		$pb_integration = new WPML_PB_Integration( $sitepress_mock, $factory_mock );
+
+		$publicApiHooks = $this->getMockBuilder( \WPML\PB\PublicApi\Hooks::class )
+			->setMethods( [ 'addHooks' ] )
+			->disableOriginalConstructor()->getMock();
+		$publicApiHooks->expects( $this->once() )->method( 'addHooks' );
+
+		FunctionMocker::replace( \WPML\PB\PublicApi\Factory::class . '::create', $publicApiHooks );
+
 		\WP_Mock::expectActionAdded( 'pre_post_update', array(
 			$pb_integration,
 			'migrate_location'
