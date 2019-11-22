@@ -18,12 +18,12 @@ class Hooks {
 	}
 
 	/**
-	 * @param bool $incomingValue
+	 * @param bool $ignored
 	 * @param int  $postId
 	 *
 	 * @return bool
 	 */
-	public function postUseTranslationEditor( $incomingValue, $postId ) {
+	public function postUseTranslationEditor( $ignored, $postId ) {
 		return $this->lastEditMode->is_translation_editor( $postId );
 	}
 }
