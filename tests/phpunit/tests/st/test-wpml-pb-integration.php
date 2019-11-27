@@ -195,7 +195,7 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 			                      ->setMethods( array( 'translate' ) )->getMock();
 			$media_updater->expects( $this->once() )->method( 'translate' )->with( $translated_post );
 
-			\WP_Mock::onFilter( 'wmpl_pb_get_media_updaters' )
+			\WP_Mock::onFilter( 'wpml_pb_get_media_updaters' )
 			        ->with( array() )
 			        ->reply( array( $media_updater ) );
 		}
@@ -287,7 +287,7 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 			                      ->setMethods( array( 'translate' ) )->getMock();
 			$media_updater->expects( $this->once() )->method( 'translate' )->with( $translated_post );
 
-			\WP_Mock::onFilter( 'wmpl_pb_get_media_updaters' )
+			\WP_Mock::onFilter( 'wpml_pb_get_media_updaters' )
 			        ->with( array() )
 			        ->reply( array( $media_updater ) );
 		}
@@ -384,7 +384,7 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 			                      ->setMethods( array( 'translate' ) )->getMock();
 			$media_updater->expects( $this->once() )->method( 'translate' )->with( $translated_post );
 
-			\WP_Mock::onFilter( 'wmpl_pb_get_media_updaters' )
+			\WP_Mock::onFilter( 'wpml_pb_get_media_updaters' )
 			        ->with( array() )
 			        ->reply( array( $media_updater ) );
 		}
