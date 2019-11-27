@@ -294,7 +294,7 @@ class WPML_PB_Integration {
 	/** @return IWPML_PB_Media_Update[] $media_updaters */
 	private function get_media_updaters() {
 		if ( ! $this->media_updaters ) {
-			$this->media_updaters = apply_filters( 'wmpl_pb_get_media_updaters', array() );
+			$this->media_updaters = apply_filters( 'wpml_pb_get_media_updaters', array() );
 		}
 
 		return $this->media_updaters;

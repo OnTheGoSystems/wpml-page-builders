@@ -20,7 +20,7 @@ class Test_WPML_Page_Builders_Media_Hooks extends \OTGS\PHPUnit\Tools\TestCase {
 	 */
 	public function it_should_add_hooks() {
 		$subject = $this->get_subject();
-		\WP_Mock::expectFilterAdded( 'wmpl_pb_get_media_updaters', array( $subject, 'add_media_updater' ) );
+		\WP_Mock::expectFilterAdded( 'wpml_pb_get_media_updaters', array( $subject, 'add_media_updater' ) );
 		\WP_Mock::expectFilterAdded( 'wpml_media_content_for_media_usage', array( $subject, 'add_package_strings_content' ), 10, 2 );
 		$subject->add_hooks();
 	}
