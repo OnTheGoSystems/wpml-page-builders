@@ -253,6 +253,19 @@ class Test_WPML_PB_Handle_Custom_Fields extends \OTGS\PHPUnit\Tools\TestCase {
 		$not_json = 'do not escape these - \\ " \'';
 		$this->assertEquals( $not_json, WPML_PB_Handle_Custom_Fields::slash_json( $not_json ) );
 	}
+
+	/**
+	 * @test
+	 * @group wpmlcore-7141
+	 */
+	public function it_does_NOT_slash_if_original_data_is_NOT_a_string() {
+		$not_string = [ 'some data' ];
+
+		\WP_Mock::userFunction( 'wp_slash', [ 'times' => 0 ] );
+
+		$this->assertEquals( $not_string, WPML_PB_Handle_Custom_Fields::slash_json( $not_string ) );
+	}
+
 	/**
 	 * @test
 	 */
