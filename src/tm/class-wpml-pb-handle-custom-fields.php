@@ -60,6 +60,10 @@ class WPML_PB_Handle_Custom_Fields {
 	 * @return mixed string
 	 */
 	public static function slash_json( $data ) {
+		if ( ! is_string( $data ) ) {
+			return $data;
+		}
+
  		json_decode( $data );
 		if ( json_last_error() === JSON_ERROR_NONE ) {
 			return wp_slash( $data );
