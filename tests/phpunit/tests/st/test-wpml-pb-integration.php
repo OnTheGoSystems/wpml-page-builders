@@ -27,6 +27,92 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 		$pb_integration->register_all_strings_for_translation( $post );
 	}
 
+	/**
+	 * @test
+	 * @group wpmlcore-7188
+	 */
+	public function it_should_NOT_process_pb_content_with_hidden_strings_only_if_string_translation_was_added() {
+		\WP_Mock::userFunction( 'did_action' )
+			->with( "wpml_add_string_translation" )->andReturn( true );
+
+		$sitepress = $this->get_sitepress_mock();
+		$sitepress->expects( $this->never() )->method( 'get_language_for_element' );
+
+		$factory        = $this->get_factory_mock_for_add_package_to_update_list( null );
+		$strategy       = $this->get_shortcode_strategy( $factory );
+		$pb_integration = new WPML_PB_Integration( $sitepress, $factory );
+		$pb_integration->add_strategy( $strategy );
+
+		$pb_integration->process_pb_content_with_hidden_strings_only( 456, 123 );
+	}
+
+	/**
+	 * @test
+	 * @group wpmlcore-7188
+	 */
+	public function it_should_NOT_process_pb_content_with_hidden_strings_only_if_NOT_a_pb_page() {
+		$newPostId = 456;
+		$post      = $this->get_post( $newPostId );
+
+		\WP_Mock::userFunction( 'did_action' )
+			->with( "wpml_add_string_translation" )->andReturn( false );
+		\WP_Mock::userFunction( 'get_post' )
+			->with( $newPostId )->andReturn( $post );
+		\WP_Mock::onFilter( 'wpml_pb_is_page_builder_page' )
+			->with( false, $post )->reply( false );
+
+		$sitepress = $this->get_sitepress_mock();
+		$sitepress->expects( $this->never() )->method( 'get_language_for_element' );
+
+		$factory        = $this->get_factory_mock_for_add_package_to_update_list( null );
+		$strategy       = $this->get_shortcode_strategy( $factory );
+		$pb_integration = new WPML_PB_Integration( $sitepress, $factory );
+		$pb_integration->add_strategy( $strategy );
+
+		$pb_integration->process_pb_content_with_hidden_strings_only( $newPostId, 123 );
+	}
+
+	/**
+	 * @test
+	 * @group wpmlcore-7188
+	 */
+	public function it_should_process_pb_content_with_hidden_strings_only() {
+		$newPostId        = 456;
+		$originalPostId   = 123;
+		$post             = $this->get_post( $newPostId );
+		$package          = $this->getMockBuilder( 'WPML_Package' )->getMock();
+		$package->id      = 789;
+		$targetLang       = 'fr';
+		$strategiesNumber = 3;
+
+		\WP_Mock::userFunction( 'did_action' )
+			->with( "wpml_add_string_translation" )->andReturn( false );
+		\WP_Mock::userFunction( 'get_post' )
+			->with( $newPostId )->andReturn( $post );
+		\WP_Mock::onFilter( 'wpml_pb_is_page_builder_page' )
+			->with( false, $post )->reply( true );
+		\WP_Mock::userFunction( 'get_post_type' )
+			->with( $newPostId )->andReturn( $post->post_type );
+		\WP_Mock::onFilter( 'wpml_st_get_post_string_packages' )
+			->with( [], $originalPostId )->reply( [ $package ] );
+
+		$sitepress = $this->get_sitepress_mock();
+		$sitepress->method( 'get_language_for_element' )
+			->with( $newPostId, 'post_' . $post->post_type )
+			->willReturn( $targetLang );
+
+		$factory        = $this->get_factory_mock_for_add_package_to_update_list( $package, $targetLang, $strategiesNumber );
+		$strategy       = $this->get_shortcode_strategy( $factory );
+		$pb_integration = new WPML_PB_Integration( $sitepress, $factory );
+
+		for ( $i = 0; $i < $strategiesNumber; $i++ ) {
+			$pb_integration->add_strategy( $strategy );
+		}
+
+		$pb_integration->process_pb_content_with_hidden_strings_only( $newPostId, $originalPostId );
+		$pb_integration->save_translations_to_post();
+	}
+
 	public function test_translations() {
 		$translated_string_id = 1;
 		$sitepress_mock       = $this->get_sitepress_mock();
@@ -65,7 +151,8 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 			'cleanup_strings_after_translation_completed',
 		),	10, 3 );
 		\WP_Mock::expectFilterAdded( 'wpml_tm_translation_job_data', array( $pb_integration, 'rescan' ), 9, 2 );
-		\WP_Mock::expectActionAdded( 'wpml_pb_finished_adding_string_translations', array( $pb_integration, 'save_translations_to_post' ) );
+		\WP_Mock::expectActionAdded( 'wpml_pb_finished_adding_string_translations', array( $pb_integration, 'process_pb_content_with_hidden_strings_only' ), 9, 2 );
+		\WP_Mock::expectActionAdded( 'wpml_pb_finished_adding_string_translations', array( $pb_integration, 'save_translations_to_post' ), 10 );
 
 		$pb_integration->add_hooks();
 	}
@@ -802,6 +889,26 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 		return $factory;
 	}
 
+	private function get_factory_mock_for_add_package_to_update_list( $package, $targetLang = null, $strategiesNumber = 0 ) {
+		$string_translation_mock = $this->getMockBuilder( 'WPML_PB_String_Translation_By_Strategy' )
+		                                ->setMethods( [ 'add_package_to_update_list', 'save_translations_to_post' ] )
+		                                ->disableOriginalConstructor()
+		                                ->getMock();
+		$string_translation_mock->expects(  $package ? $this->exactly( $strategiesNumber ) : $this->never() )
+		                        ->method( 'add_package_to_update_list' )
+		                        ->with( $package, $targetLang );
+		$string_translation_mock->expects(  $package ? $this->exactly( $strategiesNumber ) : $this->never() )
+		                        ->method( 'save_translations_to_post' );
+
+		$factory = $this->getMockBuilder( 'WPML_PB_Factory' )
+		                ->setMethods( [ 'get_string_translations' ] )
+		                ->disableOriginalConstructor()
+		                ->getMock();
+		$factory->method( 'get_string_translations' )->willReturn( $string_translation_mock );
+
+		return $factory;
+	}
+
 	private function get_factory_mock_for_register_translations( $translated_string_id ) {
 		$string_translation_mock = $this->getMockBuilder( 'WPML_PB_String_Translation_By_Strategy' )
 		                                ->setMethods( array( 'new_translation', 'save_translations_to_post' ) )
@@ -824,7 +931,7 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 
 	private function get_sitepress_mock( $post_id = null ) {
 		$sitepress_mock = $this->getMockBuilder( 'SitePress' )
-		                       ->setMethods( array( 'get_original_element_id', 'get_wp_api' ) )
+		                       ->setMethods( array( 'get_original_element_id', 'get_wp_api', 'get_language_for_element' ) )
 		                       ->disableOriginalConstructor()
 		                       ->getMock();
 		if ( $post_id ) {
