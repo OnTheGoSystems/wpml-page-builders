@@ -1,5 +1,7 @@
 <?php
 
+use function WPML\Container\make;
+
 class WPML_PB_Loader {
 
 	public function __construct(
@@ -44,16 +46,6 @@ class WPML_PB_Loader {
 			}
 		}
 
-		if ( class_exists( 'WPML_Config_Built_With_Page_Builders' ) ) {
-			$post_body_handler = new WPML_PB_Handle_Post_Body(
-				new WPML_Page_Builders_Page_Built(
-					new WPML_Config_Built_With_Page_Builders()
-				)
-			);
-
-			$post_body_handler->add_hooks();
-		}
-
 		self::load_hooks();
 
 		if ( $page_builder_strategies ) {
@@ -74,10 +66,10 @@ class WPML_PB_Loader {
 
 	private static function load_hooks() {
 		$hooks = [
+			WPML_PB_Handle_Post_Body::class,
 			WPML\PB\Compatibility\Toolset\Layouts\HooksFactory::class,
 		];
 
-		$hooks_loader = new WPML_Action_Filter_Loader();
-		$hooks_loader->load( $hooks );
+		make( WPML_Action_Filter_Loader::class )->load( $hooks );
 	}
 }

@@ -5,7 +5,22 @@
  *
  * @group wpmlcore-5684
  */
-class Test_WPML_PB_Handle_Post_Body extends \OTGS\PHPUnit\Tools\TestCase {
+class Test_WPML_PB_Handle_Post_Body extends OTGS\PHPUnit\Tools\TestCase {
+
+	/**
+	 * @test
+	 */
+	public function itShouldLoadWithDicOnFrontendAndBackend() {
+		$page_builders_built = $this->getMockBuilder( 'WPML_Page_Builders_Page_Built' )
+			->disableOriginalConstructor()
+			->getMock();
+
+		$subject = new WPML_PB_Handle_Post_Body( $page_builders_built );
+
+		$this->assertInstanceOf( \IWPML_Backend_Action::class, $subject );
+		$this->assertInstanceOf( IWPML_Frontend_Action::class, $subject );
+		$this->assertInstanceOf( IWPML_DIC_Action::class, $subject );
+	}
 
 	/**
 	 * @test

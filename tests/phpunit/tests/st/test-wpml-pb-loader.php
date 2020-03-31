@@ -1,6 +1,29 @@
 <?php
 
 class Test_WPML_PB_Loader extends WPML_PB_TestCase {
+
+	public function setUp() {
+		parent::setUp();
+		$this->mockActionFilterLoader();
+	}
+
+	private function mockActionFilterLoader() {
+		$hooks = [
+			WPML_PB_Handle_Post_Body::class,
+			WPML\PB\Compatibility\Toolset\Layouts\HooksFactory::class,
+		];
+
+		$actionFilterLoader = \Mockery::mock( 'WPML_Action_Filter_Loader' );
+		$actionFilterLoader->shouldReceive( 'load' )->with( $hooks );
+
+		\WP_Mock::userFunction( 'WPML\Container\make' )
+			->with( 'WPML_Action_Filter_Loader' )
+			->andReturn( $actionFilterLoader );
+	}
+
+	/**
+	 * @group pierre
+	 */
 	public function test_no_strategies() {
 		$st_settings      = $this->get_wpml_st_settings();
 		$integration_mock = $this->get_pb_integration_mock();

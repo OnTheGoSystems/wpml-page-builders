@@ -2,19 +2,21 @@
 
 namespace WPML\PB\Compatibility\Toolset\Layouts;
 
+use OTGS\PHPUnit\Tools\TestCase;
+
 /**
  * @group compatibility
  * @group toolset
  * @group layouts
  */
-class TestHooks extends \OTGS\PHPUnit\Tools\TestCase {
+class TestHooks extends TestCase {
 
 	/**
 	 * @test
 	 */
 	public function itImplementActionLoader() {
 		$subject = new Hooks();
-		$this->assertInstanceOf( '\IWPML_Action', $subject );
+		$this->assertInstanceOf( \IWPML_Action::class, $subject );
 	}
 
 	/**
