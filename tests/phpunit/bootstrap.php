@@ -1,4 +1,7 @@
 <?php
+
+use tad\FunctionMocker\FunctionMocker;
+
 define( 'WPML_ST_SITE_URL', 'https://domain.tld' );
 
 define( 'WPML_ST_TESTS_MAIN_FILE', __DIR__ . '/../../plugin.php' );
@@ -37,3 +40,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 require_once __DIR__ . '/../../vendor/autoload.php';
+
+FunctionMocker::init(
+	[
+		'blacklist' => [],
+		'whitelist' => [],
+		'redefinable-internals' => [
+			'defined',
+		],
+	]
+);

@@ -54,6 +54,8 @@ class WPML_PB_Loader {
 			$post_body_handler->add_hooks();
 		}
 
+		self::load_hooks();
+
 		if ( $page_builder_strategies ) {
 			if ( $pb_integration ) {
 				$factory = $pb_integration->get_factory();
@@ -68,5 +70,14 @@ class WPML_PB_Loader {
 			}
 		}
 
+	}
+
+	private static function load_hooks() {
+		$hooks = [
+			WPML\PB\Compatibility\Toolset\Layouts\HooksFactory::class,
+		];
+
+		$hooks_loader = new WPML_Action_Filter_Loader();
+		$hooks_loader->load( $hooks );
 	}
 }
