@@ -2,6 +2,7 @@
 
 namespace WPML\PB\Compatibility\Toolset\Layouts;
 
+use OTGS\PHPUnit\Tools\TestCase;
 use Peast\Syntax\Node\Function_;
 use tad\FunctionMocker\FunctionMocker;
 
@@ -10,15 +11,15 @@ use tad\FunctionMocker\FunctionMocker;
  * @group toolset
  * @group layouts
  */
-class TestHooksFactory extends \OTGS\PHPUnit\Tools\TestCase {
+class TestHooksFactory extends TestCase {
 
 	/**
 	 * @test
 	 */
 	public function itLoadsOnBackendAndFrontend() {
 		$subject = new HooksFactory();
-		$this->assertInstanceOf( '\IWPML_Backend_Action_Loader', $subject );
-		$this->assertInstanceOf( '\IWPML_Frontend_Action_Loader', $subject );
+		$this->assertInstanceOf( \IWPML_Backend_Action_Loader::class, $subject );
+		$this->assertInstanceOf( \IWPML_Frontend_Action_Loader::class, $subject );
 	}
 
 	/**
