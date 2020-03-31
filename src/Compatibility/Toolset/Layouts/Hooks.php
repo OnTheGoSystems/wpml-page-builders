@@ -2,7 +2,9 @@
 
 namespace WPML\PB\Compatibility\Toolset\Layouts;
 
-class Hooks implements \IWPML_Action {
+use IWPML_Action;
+
+class Hooks implements IWPML_Action {
 
 	public function add_hooks() {
 		add_filter( 'wpml_pb_is_page_builder_page', [ __CLASS__, 'isLayoutPage' ], 10, 2 );
