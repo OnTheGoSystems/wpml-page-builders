@@ -26,9 +26,17 @@ class WPML_TM_Page_Builders {
 	public function translation_job_data_filter( array $translation_package, $post ) {
 		if ( self::PACKAGE_TYPE_EXTERNAL !== $translation_package['type'] && isset( $post->ID ) ) {
 
-			$translation_package['contents']['body']['translate'] = (int) apply_filters( 'wpml_pb_should_body_be_translated', $translation_package['contents']['body']['translate'], $post );
+			$should_translate_body = apply_filters( 'wpml_pb_should_body_be_translated', null, $post );
 
-			if ( $translation_package['contents']['body']['translate'] ) {
+			/**
+			 * $should_translate_body can be:
+			 * - null if it's not explicitly defined
+			 * - 0 if we should explicitly not translate the body
+			 * - 1 if we should explicitly translate the body
+			 *
+			 * For null value, we'll continue the process and check if the post has string packages.
+			 */
+			if ( 1 === $should_translate_body ) {
 				// If eventually, the post body must be translated, we won't include the package strings.
 				return $translation_package;
 			}
