@@ -187,9 +187,12 @@ class Test_WPML_TM_Page_Builders extends \OTGS\PHPUnit\Tools\TestCase {
 
 	/**
 	 * @test
-	 * @group wpmlcore-6929)
+	 * @group wpmlcore-6929
 	 */
 	public function it_should_not_include_package_strings_if_body_should_be_translated() {
+		$this->markTestSkipped( 'This was temporarily reverted, will be fixed in short.' );
+		return;
+
 		$translation_package = $this->prepare_translation_package( 'post' );
 		$post                = $this->get_a_post_object();
 
