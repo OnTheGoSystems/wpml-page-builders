@@ -245,6 +245,7 @@ class WPML_PB_Integration {
 			$this->with_strategies( function( IWPML_PB_Strategy $strategy ) {
 				$this->factory->get_string_translations( $strategy )->save_translations_to_post();
 			} );
+			$this->new_translations_recieved = false;
 		}
 	}
 
