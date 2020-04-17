@@ -50,6 +50,18 @@ class WPML_Page_Builders_Media_Shortcodes_Update implements IWPML_PB_Media_Updat
 			'post_content' => $post->post_content,
 			'tags_input'   => $tag_ids,
 		);
+
+		// Action 'wpml_tm_save_post' changes status of post. We should not touch it when duplicating.
+		$duplication = 'wpml_duplicate_dashboard' === filter_input( INPUT_POST, 'action', FILTER_SANITIZE_STRING );
+
+		if ( $duplication ) {
+			remove_action( 'wpml_tm_save_post', 'wpml_tm_save_post', 10, 3 );
+		}
+
 		wpml_update_escaped_post( $postarr );
+
+		if ( $duplication ) {
+			add_action( 'wpml_tm_save_post', 'wpml_tm_save_post', 10, 3 );
+		}
 	}
 }

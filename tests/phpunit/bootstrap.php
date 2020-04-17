@@ -43,10 +43,11 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 
 FunctionMocker::init(
 	[
-		'blacklist' => [],
-		'whitelist' => [],
+		'blacklist'             => [],
+		'whitelist'             => [],
 		'redefinable-internals' => [
 			'defined',
+			'filter_input',
 		],
 	]
 );

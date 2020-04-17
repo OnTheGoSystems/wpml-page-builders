@@ -1,5 +1,7 @@
 <?php
 
+use tad\FunctionMocker\FunctionMocker;
+
 /**
  * @group media
  */
@@ -116,6 +118,69 @@ class Test_WPML_Page_Builders_Media_Shortcodes_Update extends \OTGS\PHPUnit\Tool
 
 		$pb_media_usage = $this->get_pb_media_usage();
 		$pb_media_usage->expects( $this->once() )->method( 'update' )->with( $original_post_id );
+
+		$subject = $this->get_subject( $factory, $media_shortcodes, $pb_media_usage );
+		$subject->translate( $post );
+	}
+
+	/**
+	 * @test
+	 */
+	public function it_should_translate_duplicate() {
+		$target_lang        = 'fr';
+		$source_lang        = 'en';
+		$original_post_id   = self::ORIGINAL_POST_ID;
+		$original_content   = '[shortcodeA image="http://example.com/union-jack.jpg" /]';
+		$translated_content = '[shortcodeA image="http://example.com/drapeau-francais.jpg" /]';
+
+		$post = $this->get_post( $original_content );
+
+		\WP_Mock::userFunction(
+			'wp_get_post_tags',
+			[
+				'times'  => 1,
+				'return' => [ 1 ],
+			]
+		);
+
+		\WP_Mock::userFunction(
+			'wpml_update_escaped_post',
+			[ 'times' => 1 ]
+		);
+
+		$source_element = $this->get_element( $source_lang, null );
+		$source_element->method( 'get_id' )->willReturn( $original_post_id );
+
+		$element = $this->get_element( $target_lang, $source_lang );
+		$element->method( 'get_source_element' )->willReturn( $source_element );
+
+		$factory = $this->get_element_factory();
+		$factory->method( 'create_post' )->with( $post->ID )->willReturn( $element );
+
+		$media_shortcodes = $this->get_media_shortcodes();
+		$media_shortcodes->expects( $this->once() )->method( 'set_target_lang' )->with( $target_lang )
+		                 ->willReturnSelf();
+		$media_shortcodes->expects( $this->once() )->method( 'set_source_lang' )->with( $source_lang )
+		                 ->willReturnSelf();
+		$media_shortcodes->expects( $this->once() )
+		                 ->method( 'translate' )->with( $original_content )->willReturn( $translated_content );
+
+		$pb_media_usage = $this->get_pb_media_usage();
+		$pb_media_usage->expects( $this->once() )->method( 'update' )->with( $original_post_id );
+
+		FunctionMocker::replace(
+			'filter_input',
+			function ( $type, $variable_name, $filter ) {
+				if ( INPUT_POST === $type && 'action' === $variable_name && FILTER_SANITIZE_STRING === $filter ) {
+					return 'wpml_duplicate_dashboard';
+				}
+
+				return null;
+			}
+		);
+
+		WP_Mock::userFunction( 'remove_action' )->with( 'wpml_tm_save_post', 'wpml_tm_save_post', 10, 3 )->once();
+		WP_Mock::expectActionAdded( 'wpml_tm_save_post', 'wpml_tm_save_post', 10, 3 );
 
 		$subject = $this->get_subject( $factory, $media_shortcodes, $pb_media_usage );
 		$subject->translate( $post );
