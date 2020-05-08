@@ -11,14 +11,15 @@ class Test_WPML_PB_Register_Shortcodes extends WPML_PB_TestCase {
 	function setUp() {
 		parent::setUp();
 
-		\WP_Mock::wpFunction( 'get_shortcode_regex', array(
-			'return' => '\[(\[?)(vc_column_text)(?![\w-])([^\]\/]*(?:\/(?!\])[^\]\/]*)*?)(?:(\/)\]|\](?:([^\[]*+(?:\[(?!\/\2\])[^\[]*+)*+)\[\/\2\])?)(\]?)',
+		\WP_Mock::userFunction( 'get_shortcode_regex', array(
+			'return' => '\[(\[?)(wpml_string_wrapper|vc_column_text)(?![\w-])([^\]\/]*(?:\/(?!\])[^\]\/]*)*?)(?:(\/)\]|\](?:([^\[]*+(?:\[(?!\/\2\])[^\[]*+)*+)\[\/\2\])?)(\]?)',
 		) );
 	}
 
 	/**
 	 * @test
 	 * @dataProvider encode_data_provider
+	 * @group wpmlcore-6971
 	 *
 	 * @param bool $encode
 	 */
@@ -40,9 +41,6 @@ class Test_WPML_PB_Register_Shortcodes extends WPML_PB_TestCase {
 			'times' => 1,
 			'args'  => array( $post_id, WPML_PB_Integration::MIGRATION_DONE_POST_META, true ),
 		) );
-
-
-		$dummy_content = rand_long_str( 100 ) . $shortcode . rand_long_str( 100 );
 
 		$sitepress_mock      = $this->get_sitepress_mock();
 		$string_handler_mock = $this->get_wpml_pb_handle_strings_mock();
@@ -78,7 +76,7 @@ class Test_WPML_PB_Register_Shortcodes extends WPML_PB_TestCase {
 		$reuse_translations_mock->shouldReceive( 'find_and_reuse' );
 
 		$shortcode_handler = new WPML_PB_Register_Shortcodes( $string_handler_mock, $strategy, new WPML_PB_Shortcode_Encoding(), $reuse_translations_mock );
-		$shortcode_handler->register_shortcode_strings( $post_id, $dummy_content );
+		$shortcode_handler->register_shortcode_strings( $post_id, $shortcode );
 	}
 
 	public function encode_data_provider() {
@@ -210,6 +208,7 @@ class Test_WPML_PB_Register_Shortcodes extends WPML_PB_TestCase {
 		$strategy_mock->shouldReceive( 'get_package_key' )->andReturn( 'anything' );
 		$strategy_mock->shouldReceive( 'get_package_strings' )->andReturn( $strings );
 		$strategy_mock->shouldReceive( 'remove_string' );
+		$strategy_mock->shouldReceive( 'get_shortcodes' )->andReturn( [] );
 
 		$reuse_translations_mock = Mockery::mock( 'WPML_PB_Reuse_Translations_By_Strategy' );
 		$reuse_translations_mock->shouldReceive( 'set_original_strings' )->once()->with( $strings );
@@ -354,6 +353,136 @@ class Test_WPML_PB_Register_Shortcodes extends WPML_PB_TestCase {
 			'media-url' => array( 'media-url' ),
 			'media-ids' => array( 'media-ids' ),
 		);
+	}
+
+	/**
+	 * @test
+	 * @group wpmlcore-6971
+	 */
+	public function it_should_register_strings_in_non_wrapped_content() {
+		$post_id          = 123;
+		$string_unwrapped = 'Some text unwrapped';
+		$string_inside    = 'Text inside shortcode';
+		$title            = 'The title';
+		$content          = '[vc_column_text title="' . $title . '"]' . $string_inside . '[/vc_column_text]' . $string_unwrapped;
+
+		$sitepress_mock      = $this->get_sitepress_mock();
+		$string_handler_mock = $this->get_wpml_pb_handle_strings_mock();
+
+		$string_handler_mock->expects( $this->exactly( 4 ) )
+			->method( 'register_string' )
+			->withConsecutive(
+				[
+					$this->equalTo( $post_id ),
+					$this->equalTo( $string_inside ),
+					$this->equalTo( 'VISUAL' ),
+					$this->equalTo( 'vc_column_text: content' ),
+					$this->equalTo( '' ),
+					$this->equalTo( 1 )
+				],
+				[
+					$this->equalTo( $post_id ),
+					$this->equalTo( $title ),
+					$this->equalTo( 'LINE' ),
+					$this->equalTo( 'vc_column_text: title' ),
+					$this->equalTo( '' ),
+					$this->equalTo( 2 )
+				],
+				[
+					$this->equalTo( $post_id ),
+					$this->equalTo( $string_unwrapped ),
+					$this->equalTo( 'VISUAL' ),
+					$this->equalTo( 'wpml_string_wrapper: content' ),
+					$this->equalTo( '' ),
+					$this->equalTo( 3 )
+				],
+				[
+					$this->equalTo( $post_id ),
+					$this->equalTo( '' ),
+					$this->equalTo( 'VISUAL' ),
+					$this->equalTo( 'wpml_string_wrapper: content' ),
+					$this->equalTo( '' ),
+					$this->equalTo( 4 )
+				]
+			)
+			->willReturn( 1 );
+
+		$wpdb     = $this->stubs->wpdb();
+		$factory  = $this->get_factory( $wpdb, $sitepress_mock );
+		$strategy = $this->get_shortcode_strategy( $factory );
+
+		\WP_Mock::passthruFunction( 'update_post_meta' );
+
+		\WP_Mock::userFunction( 'shortcode_parse_atts', array(
+			'return' => [ 'title' => $title ],
+		) );
+
+		$reuse_translations_mock = Mockery::mock( 'WPML_PB_Reuse_Translations_By_Strategy' );
+		$reuse_translations_mock->shouldReceive( 'set_original_strings' );
+		$reuse_translations_mock->shouldReceive( 'find_and_reuse' );
+
+		$shortcode_handler = new WPML_PB_Register_Shortcodes( $string_handler_mock, $strategy, new WPML_PB_Shortcode_Encoding(), $reuse_translations_mock );
+		$shortcode_handler->register_shortcode_strings( $post_id, $content );
+	}
+
+	/**
+	 * @test
+	 * @group wpmlcore-6971
+	 */
+	public function it_should_NOT_register_strings_with_NOT_registered_shortcodes() {
+		$post_id = 123;
+		$content = '[hello] there';
+
+		$sitepress_mock      = $this->get_sitepress_mock();
+		$string_handler_mock = $this->get_wpml_pb_handle_strings_mock();
+
+		$string_handler_mock->expects( $this->never() )->method( 'register_string' );
+
+		$wpdb     = $this->stubs->wpdb();
+		$factory  = $this->get_factory( $wpdb, $sitepress_mock );
+		$strategy = $this->get_shortcode_strategy( $factory );
+
+		\WP_Mock::passthruFunction( 'update_post_meta' );
+
+		$reuse_translations_mock = Mockery::mock( 'WPML_PB_Reuse_Translations_By_Strategy' );
+		$reuse_translations_mock->shouldReceive( 'set_original_strings' );
+		$reuse_translations_mock->shouldReceive( 'find_and_reuse' );
+
+		$shortcode_handler = new WPML_PB_Register_Shortcodes( $string_handler_mock, $strategy, new WPML_PB_Shortcode_Encoding(), $reuse_translations_mock );
+		$shortcode_handler->register_shortcode_strings( $post_id, $content );
+	}
+
+	/**
+	 * @test
+	 * @group wpmlcore-6971
+	 */
+	public function it_should_NOT_register_unwrapped_shortcode_strings_if_content_has_Gutenberg_blocks() {
+		$post_id           = 123;
+		$text_in_shortcode = 'Some text';
+		$text_outside      = 'Text outside';
+		$content           = '<!-- wp:shortcode -->' . $text_outside . '[vc_column_text]' . $text_in_shortcode . '[/vc_column_text]<!-- wp:shortcode -->';
+
+		$sitepress_mock      = $this->get_sitepress_mock();
+		$string_handler_mock = $this->get_wpml_pb_handle_strings_mock();
+
+		$string_handler_mock->expects( $this->once() )
+			->method( 'register_string' )
+			->with( $post_id, $text_in_shortcode, 'VISUAL', 'vc_column_text: content', '', 1 )
+			->willReturn( 1 );
+
+		$wpdb     = $this->stubs->wpdb();
+		$factory  = $this->get_factory( $wpdb, $sitepress_mock );
+		$strategy = $this->get_shortcode_strategy( $factory );
+
+		\WP_Mock::passthruFunction( 'shortcode_parse_atts' );
+		\WP_Mock::passthruFunction( 'update_post_meta' );
+
+		$reuse_translations_mock = Mockery::mock( 'WPML_PB_Reuse_Translations_By_Strategy' );
+		$reuse_translations_mock->shouldReceive( 'set_original_strings' );
+		$reuse_translations_mock->shouldReceive( 'find_and_reuse' );
+
+		$shortcode_handler = new WPML_PB_Register_Shortcodes( $string_handler_mock, $strategy, new WPML_PB_Shortcode_Encoding(), $reuse_translations_mock );
+		$shortcode_handler->register_shortcode_strings( $post_id, $content );
 	}
 
 	/** @return WPML_PB_Shortcode_Strategy|PHPUnit_Framework_MockObject_MockObject */

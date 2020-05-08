@@ -20,12 +20,6 @@
             "tests/phpunit/util/"
         ]
     },
-    "repositories": {
-        "collect": {
-            "type": "vcs",
-            "url": "https://github.com/OnTheGoSystems/collect.git"
-        }
-    },
     "require-dev": {
         "roave/security-advisories": "dev-master",
         "10up/wp_mock": "~0.2.0",
@@ -40,6 +34,8 @@
         "wp-coding-standards/wpcs": "^0",
         "m4tthumphrey/php-gitlab-api": "^9.0.0",
         "php-http/guzzle6-adapter": "^1.1",
-        "wpml/collect": "dev-wpml-collect-rename"
+        "wpml/collect": "dev-wpml-collect-rename",
+        "wpml/fp": "dev-master",
+        "wpml/wp": "dev-master"
     }
 }

@@ -43,6 +43,7 @@ class Test_WPML_PB_Visual_Composer_Links extends WPML_PB_TestCase {
 		$this->shortcode_strategy->shouldReceive( 'get_package_key' )->andReturnNull();
 		$this->shortcode_strategy->shouldReceive( 'get_package_strings' )->andReturn( array() );
 		$this->shortcode_strategy->shouldReceive( 'get_shortcode_attributes' )->andReturn( array( 'title', 'link' ) );
+		$this->shortcode_strategy->shouldReceive( 'get_shortcodes' )->andReturn( [ 'vc_btn' ] );
 
 		\WP_Mock::wpFunction( 'shortcode_parse_atts',
 			array(

@@ -84,7 +84,9 @@ class Test_WPML_PB_Update_Shortcodes_In_Content extends WPML_PB_TestCase {
 			return isset( $shortcode_attribs[ $tag ] ) ? $shortcode_attribs[ $tag ] : array();
 		} );
 
-		$this->shortcode_parser->method( 'get_shortcodes' )->with( $original_content )->willReturn( $parsed_shortcodes );
+		$this->shortcode_parser->method( 'get_shortcodes' )
+			->with( WPML_PB_Shortcode_Content_Wrapper::maybeWrap( $original_content, $short_codes ) )
+			->willReturn( $parsed_shortcodes );
 
 		$subject = new WPML_PB_Update_Shortcodes_In_Content( $this->shortcode_strategy, new WPML_PB_Shortcode_Encoding() );
 		$actual  = $subject->update_content( $original_content, $translations, 'fr' );
@@ -417,6 +419,58 @@ class Test_WPML_PB_Update_Shortcodes_In_Content extends WPML_PB_TestCase {
 					),
 				),
 			),
+			'Unwrapped content - https://onthegosystems.myjetbrains.com/youtrack/issue/wpmlcore-6971' => [
+				'[shortcode_A foo="bar"]Some text[shortcode_A foo="bar2"]',
+				'[shortcode_A foo="FR bar"]FR Some text[shortcode_A foo="FR bar2"]',
+				[ 'shortcode_A' ],
+				[ 'shortcode_A' => [ 'foo' ] ],
+				[
+					[
+						'block'      => '[shortcode_A foo="bar"]',
+						'tag'        => 'shortcode_A',
+						'attributes' => ' foo="bar"',
+						'content'    => '',
+					],
+					[
+						'block'      => '[wpml_string_wrapper]Some text[/wpml_string_wrapper]',
+						'tag'        => 'wpml_string_wrapper',
+						'attributes' => '',
+						'content'    => 'Some text',
+					],
+					[
+						'block'      => '[shortcode_A foo="bar2"]',
+						'tag'        => 'shortcode_A',
+						'attributes' => ' foo="bar2"',
+						'content'    => '',
+					],
+					[
+						'block'      => '[wpml_string_wrapper][shortcode_A foo="bar"]Some text[shortcode_A foo="bar2"][/wpml_string_wrapper]',
+						'tag'        => 'wpml_string_wrapper',
+						'attributes' => '',
+						'content'    => '[shortcode_A foo="bar"]Some text[shortcode_A foo="bar2"]',
+					],
+				],
+				[
+					md5( 'Some text' ) => [
+						'fr' => [
+							'status' => ICL_TM_COMPLETE,
+							'value'  => 'FR Some text',
+						],
+					],
+					md5( 'bar' ) => [
+						'fr' => [
+							'status' => ICL_TM_COMPLETE,
+							'value'  => 'FR bar',
+						],
+					],
+					md5( 'bar2' ) => [
+						'fr' => [
+							'status' => ICL_TM_COMPLETE,
+							'value'  => 'FR bar2',
+						],
+					],
+				],
+			],
 		);
 	}
 
@@ -527,6 +581,7 @@ class Test_WPML_PB_Update_Shortcodes_In_Content extends WPML_PB_TestCase {
 
 		$this->shortcode_strategy->method( 'get_shortcode_parser' )
 		                         ->willReturn( $this->shortcode_parser );
+		$this->shortcode_strategy->method( 'get_shortcodes' )->willReturn( [] );
 
 		\WP_Mock::wpFunction( 'get_post', array(
 			'return' => $translated_post,
@@ -564,6 +619,7 @@ class Test_WPML_PB_Update_Shortcodes_In_Content extends WPML_PB_TestCase {
 
 		$this->shortcode_strategy->method( 'get_shortcode_parser' )
 		                         ->willReturn( $this->shortcode_parser );
+		$this->shortcode_strategy->method( 'get_shortcodes' )->willReturn( [] );
 
 		\WP_Mock::wpFunction( 'get_post', array(
 			'return' => null,
@@ -611,6 +667,7 @@ class Test_WPML_PB_Update_Shortcodes_In_Content extends WPML_PB_TestCase {
 
 		$this->shortcode_strategy->method( 'get_shortcode_parser' )
 		                         ->willReturn( $this->shortcode_parser );
+		$this->shortcode_strategy->method( 'get_shortcodes' )->willReturn( [] );
 
 		\WP_Mock::onFilter( 'wpml_pb_shortcode_content_for_translation' )
 		        ->with( $original_post->post_content, $original_post->ID )
@@ -663,6 +720,7 @@ class Test_WPML_PB_Update_Shortcodes_In_Content extends WPML_PB_TestCase {
 
 		$this->shortcode_strategy->method( 'get_shortcode_parser' )
 		                         ->willReturn( $this->shortcode_parser );
+		$this->shortcode_strategy->method( 'get_shortcodes' )->willReturn( [] );
 
 		\WP_Mock::onFilter( 'wpml_pb_shortcodes_save_translation' )
 		        ->with( false, $translated_post_id, $original_post->post_content )
