@@ -287,7 +287,22 @@ class Test_WPML_TM_Page_Builders extends \OTGS\PHPUnit\Tools\TestCase {
 
 	/**
 	 * @test
+	 * @group wpmlcore-7246
+	 */
+	public function pro_translation_completed_action_with_NOT_post_job() {
+		$subject = $this->get_subject();
+
+		$job = (object) [ 'element_type_prefix' => 'package'];
+
+		\WP_Mock::userFunction( 'do_action' )->never();
+
+		$subject->pro_translation_completed_action( 123, [ 'some fields' ], $job );
+	}
+
+	/**
+	 * @test
 	 * @dataProvider pro_translation_completed_action_data_provider
+	 * @group wpmlcore-7246
 	 *
 	 * @param array $fields
 	 * @param array $data
@@ -302,6 +317,7 @@ class Test_WPML_TM_Page_Builders extends \OTGS\PHPUnit\Tools\TestCase {
 		$job->translator_id       = rand( 1, 50 );
 		$job->translation_service = rand( 1, 50 );
 		$job->original_doc_id     = 20;
+		$job->element_type_prefix = 'post';
 
 		$field_string1 = $this->find_field_with_slug( $data['string1_field_name'], $fields );
 		$field_string2 = $this->find_field_with_slug( $data['string2_field_name'], $fields );
