@@ -4,14 +4,25 @@ class Test_WPML_PB_Loader extends WPML_PB_TestCase {
 
 	public function setUp() {
 		parent::setUp();
-		$this->mockActionFilterLoader();
+
+		\WP_Mock::userFunction( 'WPML\Container\share' )->once()
+			->with( \WPML\PB\Container\Config::getSharedClasses() );
 	}
 
-	private function mockActionFilterLoader() {
+	private function mockActionFilterLoader( $has_page_builder_strategy ) {
 		$hooks = [
-			WPML_PB_Handle_Post_Body::class,
 			WPML\PB\Compatibility\Toolset\Layouts\HooksFactory::class,
 		];
+
+		if ( $has_page_builder_strategy ) {
+			$hooks = array_merge(
+				$hooks,
+				[
+					WPML_PB_Handle_Post_Body::class,
+					WPML\PB\AutoUpdate\Hooks::class,
+				]
+			);
+		}
 
 		$actionFilterLoader = \Mockery::mock( 'WPML_Action_Filter_Loader' );
 		$actionFilterLoader->shouldReceive( 'load' )->with( $hooks );
@@ -21,10 +32,9 @@ class Test_WPML_PB_Loader extends WPML_PB_TestCase {
 			->andReturn( $actionFilterLoader );
 	}
 
-	/**
-	 * @group pierre
-	 */
 	public function test_no_strategies() {
+		$this->mockActionFilterLoader( false );
+
 		$st_settings      = $this->get_wpml_st_settings();
 		$integration_mock = $this->get_pb_integration_mock();
 		$integration_mock->expects( $this->exactly( 0 ) )->method( 'add_hooks' );
@@ -33,6 +43,8 @@ class Test_WPML_PB_Loader extends WPML_PB_TestCase {
 	}
 
 	public function test_shortcode_strategy() {
+		$this->mockActionFilterLoader( true );
+
 		$integration_mock = $this->get_pb_integration_mock();
 		$integration_mock->expects( $this->exactly( 1 ) )->method( 'add_hooks' );
 		$integration_mock->expects( $this->exactly( 1 ) )->method( 'add_strategy' );
@@ -44,6 +56,8 @@ class Test_WPML_PB_Loader extends WPML_PB_TestCase {
 	}
 
 	public function test_api_hooks_strategy() {
+		$this->mockActionFilterLoader( true );
+
 		$st_settings      = $this->get_wpml_st_settings();
 		$integration_mock = $this->get_pb_integration_mock();
 		$integration_mock->expects( $this->exactly( 1 ) )->method( 'add_hooks' );
@@ -56,6 +70,8 @@ class Test_WPML_PB_Loader extends WPML_PB_TestCase {
 	 * @group wpmlcore-6208
 	 */
 	public function test_two_strategies_and_assert_shortcode_strategy_is_the_last() {
+		$this->mockActionFilterLoader( true );
+
 		\WP_Mock::userFunction( 'is_admin', array( 'return' => false ) );
 
 		$integration_mock = $this->get_pb_integration_mock();

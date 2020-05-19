@@ -770,11 +770,13 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 	 * @group wpmlcore-6120
 	 */
 	public function it_should_set_last_editor_mode_to_native_editor() {
+		$post_id = 123;
+
 		$_POST = array(
 			'action' => 'editpost',
+			'ID'     => $post_id,
 		);
 
-		$post_id      = 123;
 		$post         = $this->get_post( $post_id );
 		$post_element = $this->get_post_element( $post_id, $post );
 		$post_element->method( 'get_source_language_code' )->willReturn( 'en' );
