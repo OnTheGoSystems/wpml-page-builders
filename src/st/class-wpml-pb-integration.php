@@ -103,9 +103,7 @@ class WPML_PB_Integration {
 
 	/** @param int $post_id */
 	private function update_last_editor_mode( $post_id ) {
-		$post_element = $this->factory->get_post_element( $post_id );
-
-		if ( ! $post_element->get_source_language_code() ) {
+		if ( ! $this->is_translation( $post_id ) ) {
 			return;
 		}
 
@@ -118,8 +116,20 @@ class WPML_PB_Integration {
 		}
 	}
 
+	/** @return bool */
 	private function is_editing_translation_with_native_editor() {
-		return isset( $_POST['action'] ) && 'editpost' === $_POST['action'];
+		return isset( $_POST['action'], $_POST['ID'] )
+			&& 'editpost' === $_POST['action']
+			&& $this->is_translation( $_POST['ID'] );
+	}
+
+	/**
+	 * @param int $postId
+	 *
+	 * @return bool
+	 */
+	private function is_translation( $postId ) {
+		return (bool) $this->factory->get_post_element( $postId )->get_source_language_code();
 	}
 
 	/**

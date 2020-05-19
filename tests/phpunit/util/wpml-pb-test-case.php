@@ -20,9 +20,10 @@ abstract class WPML_PB_TestCase extends WPML_PageBuilders_TestCase {
 	}
 
 	protected function get_factory( $wpdb, $sitepress ) {
-		$factory = new WPML_PB_Factory( $wpdb, $sitepress );
+		$wpdb      = $wpdb ?: $this->createMock( 'wpdb' );
+		$sitepress = $sitepress ?: $this->createMock( 'SitePress' );
 
-		return $factory;
+		return new WPML_PB_Factory( $wpdb, $sitepress );
 	}
 
 	protected function get_shortcode_strategy( WPML_PB_Factory $factory, $encoding = '', $encoding_condition = '' ) {

@@ -14,7 +14,7 @@ class Test_WPML_PB_API_Hooks_Strategy extends WPML_PB_TestCase {
 
 	function test_get_updaters() {
 		$subject = new WPML_PB_API_Hooks_Strategy( '' );
-		$factory = new WPML_PB_Factory( null, null );
+		$factory = $this->getPbFactory();
 		$subject->set_factory( $factory );
 		$this->assertInstanceOf( 'WPML_PB_Update_Post', $subject->get_update_post( array() ) );
 		$this->assertInstanceOf( 'WPML_PB_Update_API_Hooks_In_Content', $subject->get_content_updater( array() ) );
@@ -23,7 +23,7 @@ class Test_WPML_PB_API_Hooks_Strategy extends WPML_PB_TestCase {
 	function test_update_in_content() {
 		$name = rand_str();
 		$strategy = new WPML_PB_API_Hooks_Strategy( $name );
-		$factory = new WPML_PB_Factory( null, null );
+		$factory = $this->getPbFactory();
 		$strategy->set_factory( $factory );
 		$subject = new WPML_PB_Update_API_Hooks_In_Content( $strategy );
 
@@ -59,5 +59,7 @@ class Test_WPML_PB_API_Hooks_Strategy extends WPML_PB_TestCase {
 
 	}
 
-
+	private function getPbFactory() {
+		return new WPML_PB_Factory( $this->createMock( 'wpdb' ), $this->createMock( 'SitePress' ) );
+	}
 }
