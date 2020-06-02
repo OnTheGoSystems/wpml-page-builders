@@ -154,6 +154,11 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 		\WP_Mock::expectActionAdded( 'wpml_pb_finished_adding_string_translations', array( $pb_integration, 'process_pb_content_with_hidden_strings_only' ), 9, 2 );
 		\WP_Mock::expectActionAdded( 'wpml_pb_finished_adding_string_translations', array( $pb_integration, 'save_translations_to_post' ), 10 );
 
+		\WP_Mock::expectActionAdded(
+			'wpml_pb_register_all_strings_for_translation',
+			[ $pb_integration, 'register_all_strings_for_translation' ]
+		);
+
 		$pb_integration->add_hooks();
 	}
 
