@@ -1,5 +1,8 @@
 <?php
 
+use \WPML\FP\Fns;
+use function WPML\FP\invoke;
+
 /**
  * Class WPML_PB_Integration
  */
@@ -128,9 +131,7 @@ class WPML_PB_Integration {
 	public function register_all_strings_for_translation( $post ) {
 		if ( $this->is_post_status_ok( $post ) && $this->is_original_post( $post ) ) {
 			$this->is_registering_string = true;
-			$this->with_strategies( function( IWPML_PB_Strategy $strategy ) use ( $post ) {
-				$strategy->register_strings( $post );
-			} );
+			$this->with_strategies( invoke( 'register_strings' )->with( $post ) );
 			$this->is_registering_string = false;
 		}
 	}
@@ -169,6 +170,7 @@ class WPML_PB_Integration {
 		add_filter( 'wpml_tm_translation_job_data', array( $this, 'rescan' ), 9, 2 );
 
 		add_action( 'wpml_pb_register_all_strings_for_translation', [ $this, 'register_all_strings_for_translation' ] );
+		add_filter( 'wpml_pb_register_strings_in_content', [ $this, 'register_strings_in_content' ], 10, 3 );
 	}
 
 	/**
@@ -206,11 +208,9 @@ class WPML_PB_Integration {
 
 	/**
 	 * @param callable $callable
-	 * 
-	 * @return mixed
 	 */
 	private function with_strategies( callable $callable ) {
-		wpml_collect( $this->strategies )->each( $callable );
+		Fns::each( $callable, $this->strategies );
 	}
 
 	/**
@@ -274,13 +274,18 @@ class WPML_PB_Integration {
 			$wpdb = $this->sitepress->get_wpdb();
 			$post = $wpdb->get_row( $wpdb->prepare( "SELECT ID, post_type, post_status, post_content FROM {$wpdb->posts} WHERE ID = %d", $post_id ) );
 			if ( $this->is_post_status_ok( $post ) && $this->is_original_post( $post ) ) {
-				$this->with_strategies( function( IWPML_PB_Strategy $strategy ) use ( $post_id, $post ) {
-					$strategy->migrate_location( $post_id, $post->post_content );
-				} );
+				$this->with_strategies( invoke( 'migrate_location' )->with( $post_id, $post->post_content ) );
 			}
 
 			$this->mark_migrate_location_done( $post_id );
 		}
+	}
+
+	public function register_strings_in_content( $registered, $post_id, $content ) {
+		foreach ( $this->strategies as $strategy ) {
+			$registered |= $strategy->register_strings_in_content( $post_id, $content, false );
+		}
+		return $registered;
 	}
 
 	public function get_factory() {

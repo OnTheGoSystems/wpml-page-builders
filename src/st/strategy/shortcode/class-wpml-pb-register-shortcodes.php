@@ -35,7 +35,9 @@ class WPML_PB_Register_Shortcodes {
 		$this->reuse_translations     = $reuse_translations;
 	}
 
-	public function register_shortcode_strings( $post_id, $content ) {
+	public function register_shortcode_strings( $post_id, $content, $do_cleanup ) {
+
+		$any_registered = false;
 
 		$this->location_index = 1;
 
@@ -58,7 +60,7 @@ class WPML_PB_Register_Shortcodes {
 				$encoding_condition = $this->shortcode_strategy->get_shortcode_tag_encoding_condition( $shortcode['tag'] );
 				$type               = $this->shortcode_strategy->get_shortcode_tag_type( $shortcode['tag'] );
 				$shortcode_content  = $this->encoding->decode( $shortcode_content, $encoding, $encoding_condition );
-				$this->register_string( $post_id, $shortcode_content, $shortcode, 'content', $type );
+				$any_registered |= $this->register_string( $post_id, $shortcode_content, $shortcode, 'content', $type );
 			}
 
 			$attributes              = (array) shortcode_parse_atts( $shortcode['attributes'] );
@@ -70,7 +72,7 @@ class WPML_PB_Register_Shortcodes {
 						$type       = $this->shortcode_strategy->get_shortcode_attribute_type( $shortcode['tag'], $attr );
 						$attr_value = $this->encoding->decode( $attr_value, $encoding );
 
-						$this->register_string( $post_id, $attr_value, $shortcode, $attr, $type );
+						$any_registered |= $this->register_string( $post_id, $attr_value, $shortcode, $attr, $type );
 					}
 				}
 			}
@@ -80,9 +82,13 @@ class WPML_PB_Register_Shortcodes {
 			$this->reuse_translations->find_and_reuse( $post_id, $this->existing_package_strings );
 		}
 
-		$this->clean_up_package_leftovers();
+		if( $do_cleanup ) {
+			$this->clean_up_package_leftovers();
+		}
 
 		$this->mark_post_as_migrate_location_done( $post_id );
+
+		return $any_registered;
 	}
 
 	/**
@@ -143,6 +149,8 @@ class WPML_PB_Register_Shortcodes {
 	}
 
 	public function register_string( $post_id, $content, $shortcode, $attribute, $editor_type ) {
+		$string_id = 0;
+
 		if ( is_array( $content ) ) {
 			foreach ( $content as $key => $data ) {
 				if ( $data['translate'] ) {
@@ -159,9 +167,11 @@ class WPML_PB_Register_Shortcodes {
 					$this->location_index ++;
 				}
 			} catch ( Exception $exception ) {
-
+				$string_id = 0;
 			}
 		}
+
+		return $string_id !== 0;
 	}
 
 	private function remove_from_clean_up_list( $value ) {
