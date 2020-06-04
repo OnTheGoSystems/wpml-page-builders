@@ -1,5 +1,7 @@
 <?php
 
+use \WPML\LIB\WP\Gutenberg;
+
 class WPML_PB_Shortcode_Strategy implements IWPML_PB_Strategy {
 
 	private $shortcodes = array(
@@ -95,8 +97,14 @@ class WPML_PB_Shortcode_Strategy implements IWPML_PB_Strategy {
 	 *
 	 */
 	public function register_strings( $post ) {
+		if ( Gutenberg::doesNotHaveBlock( $post->post_content ) ) {
+			$this->register_strings_in_content( $post->ID, $post->post_content, true );
+		}
+	}
+
+	public function register_strings_in_content( $post_id, $content, $do_cleanup ) {
 		$register_shortcodes = $this->factory->get_register_shortcodes( $this );
-		$register_shortcodes->register_shortcode_strings( $post->ID, $post->post_content );
+		return $register_shortcodes->register_shortcode_strings( $post_id, $content, $do_cleanup );
 	}
 
 	public function set_factory( $factory ) {
