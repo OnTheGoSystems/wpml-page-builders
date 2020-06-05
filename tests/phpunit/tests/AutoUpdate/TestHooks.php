@@ -45,21 +45,17 @@ class TestHooks extends  TestCase {
 		$post    = (object) [ 'ID' => 123 ];
 		$content = 'some content';
 
-		$package1 = (object) [
-			'string_data' => [
-				'string1B' => 'The string 1B',
-				'string1A' => 'The string 1A',
-			],
-		];
+		$package1 = $this->getPackage( [
+			'string1B' => 'The string 1B',
+			'string1A' => 'The string 1A',
+		] );
 
-		$package2 = (object) [
-			'string_data' => [
-				'string2A' => 'The string 2A',
-				'string2B' => 'The string 2B',
-			],
-		];
+		$package2 = $this->getPackage( [
+			'string2A' => 'The string 2A',
+			'string2B' => 'The string 2B',
+		] );
 
-		$packageWithMissingStringData = (object) [];
+		$packageWithMissingStringData = $this->getPackage( [] );
 
 		// keys are sorted inside each package
 		$expectedPostContentMd5 = 'string1A' . Hooks::HASH_SEP . 'string1B' . Hooks::HASH_SEP . 'string2A' . Hooks::HASH_SEP . 'string2B-';
@@ -190,5 +186,25 @@ class TestHooks extends  TestCase {
 			->willReturn( array_merge( [ $element ], $translations ) );
 
 		return $element;
+	}
+
+	private function getPackage( array $strings ) {
+		$stringsData = [];
+
+		foreach ( $strings as $name => $value ) {
+			$stringsData[] = [
+				'name'  => $name,
+				'value' => $value,
+			];
+		}
+
+		$package = $this->getMockBuilder( '\WPML_Package' )
+			->setMethods( [ 'get_package_strings' ] )
+			->disableOriginalConstructor()->getMock();
+
+		$package->method( 'get_package_strings' )
+			->willReturn( $stringsData );
+
+		return $package;
 	}
 }

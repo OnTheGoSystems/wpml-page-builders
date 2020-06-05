@@ -43,8 +43,8 @@ class Hooks implements \IWPML_Backend_Action, \IWPML_Frontend_Action, \IWPML_DIC
 	public function getMd5ContentFromPackageStrings( $content, $post ) {
 		// $joinPackageStringHashes :: \WPML_Package → string
 		$joinPackageStringHashes = pipe(
-			Obj::propOr( [], 'string_data' ),
-			Obj::keys(),
+			invoke( 'get_package_strings' )->with( true ),
+			Lst::pluck( 'name' ),
 			Lst::sort( Relation::gt() ),
 			Lst::join( self::HASH_SEP )
 		);
