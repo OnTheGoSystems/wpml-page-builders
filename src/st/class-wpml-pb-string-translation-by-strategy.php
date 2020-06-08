@@ -38,6 +38,22 @@ class WPML_PB_String_Translation_By_Strategy extends WPML_PB_String_Translation 
 	}
 
 	/**
+	 * @param string $content
+	 * @param string $lang
+	 *
+	 * @return string
+	 */
+	public function update_translations_in_content( $content, $lang ) {
+		foreach ( $this->packages_to_update as $package_data ) {
+			if ( $package_data['package']->kind == $this->strategy->get_package_kind() ) {
+				$update_post = $this->strategy->get_update_post( $package_data );
+				$content = $update_post->update_content( $content, $lang );
+			}
+		}
+		return $content;
+	}
+
+	/**
 	 * @param int $translated_string_id
 	 *
 	 * @return array
