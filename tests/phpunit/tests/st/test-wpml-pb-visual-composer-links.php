@@ -53,7 +53,7 @@ class Test_WPML_PB_Visual_Composer_Links extends WPML_PB_TestCase {
 				)
 			)
 		);
-		
+
 
 	}
 
@@ -77,7 +77,7 @@ class Test_WPML_PB_Visual_Composer_Links extends WPML_PB_TestCase {
 		$reuse_translations_mock->shouldReceive( 'find_and_reuse' );
 
 		$subject = new WPML_PB_Register_Shortcodes( $string_handler, $this->shortcode_strategy, new WPML_PB_Shortcode_Encoding(),$reuse_translations_mock );
-		$subject->register_shortcode_strings( $post_id, '' );
+		$subject->register_shortcode_strings( $post_id, '', true );
 	}
 
 	/**

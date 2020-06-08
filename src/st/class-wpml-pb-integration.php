@@ -171,6 +171,7 @@ class WPML_PB_Integration {
 
 		add_action( 'wpml_pb_register_all_strings_for_translation', [ $this, 'register_all_strings_for_translation' ] );
 		add_filter( 'wpml_pb_register_strings_in_content', [ $this, 'register_strings_in_content' ], 10, 3 );
+		add_filter( 'wpml_pb_update_translations_in_content', [ $this, 'update_translations_in_content'], 10, 2 );
 	}
 
 	/**
@@ -252,6 +253,20 @@ class WPML_PB_Integration {
 	}
 
 	/**
+	 * @param string $content
+	 * @param string $lang
+	 *
+	 * @return string
+	 */
+	public function update_translations_in_content( $content, $lang ) {
+		$this->with_strategies( function ( IWPML_PB_Strategy $strategy ) use ( &$content, $lang ) {
+			$content = $this->factory->get_string_translations( $strategy )->update_translations_in_content( $content, $lang );
+		} );
+
+		return $content;
+	}
+
+	/**
 	 * @see https://onthegosystems.myjetbrains.com/youtrack/issue/wpmlst-958
 	 * @param array                $translation_package
 	 * @param WP_Post|WPML_Package $post
@@ -281,9 +296,16 @@ class WPML_PB_Integration {
 		}
 	}
 
+	/**
+	 * @param bool $registered
+	 * @param string|int $post_id
+	 * @param string $content
+	 *
+	 * @return bool
+	 */
 	public function register_strings_in_content( $registered, $post_id, $content ) {
 		foreach ( $this->strategies as $strategy ) {
-			$registered |= $strategy->register_strings_in_content( $post_id, $content, false );
+			$registered = $strategy->register_strings_in_content( $post_id, $content, false ) || $registered;
 		}
 		return $registered;
 	}
