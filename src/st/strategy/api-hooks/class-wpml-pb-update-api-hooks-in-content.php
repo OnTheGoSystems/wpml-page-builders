@@ -21,4 +21,8 @@ class WPML_PB_Update_API_Hooks_In_Content {
 
 	}
 
+	public function update_content( $original_content, $string_translations, $lang ) {
+		return $original_content;
+	}
+
 }

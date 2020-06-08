@@ -76,7 +76,8 @@ class Test_WPML_PB_Register_Shortcodes extends WPML_PB_TestCase {
 		$reuse_translations_mock->shouldReceive( 'find_and_reuse' );
 
 		$shortcode_handler = new WPML_PB_Register_Shortcodes( $string_handler_mock, $strategy, new WPML_PB_Shortcode_Encoding(), $reuse_translations_mock );
-		$shortcode_handler->register_shortcode_strings( $post_id, $shortcode );
+		$any_registered = $shortcode_handler->register_shortcode_strings( $post_id, $shortcode, true );
+		$this->assertTrue( $any_registered );
 	}
 
 	public function encode_data_provider() {
@@ -122,7 +123,7 @@ class Test_WPML_PB_Register_Shortcodes extends WPML_PB_TestCase {
 		$reuse_translations_mock->shouldReceive( 'find_and_reuse' );
 
 		$shortcode_handler = new WPML_PB_Register_Shortcodes( $string_handler_mock, $strategy, new WPML_PB_Shortcode_Encoding(), $reuse_translations_mock );
-		$shortcode_handler->register_shortcode_strings( $post_id, $empty_content );
+		$shortcode_handler->register_shortcode_strings( $post_id, $empty_content, true );
 
 	}
 
@@ -190,7 +191,7 @@ class Test_WPML_PB_Register_Shortcodes extends WPML_PB_TestCase {
 		$reuse_translations_mock->shouldReceive( 'find_and_reuse' );
 
 		$shortcode_handler = new WPML_PB_Register_Shortcodes( $string_handler_mock, $strategy, new WPML_PB_Shortcode_Encoding(), $reuse_translations_mock );
-		$shortcode_handler->register_shortcode_strings( mt_rand( 1, 100 ), rand_str() );
+		$shortcode_handler->register_shortcode_strings( mt_rand( 1, 100 ), rand_str(), true );
 	}
 
 	public function test_reuse_translations() {
@@ -215,7 +216,7 @@ class Test_WPML_PB_Register_Shortcodes extends WPML_PB_TestCase {
 		$reuse_translations_mock->shouldReceive( 'find_and_reuse' )->once()->with( $post_id, $strings );
 
 		$shortcode_handler = new WPML_PB_Register_Shortcodes( $string_handler_mock, $strategy_mock, new WPML_PB_Shortcode_Encoding(), $reuse_translations_mock );
-		$shortcode_handler->register_shortcode_strings( $post_id, rand_str() );
+		$shortcode_handler->register_shortcode_strings( $post_id, rand_str(), true );
 
 	}
 
@@ -268,7 +269,7 @@ class Test_WPML_PB_Register_Shortcodes extends WPML_PB_TestCase {
 		$string_handler_mock->expects( $this->never() )->method( 'register_string' );
 
 		$shortcode_handler = new WPML_PB_Register_Shortcodes( $string_handler_mock, $strategy, new WPML_PB_Shortcode_Encoding() );
-		$shortcode_handler->register_shortcode_strings( $post_id, $content );
+		$shortcode_handler->register_shortcode_strings( $post_id, $content, true );
 	}
 
 	/**
@@ -306,7 +307,7 @@ class Test_WPML_PB_Register_Shortcodes extends WPML_PB_TestCase {
 		$string_handler_mock->expects( $this->never() )->method( 'register_string' );
 
 		$shortcode_handler = new WPML_PB_Register_Shortcodes( $string_handler_mock, $strategy, new WPML_PB_Shortcode_Encoding() );
-		$shortcode_handler->register_shortcode_strings( $post_id, $content );
+		$shortcode_handler->register_shortcode_strings( $post_id, $content, true );
 	}
 
 
@@ -345,7 +346,7 @@ class Test_WPML_PB_Register_Shortcodes extends WPML_PB_TestCase {
 		$string_handler_mock->expects( $this->never() )->method( 'register_string' );
 
 		$shortcode_handler = new WPML_PB_Register_Shortcodes( $string_handler_mock, $strategy, new WPML_PB_Shortcode_Encoding() );
-		$shortcode_handler->register_shortcode_strings( $post_id, $content );
+		$shortcode_handler->register_shortcode_strings( $post_id, $content, true );
 	}
 
 	public function dp_media_tag_type() {
@@ -422,7 +423,7 @@ class Test_WPML_PB_Register_Shortcodes extends WPML_PB_TestCase {
 		$reuse_translations_mock->shouldReceive( 'find_and_reuse' );
 
 		$shortcode_handler = new WPML_PB_Register_Shortcodes( $string_handler_mock, $strategy, new WPML_PB_Shortcode_Encoding(), $reuse_translations_mock );
-		$shortcode_handler->register_shortcode_strings( $post_id, $content );
+		$shortcode_handler->register_shortcode_strings( $post_id, $content, true );
 	}
 
 	/**
@@ -449,7 +450,7 @@ class Test_WPML_PB_Register_Shortcodes extends WPML_PB_TestCase {
 		$reuse_translations_mock->shouldReceive( 'find_and_reuse' );
 
 		$shortcode_handler = new WPML_PB_Register_Shortcodes( $string_handler_mock, $strategy, new WPML_PB_Shortcode_Encoding(), $reuse_translations_mock );
-		$shortcode_handler->register_shortcode_strings( $post_id, $content );
+		$shortcode_handler->register_shortcode_strings( $post_id, $content, true );
 	}
 
 	/**
@@ -482,7 +483,7 @@ class Test_WPML_PB_Register_Shortcodes extends WPML_PB_TestCase {
 		$reuse_translations_mock->shouldReceive( 'find_and_reuse' );
 
 		$shortcode_handler = new WPML_PB_Register_Shortcodes( $string_handler_mock, $strategy, new WPML_PB_Shortcode_Encoding(), $reuse_translations_mock );
-		$shortcode_handler->register_shortcode_strings( $post_id, $content );
+		$shortcode_handler->register_shortcode_strings( $post_id, $content, true );
 	}
 
 	/** @return WPML_PB_Shortcode_Strategy|PHPUnit_Framework_MockObject_MockObject */

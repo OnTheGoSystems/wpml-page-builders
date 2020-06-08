@@ -170,6 +170,7 @@ class WPML_PB_Integration {
 		add_filter( 'wpml_tm_translation_job_data', array( $this, 'rescan' ), 9, 2 );
 
 		add_filter( 'wpml_pb_register_strings_in_content', [ $this, 'register_strings_in_content' ], 10, 3 );
+		add_filter( 'wpml_pb_update_translations_in_content', [ $this, 'update_translations_in_content'], 10, 2 );
 	}
 
 	/**
@@ -250,6 +251,14 @@ class WPML_PB_Integration {
 		}
 	}
 
+	public function update_translations_in_content( $content, $lang ) {
+		$this->with_strategies( function ( IWPML_PB_Strategy $strategy ) use ( &$content, $lang ) {
+			$content = $this->factory->get_string_translations( $strategy )->update_translations_in_content( $content, $lang );
+		} );
+
+		return $content;
+	}
+
 	/**
 	 * @see https://onthegosystems.myjetbrains.com/youtrack/issue/wpmlst-958
 	 * @param array                $translation_package
@@ -282,7 +291,7 @@ class WPML_PB_Integration {
 
 	public function register_strings_in_content( $registered, $post_id, $content ) {
 		foreach ( $this->strategies as $strategy ) {
-			$registered |= $strategy->register_strings_in_content( $post_id, $content, false );
+			$registered = $strategy->register_strings_in_content( $post_id, $content, false ) || $registered;
 		}
 		return $registered;
 	}

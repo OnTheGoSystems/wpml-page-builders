@@ -181,6 +181,10 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 			$pb_integration,
 			'register_strings_in_content'
 		], 10, 3 );
+		\WP_Mock::expectFilterAdded( 'wpml_pb_update_translations_in_content', [
+			$pb_integration,
+			'update_translations_in_content'
+		], 10, 2 );
 
 		$pb_integration->add_hooks();
 	}
@@ -857,6 +861,75 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 		return array(
 			array( array() ),
 			array( array( 'action' => 'something' ) ),
+		);
+	}
+
+	/**
+	 * @test
+	 */
+	public function it_returns_false_if_no_strategy_registers_strings_in_content() {
+		$post_id = 123;
+		$content = 'some content';
+
+		$subject = new WPML_PB_Integration(
+			\Mockery::mock( 'SitePress' ),
+			\Mockery::mock( 'WPML_PB_Factory' )
+		);
+
+		$this->assertFalse( $subject->register_strings_in_content( false, $post_id, $content ) );
+	}
+
+	/**
+	 * @test
+	 */
+	public function it_returns_true_if_strategy_registers_strings_in_content() {
+		$post_id = 123;
+		$content = 'some content';
+
+		$subject = new WPML_PB_Integration(
+			\Mockery::mock( 'SitePress' ),
+			\Mockery::mock( 'WPML_PB_Factory' )
+		);
+
+		$strategy = $this->getMockBuilder( 'WPML_PB_Shortcode_Strategy' )
+		                 ->setMethods( [ 'register_strings_in_content' ] )
+		                 ->disableOriginalConstructor()->getMock();
+		$strategy->method( 'register_strings_in_content' )
+		         ->with( $post_id, $content, false )
+		         ->willReturn( true );
+		$subject->add_strategy( $strategy );
+
+		$this->assertTrue( $subject->register_strings_in_content( false, $post_id, $content ) );
+	}
+
+	/**
+	 * @test
+	 */
+	public function it_updates_translations_in_content() {
+		$lang            = 'de';
+		$content         = 'some content';
+		$updated_content = 'some content[updated]';
+
+		$string_translations = \Mockery::mock( 'WPML_PB_String_Translation_By_Strategy' );
+		$string_translations->shouldReceive( 'update_translations_in_content' )
+		                    ->with( $content, $lang )
+		                    ->andReturn( $updated_content );
+
+		$strategy = $this->getMockBuilder( 'WPML_PB_Shortcode_Strategy' )
+		                 ->setMethods( [] )
+		                 ->disableOriginalConstructor()->getMock();
+
+		$factory = \Mockery::mock( 'WPML_PB_Factory' );
+		$factory->shouldReceive( 'get_string_translations' )
+		        ->with( $strategy )
+		        ->andReturn( $string_translations );
+		$subject = new WPML_PB_Integration( \Mockery::mock( 'SitePress' ), $factory );
+
+		$subject->add_strategy( $strategy );
+
+		$this->assertEquals(
+			$updated_content,
+			$subject->update_translations_in_content( $content, $lang )
 		);
 	}
 

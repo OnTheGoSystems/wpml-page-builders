@@ -95,6 +95,42 @@ class Test_WPML_PB_Update_Post extends WPML_PB_TestCase {
 		);
 	}
 
+	/**
+	 * @test
+	 */
+	public function it_updates_content() {
+		$content         = 'some content';
+		$updated_content = 'some content[updated]';
+		$lang            = 'de';
+		$strings         = [
+			'any' => 'thing'
+		];
+
+		$package = \Mockery::mock( 'WPML_Package' );
+		$package->shouldReceive( 'get_translated_strings' )->with( [] )->andReturn( $strings );
+
+		$updater = \Mockery::mock( 'WPML_PB_Update_Shortcodes_In_Content' );
+		$updater->shouldReceive( 'update_content' )
+		        ->with( $content, $strings, $lang )
+		        ->andReturn( $updated_content );
+
+		$strategy = \Mockery::mock( 'WPML_PB_Shortcode_Strategy' );
+		$strategy->shouldReceive( 'get_content_updater' )->andReturn( $updater );
+
+		$subject = new WPML_PB_Update_Post(
+			\Mockery::mock( 'wpdb' ),
+			\Mockery::mock( 'SitePress' ),
+			[ 'package' => $package ],
+			$strategy
+		);
+
+		$this->assertEquals(
+			$updated_content,
+			$subject->update_content( $content, $lang )
+		);
+
+	}
+
 	private function get_package_mock(
 		$post_id,
 		$string,

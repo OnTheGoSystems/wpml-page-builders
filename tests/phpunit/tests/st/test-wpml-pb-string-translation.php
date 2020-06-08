@@ -72,7 +72,7 @@ class Test_WPML_PB_String_Translation extends WPML_PB_TestCase {
 		$package->kind = $package_kind;
 		$package->post_id = $post_id;
 		$update = $this->getMockBuilder( 'WPML_PB_Update_Post' )
-		               ->setMethods( array( 'update' ) )
+		               ->setMethods( [ 'update', 'update_content' ] )
 		               ->disableOriginalConstructor()
 		               ->getMock();
 		$update->expects( $post_id ? $this->once() : $this->never() )
@@ -84,13 +84,12 @@ class Test_WPML_PB_String_Translation extends WPML_PB_TestCase {
 		                 ->disableOriginalConstructor()
 		                 ->getMock();
 		$package_data = array( 'package' => $package, 'languages' => array( $language_1, $language_2 ) );
-		$strategy->expects( $post_id ? $this->once() : $this->never() )
-		         ->method( 'get_update_post' )
+		$strategy->method( 'get_update_post' )
 		         ->with( $this->equalTo( $package_data ) )
 		         ->willReturn( $update );
 
 
-		return array( $factory, $strategy, $package );
+		return [ $factory, $strategy, $package, $update ];
 	}
 
 	private function get_wpdb_mock( $string_package_id, $language_1, $language_2 ) {
@@ -199,4 +198,50 @@ class Test_WPML_PB_String_Translation extends WPML_PB_TestCase {
 			array( 0, false ),
 		);
 	}
+
+	/**
+	 * @test
+	 */
+	public function it_updates_translations_in_content() {
+		$string_package_id = 89;
+		$language_1        = 'de';
+		$language_2        = 'es';
+		$content           = 'some content';
+		$updated_content   = 'some content[updated]';
+
+		list( $factory_mock, $strategy_mock, $package, $update ) =
+			$this->get_factory_and_strategy_mock(
+				$string_package_id,
+				$language_1,
+				$language_2
+			);
+
+		$update->method( 'update_content' )
+		       ->with( $content, $language_1 )
+		       ->willReturn( $updated_content );
+
+		$factory_mock->method( 'get_wpml_package' )
+		             ->with( $this->equalTo( $string_package_id ) )
+		             ->willReturn( $package );
+
+		$strategy_mock->method( 'get_package_kind' )
+		              ->willReturn( $package->kind );
+
+		$wpdb_mock = $this->get_wpdb_mock( $string_package_id, $language_1, $language_2 );
+
+		$pb_string_translation = new WPML_PB_String_Translation_By_Strategy(
+			$wpdb_mock,
+			$factory_mock,
+			$strategy_mock
+		);
+		$pb_string_translation->add_package_to_update_list( $package, $language_1 );
+		$pb_string_translation->add_package_to_update_list( $package, $language_2 );
+
+		$this->assertEquals(
+			$updated_content,
+			$pb_string_translation->update_translations_in_content( $content, $language_1 )
+		);
+
+	}
+
 }

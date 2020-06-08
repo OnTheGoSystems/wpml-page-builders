@@ -35,7 +35,14 @@ class WPML_PB_Register_Shortcodes {
 		$this->reuse_translations     = $reuse_translations;
 	}
 
-	public function register_shortcode_strings( $post_id, $content, $do_cleanup ) {
+	/**
+	 * @param string|int $post_id
+	 * @param string $content
+	 * @param bool $is_whole_page
+	 *
+	 * @return bool
+	 */
+	public function register_shortcode_strings( $post_id, $content, $is_whole_page ) {
 
 		$any_registered = false;
 
@@ -60,7 +67,7 @@ class WPML_PB_Register_Shortcodes {
 				$encoding_condition = $this->shortcode_strategy->get_shortcode_tag_encoding_condition( $shortcode['tag'] );
 				$type               = $this->shortcode_strategy->get_shortcode_tag_type( $shortcode['tag'] );
 				$shortcode_content  = $this->encoding->decode( $shortcode_content, $encoding, $encoding_condition );
-				$any_registered |= $this->register_string( $post_id, $shortcode_content, $shortcode, 'content', $type );
+				$any_registered     = $this->register_string( $post_id, $shortcode_content, $shortcode, 'content', $type ) || $any_registered;
 			}
 
 			$attributes              = (array) shortcode_parse_atts( $shortcode['attributes'] );
@@ -72,7 +79,7 @@ class WPML_PB_Register_Shortcodes {
 						$type       = $this->shortcode_strategy->get_shortcode_attribute_type( $shortcode['tag'], $attr );
 						$attr_value = $this->encoding->decode( $attr_value, $encoding );
 
-						$any_registered |= $this->register_string( $post_id, $attr_value, $shortcode, $attr, $type );
+						$any_registered = $this->register_string( $post_id, $attr_value, $shortcode, $attr, $type ) || $any_registered;
 					}
 				}
 			}
@@ -82,11 +89,10 @@ class WPML_PB_Register_Shortcodes {
 			$this->reuse_translations->find_and_reuse( $post_id, $this->existing_package_strings );
 		}
 
-		if( $do_cleanup ) {
+		if( $is_whole_page ) {
 			$this->clean_up_package_leftovers();
+			$this->mark_post_as_migrate_location_done( $post_id );
 		}
-
-		$this->mark_post_as_migrate_location_done( $post_id );
 
 		return $any_registered;
 	}
