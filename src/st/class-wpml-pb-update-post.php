@@ -40,6 +40,12 @@ class WPML_PB_Update_Post {
 		}
 	}
 
+	/**
+	 * @param string $content
+	 * @param string $lang
+	 *
+	 * @return string
+	 */
 	public function update_content( $content, $lang ) {
 		return Wrapper::of( $this->strategy )
 		              ->map( invoke( 'get_content_updater' ) )

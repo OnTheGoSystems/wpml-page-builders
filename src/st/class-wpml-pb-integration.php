@@ -251,6 +251,12 @@ class WPML_PB_Integration {
 		}
 	}
 
+	/**
+	 * @param string $content
+	 * @param string $lang
+	 *
+	 * @return string
+	 */
 	public function update_translations_in_content( $content, $lang ) {
 		$this->with_strategies( function ( IWPML_PB_Strategy $strategy ) use ( &$content, $lang ) {
 			$content = $this->factory->get_string_translations( $strategy )->update_translations_in_content( $content, $lang );
@@ -289,6 +295,13 @@ class WPML_PB_Integration {
 		}
 	}
 
+	/**
+	 * @param bool $registered
+	 * @param string|int $post_id
+	 * @param string $content
+	 *
+	 * @return bool
+	 */
 	public function register_strings_in_content( $registered, $post_id, $content ) {
 		foreach ( $this->strategies as $strategy ) {
 			$registered = $strategy->register_strings_in_content( $post_id, $content, false ) || $registered;
