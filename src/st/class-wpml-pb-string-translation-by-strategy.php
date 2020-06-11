@@ -22,7 +22,7 @@ class WPML_PB_String_Translation_By_Strategy extends WPML_PB_String_Translation 
 		list( $package_id, $string_id, $language ) = $this->get_package_for_translated_string( $translated_string_id );
 		if ( $package_id ) {
 			$package = $this->factory->get_wpml_package( $package_id );
-			if ( $package->post_id && $this->strategy->get_package_kind() === $package->kind ) {
+			if ( $package->post_id && $this->shouldHandlePackage( $package ) ) {
 				$this->add_package_to_update_list( $package, $language );
 			}
 		}
@@ -30,7 +30,7 @@ class WPML_PB_String_Translation_By_Strategy extends WPML_PB_String_Translation 
 
 	public function save_translations_to_post() {
 		foreach ( $this->packages_to_update as $package_data ) {
-			if ( $package_data['package']->kind == $this->strategy->get_package_kind() ) {
+			if ( $this->shouldHandlePackage( $package_data['package'] ) ) {
 				$update_post = $this->strategy->get_update_post( $package_data );
 				$update_post->update();
 			}
@@ -45,7 +45,7 @@ class WPML_PB_String_Translation_By_Strategy extends WPML_PB_String_Translation 
 	 */
 	public function update_translations_in_content( $content, $lang ) {
 		foreach ( $this->packages_to_update as $package_data ) {
-			if ( $package_data['package']->kind == $this->strategy->get_package_kind() ) {
+			if ( $this->shouldHandlePackage( $package_data['package'] ) ) {
 				$update_post = $this->strategy->get_update_post( $package_data );
 				$content = $update_post->update_content( $content, $lang );
 			}
@@ -88,5 +88,21 @@ class WPML_PB_String_Translation_By_Strategy extends WPML_PB_String_Translation 
 				$this->packages_to_update[ $package->ID ]['languages'][] = $language;
 			}
 		}
+	}
+
+	/**
+	 * @param object $package
+	 *
+	 * @return bool
+	 */
+	private function shouldHandlePackage( $package ) {
+		$strategyPackageKind = $this->strategy->get_package_kind();
+
+		return apply_filters(
+			'wpml_pb_should_handle_package',
+			$package->kind == $strategyPackageKind,
+			$package->kind,
+			$strategyPackageKind
+		);
 	}
 }
