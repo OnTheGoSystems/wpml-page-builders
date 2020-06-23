@@ -2,6 +2,8 @@
 
 namespace WPML\PB;
 
+use WPML\FP\Fns;
+
 /**
  * Class ShortCodesInGutenbergBlocks
  * @package WPML\PB
@@ -41,11 +43,8 @@ class ShortCodesInGutenbergBlocks {
 		if ( count( $packagesToUpdate ) > 1 ) {
 			// If we have more than one package then we don't need to 'Force' it.
 			// The normal Gutenberg package will update all translations correctly.
-			foreach ( $packagesToUpdate as $id => $package_data ) {
-				if ( $package_data['package']->kind === self::FORCED_GUTENBERG ) {
-					unset( $packagesToUpdate[ $id ] );
-				}
-			}
+			$isForced         = function ( $package ) { return $package['package']->kind !== self::FORCED_GUTENBERG; };
+			$packagesToUpdate = array_filter( $packagesToUpdate, $isForced );
 		}
 
 		return $packagesToUpdate;
