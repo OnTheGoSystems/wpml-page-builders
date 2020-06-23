@@ -110,6 +110,28 @@ class Test_WPML_PB_Shortcode_Strategy extends \OTGS\PHPUnit\Tools\TestCase {
 		);
 	}
 
+	/**
+	 * @test
+	 */
+	public function it_migrate_locations() {
+		$postId = 123;
+		$postContent = '<h1>Some content</h1>';
+
+		$page_builder_settings = $this->get_page_builder_settings();
+		$subject = $this->get_subject( $page_builder_settings );
+
+		$registerShortcodes = \Mockery::mock( '\WPML_PB_Register_Shortcodes' );
+		$registerShortcodes->shouldReceive( 'register_shortcode_strings' )
+			->once()
+			->with( $postId, $postContent, true );
+
+		$factory = \Mockery::mock( '\WPML_PB_Factory' );
+		$factory->shouldReceive( 'get_register_shortcodes' )->andReturn( $registerShortcodes );
+		$subject->set_factory( $factory );
+
+		$subject->migrate_location( $postId, $postContent );
+	}
+
 	private function get_subject( $page_builder_settings ) {
 		return new WPML_PB_Shortcode_Strategy( $page_builder_settings );
 	}

@@ -155,6 +155,6 @@ class WPML_PB_Shortcode_Strategy implements IWPML_PB_Strategy {
 	 */
 	public function migrate_location( $post_id, $post_content ) {
 		$migrate_locations = $this->factory->get_register_shortcodes( $this, true );
-		$migrate_locations->register_shortcode_strings( $post_id, $post_content );
+		$migrate_locations->register_shortcode_strings( $post_id, $post_content, true );
 	}
 }
