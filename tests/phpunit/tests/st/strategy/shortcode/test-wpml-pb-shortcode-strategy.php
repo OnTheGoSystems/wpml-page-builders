@@ -123,7 +123,7 @@ class Test_WPML_PB_Shortcode_Strategy extends \OTGS\PHPUnit\Tools\TestCase {
 		$registerShortcodes = \Mockery::mock( '\WPML_PB_Register_Shortcodes' );
 		$registerShortcodes->shouldReceive( 'register_shortcode_strings' )
 			->once()
-			->with( $postId, $postContent, true );
+			->with( $postId, $postContent, null );
 
 		$factory = \Mockery::mock( '\WPML_PB_Factory' );
 		$factory->shouldReceive( 'get_register_shortcodes' )->andReturn( $registerShortcodes );
