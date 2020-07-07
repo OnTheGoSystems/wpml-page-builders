@@ -8,7 +8,7 @@ class WPML_PB_Factory {
 	private $sitepress;
 	private $string_translations = array();
 
-	public function __construct( $wpdb, $sitepress ) {
+	public function __construct( wpdb $wpdb, SitePress $sitepress ) {
 		$this->wpdb      = $wpdb;
 		$this->sitepress = $sitepress;
 	}

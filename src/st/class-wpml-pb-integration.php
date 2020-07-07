@@ -1,7 +1,9 @@
 <?php
 
 use \WPML\FP\Fns;
+use WPML\PB\Shortcode\StringCleanUp;
 use function WPML\FP\invoke;
+use function WPML\Container\make;
 
 /**
  * Class WPML_PB_Integration
@@ -170,8 +172,10 @@ class WPML_PB_Integration {
 		add_filter( 'wpml_tm_translation_job_data', array( $this, 'rescan' ), 9, 2 );
 
 		add_action( 'wpml_pb_register_all_strings_for_translation', [ $this, 'register_all_strings_for_translation' ] );
-		add_filter( 'wpml_pb_register_strings_in_content', [ $this, 'register_strings_in_content' ], 10, 3 );
+		add_filter( 'wpml_pb_register_strings_in_content', [ $this, 'register_strings_in_content' ], 10, 4 );
 		add_filter( 'wpml_pb_update_translations_in_content', [ $this, 'update_translations_in_content'], 10, 2 );
+
+		add_filter( 'wpml_pb_get_string_clean_up', [ $this, 'get_string_clean_up' ], 10, 2 );
 	}
 
 	/**
@@ -300,18 +304,27 @@ class WPML_PB_Integration {
 	 * @param bool $registered
 	 * @param string|int $post_id
 	 * @param string $content
+	 * @param WPML\PB\Shortcode\StringCleanUp $stringCleanUp
 	 *
 	 * @return bool
 	 */
-	public function register_strings_in_content( $registered, $post_id, $content ) {
+	public function register_strings_in_content( $registered, $post_id, $content, WPML\PB\Shortcode\StringCleanUp $stringCleanUp = null) {
 		foreach ( $this->strategies as $strategy ) {
-			$registered = $strategy->register_strings_in_content( $post_id, $content, false ) || $registered;
+			$registered = $strategy->register_strings_in_content( $post_id, $content, $stringCleanUp ) || $registered;
 		}
 		return $registered;
 	}
 
 	public function get_factory() {
 		return $this->factory;
+	}
+
+	public function get_string_clean_up( $_, $postId ) {
+		$shortcodeStrategy = make( WPML_PB_Shortcode_Strategy::class );
+		$shortcodeStrategy->set_factory( $this->factory );
+		$stringCleanUp = new StringCleanUp( $postId, $shortcodeStrategy );
+
+		return $stringCleanUp;
 	}
 
 	/**
