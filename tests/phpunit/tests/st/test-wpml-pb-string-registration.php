@@ -24,7 +24,6 @@ class Test_WPML_PB_String_Registration extends WPML_PB_TestCase {
 		$string_title          = rand_str();
 		$expected_string_name  = $string_name ? $string_name : md5( $shortcode_content );
 
-		$sitepress_mock = $this->get_sitepress_mock();
 		\WP_Mock::expectAction( 'wpml_register_string',
 		                        $shortcode_content,
 		                        $expected_string_name,
@@ -32,8 +31,7 @@ class Test_WPML_PB_String_Registration extends WPML_PB_TestCase {
 		                        $string_title,
 		                        'VISUAL' );
 
-		$wpdb     = null;
-		$factory  = $this->get_factory( $wpdb, $sitepress_mock );
+		$factory  = $this->get_factory( \Mockery::mock( 'wpdb' ), $this->get_sitepress_mock() );
 		$strategy = $this->get_shortcode_strategy( $factory );
 
 		$string_factory = $this->get_string_factory_mock();
@@ -93,7 +91,6 @@ class Test_WPML_PB_String_Registration extends WPML_PB_TestCase {
 		$expected_package_data = $this->get_expected_package( $post_id );
 		$shortcode_content     = 'http://somelink.com';
 
-		$sitepress_mock = $this->get_sitepress_mock();
 		\WP_Mock::expectAction( 'wpml_register_string',
 		                        $shortcode_content,
 		                        md5( $shortcode_content ),
@@ -105,8 +102,7 @@ class Test_WPML_PB_String_Registration extends WPML_PB_TestCase {
 
 		\WP_Mock::onFilter( 'wpml_string_id_from_package' )->with( null )->reply( 1 );
 
-		$wpdb     = null;
-		$factory  = $this->get_factory( $wpdb, $sitepress_mock );
+		$factory  = $this->get_factory( \Mockery::mock( 'wpdb' ), $this->get_sitepress_mock() );
 		$strategy = $this->get_shortcode_strategy( $factory );
 
 		$package_factory = $this->get_package_factory_mock();
@@ -160,9 +156,7 @@ class Test_WPML_PB_String_Registration extends WPML_PB_TestCase {
 		$translate_link_targets->shouldReceive( 'is_internal_url' )->with( $offsite_link_url )->andReturn( false );
 		$translate_link_targets->shouldReceive( 'is_internal_url' )->with( $local_link_url )->andReturn( true );
 
-		$sitepress_mock = $this->get_sitepress_mock();
-		$wpdb           = null;
-		$factory        = $this->get_factory( $wpdb, $sitepress_mock );
+		$factory        = $this->get_factory( \Mockery::mock( 'wpdb' ), $this->get_sitepress_mock() );
 		$strategy       = $this->get_shortcode_strategy( $factory );
 
 		$package_factory = $this->get_package_factory_mock();
@@ -216,9 +210,7 @@ class Test_WPML_PB_String_Registration extends WPML_PB_TestCase {
 		$location = mt_rand();
 		$wrap_tag     = 'h2';
 
-		$sitepress_mock = $this->get_sitepress_mock();
-		$wpdb           = null;
-		$factory        = $this->get_factory( $wpdb, $sitepress_mock );
+		$factory        = $this->get_factory( \Mockery::mock( 'wpdb' ), $this->get_sitepress_mock() );
 		$strategy       = $this->get_shortcode_strategy( $factory );
 
 		$string = \Mockery::mock( 'WPML_ST_String' );

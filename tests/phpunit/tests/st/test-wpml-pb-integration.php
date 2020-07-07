@@ -145,7 +145,7 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 
 	public function test_add_hooks() {
 		$sitepress_mock = $this->get_sitepress_mock();
-		$factory_mock   = $this->get_factory( null, $sitepress_mock );
+		$factory_mock   = $this->get_factory( \Mockery::mock( 'wpdb' ), $sitepress_mock );
 		$pb_integration = new WPML_PB_Integration( $sitepress_mock, $factory_mock );
 		\WP_Mock::expectActionAdded( 'pre_post_update', array(
 			$pb_integration,
@@ -180,7 +180,7 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 		\WP_Mock::expectFilterAdded( 'wpml_pb_register_strings_in_content', [
 			$pb_integration,
 			'register_strings_in_content'
-		], 10, 3 );
+		], 10, 4 );
 		\WP_Mock::expectFilterAdded( 'wpml_pb_update_translations_in_content', [
 			$pb_integration,
 			'update_translations_in_content'
@@ -189,6 +189,13 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 		\WP_Mock::expectActionAdded(
 			'wpml_pb_register_all_strings_for_translation',
 			[ $pb_integration, 'register_all_strings_for_translation' ]
+		);
+
+		\WP_Mock::expectFilterAdded(
+			'wpml_pb_get_string_clean_up',
+			[ $pb_integration, 'get_string_clean_up' ],
+			10,
+			2
 		);
 
 		$pb_integration->add_hooks();
@@ -538,7 +545,7 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 		$rescan->expects( $this->never() )->method( 'rescan' );
 
 		$sitepress_mock = $this->get_sitepress_mock();
-		$factory_mock   = $this->get_factory( null, $sitepress_mock );
+		$factory_mock   = $this->get_factory( \Mockery::mock( 'wpdb' ), $sitepress_mock );
 		$subject        = new WPML_PB_Integration( $sitepress_mock, $factory_mock );
 
 		$subject->set_rescan( $rescan );
@@ -557,7 +564,7 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 		$rescan->expects( $this->once() )->method( 'rescan' )->with( $translation_package, $post )->willReturn( $translation_package );
 
 		$sitepress_mock = $this->get_sitepress_mock();
-		$factory_mock   = $this->get_factory( null, $sitepress_mock );
+		$factory_mock   = $this->get_factory( \Mockery::mock( 'wpdb' ), $sitepress_mock );
 		$subject        = new WPML_PB_Integration( $sitepress_mock, $factory_mock );
 
 		$subject->set_rescan( $rescan );
@@ -593,7 +600,7 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 		$sitepress_mock = \Mockery::mock( 'SitePress' );
 		$sitepress_mock->shouldReceive( 'get_wpdb' )->andReturn( $wpdb );
 
-		$factory_mock = $this->get_factory( null, $sitepress_mock );
+		$factory_mock = $this->get_factory( \Mockery::mock( 'wpdb' ), $sitepress_mock );
 
 		\WP_Mock::wpFunction( 'update_post_meta', array(
 			'times' => 0,
@@ -628,7 +635,7 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 		$sitepress_mock = \Mockery::mock( 'SitePress' );
 		$sitepress_mock->shouldReceive( 'get_wpdb' )->andReturn( $wpdb );
 
-		$factory_mock = $this->get_factory( null, $sitepress_mock );
+		$factory_mock = $this->get_factory( \Mockery::mock( 'wpdb' ), $sitepress_mock );
 
 		\WP_Mock::wpFunction( 'get_post_meta', array(
 			'times'  => 0,
@@ -673,7 +680,7 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 		$sitepress_mock = \Mockery::mock( 'SitePress' );
 		$sitepress_mock->shouldReceive( 'get_wpdb' )->andReturn( $wpdb );
 
-		$factory_mock = $this->get_factory( null, $sitepress_mock );
+		$factory_mock = $this->get_factory( \Mockery::mock( 'wpdb' ), $sitepress_mock );
 
 		\WP_Mock::wpFunction( 'get_post_meta', array(
 			'times'  => 1,
@@ -725,7 +732,7 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 		$sitepress_mock->shouldReceive( 'get_wpdb' )->andReturn( $wpdb );
 		$sitepress_mock->shouldReceive( 'get_original_element_id' )->andReturn( $post->ID );
 
-		$factory_mock = $this->get_factory( null, $sitepress_mock );
+		$factory_mock = $this->get_factory( \Mockery::mock( 'wpdb' ), $sitepress_mock );
 
 		\WP_Mock::wpFunction( 'get_post_meta', array(
 			'times'  => 1,
