@@ -20,6 +20,9 @@ class WPML_PB_Integration {
 
 	private $strategies = array();
 
+	/** @var StringCleanUp[]  */
+	private $stringCleanUp = [];
+
 	/**
 	 * @var WPML_PB_Integration_Rescan
 	 */
@@ -182,10 +185,11 @@ class WPML_PB_Integration {
 		add_filter( 'wpml_tm_translation_job_data', array( $this, 'rescan' ), 9, 2 );
 
 		add_action( 'wpml_pb_register_all_strings_for_translation', [ $this, 'register_all_strings_for_translation' ] );
-		add_filter( 'wpml_pb_register_strings_in_content', [ $this, 'register_strings_in_content' ], 10, 4 );
+		add_filter( 'wpml_pb_register_strings_in_content', [ $this, 'register_strings_in_content' ], 10, 3 );
 		add_filter( 'wpml_pb_update_translations_in_content', [ $this, 'update_translations_in_content'], 10, 2 );
 
-		add_filter( 'wpml_pb_get_string_clean_up', [ $this, 'get_string_clean_up' ], 10, 2 );
+		add_action( 'wpml_start_GB_register_strings', [ $this, 'initialize_string_clean_up' ], 10, 1 );
+		add_action( 'wpml_end_GB_register_strings', [ $this, 'clean_up_strings' ], 10, 1 );
 	}
 
 	/**
@@ -318,9 +322,9 @@ class WPML_PB_Integration {
 	 *
 	 * @return bool
 	 */
-	public function register_strings_in_content( $registered, $post_id, $content, WPML\PB\Shortcode\StringCleanUp $stringCleanUp = null) {
+	public function register_strings_in_content( $registered, $post_id, $content ) {
 		foreach ( $this->strategies as $strategy ) {
-			$registered = $strategy->register_strings_in_content( $post_id, $content, $stringCleanUp ) || $registered;
+			$registered = $strategy->register_strings_in_content( $post_id, $content, $this->stringCleanUp[ $post_id ] ) || $registered;
 		}
 		return $registered;
 	}
@@ -329,12 +333,14 @@ class WPML_PB_Integration {
 		return $this->factory;
 	}
 
-	public function get_string_clean_up( $_, $postId ) {
+	public function initialize_string_clean_up( WP_Post $post ) {
 		$shortcodeStrategy = make( WPML_PB_Shortcode_Strategy::class );
 		$shortcodeStrategy->set_factory( $this->factory );
-		$stringCleanUp = new StringCleanUp( $postId, $shortcodeStrategy );
+		$this->stringCleanUp[ $post->ID ] = new StringCleanUp( $post->ID, $shortcodeStrategy );
+	}
 
-		return $stringCleanUp;
+	public function clean_up_strings( WP_Post $post ) {
+		$this->stringCleanUp[ $post->ID ]->cleanUp();
 	}
 
 	/**
