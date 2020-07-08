@@ -180,7 +180,7 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 		\WP_Mock::expectFilterAdded( 'wpml_pb_register_strings_in_content', [
 			$pb_integration,
 			'register_strings_in_content'
-		], 10, 4 );
+		], 10, 3 );
 		\WP_Mock::expectFilterAdded( 'wpml_pb_update_translations_in_content', [
 			$pb_integration,
 			'update_translations_in_content'
@@ -191,11 +191,18 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 			[ $pb_integration, 'register_all_strings_for_translation' ]
 		);
 
-		\WP_Mock::expectFilterAdded(
-			'wpml_pb_get_string_clean_up',
-			[ $pb_integration, 'get_string_clean_up' ],
+		\WP_Mock::expectActionAdded(
+			'wpml_start_GB_register_strings',
+			[ $pb_integration, 'initialize_string_clean_up' ],
 			10,
-			2
+			1
+		);
+
+		\WP_Mock::expectActionAdded(
+			'wpml_end_GB_register_strings',
+			[ $pb_integration, 'clean_up_strings' ],
+			10,
+			1
 		);
 
 		$pb_integration->add_hooks();
@@ -898,18 +905,30 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 		$post_id = 123;
 		$content = 'some content';
 
+		$factory = \Mockery::mock( 'WPML_PB_Factory' );
+
 		$subject = new WPML_PB_Integration(
 			\Mockery::mock( 'SitePress' ),
-			\Mockery::mock( 'WPML_PB_Factory' )
+			$factory
 		);
 
-		$strategy = $this->getMockBuilder( 'WPML_PB_Shortcode_Strategy' )
-		                 ->setMethods( [ 'register_strings_in_content' ] )
-		                 ->disableOriginalConstructor()->getMock();
-		$strategy->method( 'register_strings_in_content' )
-		         ->with( $post_id, $content, false )
-		         ->willReturn( true );
+		$strategy = \Mockery::mock( 'WPML_PB_Shortcode_Strategy' );
+		$strategy->shouldReceive( 'get_package_key' )->andReturn( 'key' );
+		$strategy->shouldReceive( 'get_package_strings' )->andReturn( [] );
+		$strategy->shouldReceive( 'set_factory' );
+		$strategy->shouldReceive( 'register_strings_in_content' )
+		         ->with( $post_id, $content, \Mockery::type( 'WPML\PB\Shortcode\StringCleanUp' ) )
+		         ->andReturn( true );
 		$subject->add_strategy( $strategy );
+
+		\WP_Mock::userFunction( 'WPML\Container\make', [
+			'args' => [ WPML_PB_Shortcode_Strategy::class ],
+			'return' => $strategy,
+		]);
+
+		$post = \Mockery::mock( 'WP_Post' );
+		$post->ID = $post_id;
+		$subject->initialize_string_clean_up( $post );
 
 		$this->assertTrue( $subject->register_strings_in_content( false, $post_id, $content ) );
 	}
