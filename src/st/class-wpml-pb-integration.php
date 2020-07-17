@@ -11,6 +11,7 @@ use function WPML\Container\make;
 class WPML_PB_Integration {
 
 	const MIGRATION_DONE_POST_META = '_wpml_location_migration_done';
+	const PRIORITY_BEFORE_TM_POST_SAVE_ACTIONS = 9;
 
 	private $sitepress;
 	private $factory;
@@ -141,9 +142,11 @@ class WPML_PB_Integration {
 	}
 
 	/**
-	 * @param WP_Post $post
+	 * @param WP_Post|int $post
 	 */
 	public function register_all_strings_for_translation( $post ) {
+		$post = is_object( $post ) ? $post : get_post( $post );
+
 		if ( $this->is_post_status_ok( $post ) && $this->is_original_post( $post ) ) {
 			$this->is_registering_string = true;
 			$this->with_strategies( invoke( 'register_strings' )->with( $post ) );
@@ -174,6 +177,7 @@ class WPML_PB_Integration {
 	 */
 	public function add_hooks() {
 		add_action( 'pre_post_update', array( $this, 'migrate_location' ) );
+		add_action( 'save_post', array( $this, 'register_all_strings_for_translation' ), self::PRIORITY_BEFORE_TM_POST_SAVE_ACTIONS );
 		add_action( 'save_post', array( $this, 'queue_save_post_actions' ), PHP_INT_MAX, 2 );
 		add_action( 'wpml_pb_resave_post_translation', array( $this, 'resave_post_translation_in_shutdown' ), 10, 1 );
 		add_action( 'icl_st_add_string_translation', array( $this, 'new_translation' ), 10, 1 );
@@ -208,8 +212,6 @@ class WPML_PB_Integration {
 		$this->save_translations_to_post();
 
 		foreach( $this->save_post_queue as $post_id => $post ) {
-			$this->register_all_strings_for_translation( $post );
-
 			if ( $this->sitepress->get_wp_api()->constant( 'WPML_MEDIA_VERSION' ) ) {
 				$this->translate_media( $post );
 			}

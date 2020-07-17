@@ -10,9 +10,8 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 	/**
 	 * @test
 	 */
-	public function register_all_strings_for_translation() {
+	public function register_all_strings_for_translation_with_post_object() {
 		$post = $this->get_post();
-
 
 		$sitepress_mock = $this->get_sitepress_mock( $post->ID );
 		$factory_mock   = $this->get_factory_mock_for_register( $post->ID, $post );
@@ -25,6 +24,26 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 		$other_post_id = 2;
 		$post->ID      = $other_post_id;
 		$pb_integration->register_all_strings_for_translation( $post );
+	}
+
+	/**
+	 * @test
+	 */
+	public function register_all_strings_for_translation_with_post_id() {
+		$post = $this->get_post();
+
+		\WP_Mock::userFunction( 'get_post', [
+			'args'   => [ $post->ID ],
+			'return' => $post,
+		] );
+
+		$sitepress_mock = $this->get_sitepress_mock( $post->ID );
+		$factory_mock   = $this->get_factory_mock_for_register( $post->ID, $post );
+		$strategy       = $this->get_shortcode_strategy( $factory_mock );
+
+		$pb_integration = new WPML_PB_Integration( $sitepress_mock, $factory_mock );
+		$pb_integration->add_strategy( $strategy );
+		$pb_integration->register_all_strings_for_translation( $post->ID );
 	}
 
 	/**
@@ -151,6 +170,10 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 			$pb_integration,
 			'migrate_location'
 		) );
+		\WP_Mock::expectActionAdded( 'save_post', array(
+			$pb_integration,
+			'register_all_strings_for_translation'
+		), WPML_PB_Integration::PRIORITY_BEFORE_TM_POST_SAVE_ACTIONS );
 		\WP_Mock::expectActionAdded( 'save_post', array(
 			$pb_integration,
 			'queue_save_post_actions'
@@ -967,20 +990,12 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 	}
 
 	private function get_factory_mock_for_shutdown() {
-		$register_shortcodes_mock = $this->getMockBuilder( 'WPML_PB_Register_Shortcodes' )
-		                                 ->setMethods( array( 'register_shortcode_strings' ) )
-		                                 ->disableOriginalConstructor()
-		                                 ->getMock();
-		$register_shortcodes_mock->expects( $this->once() )
-		                         ->method( 'register_shortcode_strings' );
-
 		$last_translation_edit_mode = $this->get_last_edit_mode();
 		$last_translation_edit_mode->method( 'is_native_editor' )->willReturn( false );
 
 		$factory = $this->getMockBuilder( 'WPML_PB_Factory' )
 		                ->setMethods(
 			                array(
-				                'get_register_shortcodes',
 				                'get_update_translated_posts_from_original',
 				                'get_last_translation_edit_mode',
 				                'get_post_element',
@@ -988,9 +1003,6 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 		                )
 		                ->disableOriginalConstructor()
 		                ->getMock();
-		$factory->expects( $this->once() )
-		        ->method( 'get_register_shortcodes' )
-		        ->willReturn( $register_shortcodes_mock );
 
 		$factory->method( 'get_last_translation_edit_mode' )->willReturn( $last_translation_edit_mode );
 

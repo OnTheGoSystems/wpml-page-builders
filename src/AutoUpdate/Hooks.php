@@ -6,7 +6,6 @@ use WPML\FP\Fns;
 use WPML\FP\Logic;
 use WPML\FP\Lst;
 use WPML\FP\Maybe;
-use WPML\FP\Obj;
 use WPML\FP\Relation;
 use function WPML\FP\invoke;
 use function WPML\FP\pipe;
