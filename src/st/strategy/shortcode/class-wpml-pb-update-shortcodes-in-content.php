@@ -118,7 +118,11 @@ class WPML_PB_Update_Shortcodes_In_Content {
 				if ( $used_wrapper ) {
 					$this->new_content = $this->replace_content_without_delimiters( $block, $replacement );
 				} else {
-					$this->new_content = preg_replace( '/' . preg_quote( $block, '/' ) . '/', $replacement, $this->new_content, 1 );
+					if (!$this->is_string_too_long_for_regex( $block )) {
+						$this->new_content = preg_replace( '/' . preg_quote( $block, '/' ) . '/', $replacement, $this->new_content, 1 );
+					} else {
+						$this->new_content = str_replace( $block, $replacement, $this->new_content );
+					}
 				}
 			}
 		}
