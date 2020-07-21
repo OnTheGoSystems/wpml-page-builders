@@ -16,8 +16,9 @@ class TestHooks extends  TestCase {
 	public function itAddsHooks() {
 		$subject = $this->getSubject();
 
+		\WP_Mock::expectActionAdded( 'init', [ $subject, 'init' ] );
 		\WP_Mock::expectFilterAdded( 'wpml_tm_post_md5_content', [ $subject, 'getMd5ContentFromPackageStrings' ], 10, 2 );
-		\WP_Mock::expectActionAdded( 'wpml_after_save_post', [ $subject, 'resaveTranslationsAfterSavePost' ], 10, 4 );
+		\WP_Mock::expectActionAdded( 'shutdown', [ $subject, 'afterRegisterAllStringsInShutdown' ], \WPML\PB\Shutdown\Hooks::PRIORITY_REGISTER_STRINGS + 1 );
 
 		$subject->add_hooks();
 	}
@@ -73,7 +74,14 @@ class TestHooks extends  TestCase {
 	 * @test
 	 */
 	public function itDoesNotResaveTranslationsIfNotOriginal() {
+		$post = $this->getPost( 123 );
+
+		\WP_Mock::userFunction( 'wpml_tm_save_post' )
+			->times( 1 )
+			->with( $post->ID, $post );
+
 		$pbIntegration = $this->getPbIntegration();
+		$pbIntegration->method( 'get_save_post_queue' )->willReturn( [ $post ] );
 		$pbIntegration->expects( $this->never() )->method( 'resave_post_translation_in_shutdown' );
 
 		$factory = $this->getElementFactory();
@@ -81,20 +89,25 @@ class TestHooks extends  TestCase {
 
 		$subject = $this->getSubject( $pbIntegration, $factory );
 
-		$subject->resaveTranslationsAfterSavePost( 123, 456, 'fr', 'en' );
+		$subject->afterRegisterAllStringsInShutdown();
 	}
 
 	/**
 	 * @test
 	 */
 	public function itDoesNotResaveTranslationsIfNoPackage() {
-		$postId = 123;
+		$post = $this->getPost( 123 );
+
+		\WP_Mock::userFunction( 'wpml_tm_save_post' )
+		        ->times( 1 )
+		        ->with( $post->ID, $post );
 
 		\WP_Mock::onFilter( 'wpml_st_get_post_string_packages' )
-			->with( [], $postId )
+			->with( [], $post->ID )
 			->reply( [] );
 
 		$pbIntegration = $this->getPbIntegration();
+		$pbIntegration->method( 'get_save_post_queue' )->willReturn( [ $post ] );
 		$pbIntegration->expects( $this->never() )->method( 'resave_post_translation_in_shutdown' );
 
 		$factory = $this->getElementFactory();
@@ -102,17 +115,21 @@ class TestHooks extends  TestCase {
 
 		$subject = $this->getSubject( $pbIntegration, $factory );
 
-		$subject->resaveTranslationsAfterSavePost( $postId, 456, 'fr', null );
+		$subject->afterRegisterAllStringsInShutdown();
 	}
 
 	/**
 	 * @test
 	 */
 	public function itResavesTranslationsAfterSavePost() {
-		$postId = 123;
+		$post1 = $this->getPost( 123 );
+
+		\WP_Mock::userFunction( 'wpml_tm_save_post' )
+		        ->times( 1 )
+		        ->with( $post1->ID, $post1 );
 
 		\WP_Mock::onFilter( 'wpml_st_get_post_string_packages' )
-			->with( [], $postId )
+			->with( [], $post1->ID )
 			->reply( [ 'some package' ] );
 
 		$translation1            = $this->getElement( 'en' );
@@ -122,6 +139,7 @@ class TestHooks extends  TestCase {
 		$original = $this->getElement( null, [ $translation1, $translation2, $translationNotCompleted ] );
 
 		$pbIntegration = $this->getPbIntegration();
+		$pbIntegration->method( 'get_save_post_queue' )->willReturn( [ $post1 ] );
 		$pbIntegration->expects( $this->exactly( 2 ) )
 			->method( 'resave_post_translation_in_shutdown' )
 			->withConsecutive(
@@ -130,7 +148,7 @@ class TestHooks extends  TestCase {
 			);
 
 		$factory = $this->getElementFactory();
-		$factory->method( 'create_post' )->with( $postId )->willReturn( $original );
+		$factory->method( 'create_post' )->with( $post1->ID )->willReturn( $original );
 
 		FunctionMocker::replace(
 			TranslationStatus::class . '::get',
@@ -141,7 +159,7 @@ class TestHooks extends  TestCase {
 
 		$subject = $this->getSubject( $pbIntegration, $factory );
 
-		$subject->resaveTranslationsAfterSavePost( $postId, 456, 'fr', null );
+		$subject->afterRegisterAllStringsInShutdown();
 	}
 
 	private function getSubject( $pbIntegration = null, $elementFactory = null ) {
@@ -153,7 +171,7 @@ class TestHooks extends  TestCase {
 
 	private function getPbIntegration() {
 		return $this->getMockBuilder( '\WPML_PB_Integration' )
-			->setMethods( [ 'resave_post_translation_in_shutdown' ] )
+			->setMethods( [ 'resave_post_translation_in_shutdown', 'get_save_post_queue' ] )
 			->disableOriginalConstructor()
 			->getMock();
 	}
@@ -206,5 +224,12 @@ class TestHooks extends  TestCase {
 			->willReturn( $stringsData );
 
 		return $package;
+	}
+
+	private function getPost( $id ) {
+		$post = $this->getMockBuilder( '\WP_Post' )->getMock();
+		$post->ID = $id;
+
+		return $post;
 	}
 }

@@ -6,9 +6,9 @@ use WPML\FP\Fns;
 use WPML\FP\Logic;
 use WPML\FP\Lst;
 use WPML\FP\Maybe;
-use WPML\FP\Obj;
 use WPML\FP\Relation;
 use function WPML\FP\invoke;
+use function WPML\FP\partialRight;
 use function WPML\FP\pipe;
 
 class Hooks implements \IWPML_Backend_Action, \IWPML_Frontend_Action, \IWPML_DIC_Action {
@@ -21,17 +21,30 @@ class Hooks implements \IWPML_Backend_Action, \IWPML_Frontend_Action, \IWPML_DIC
 	/** @var \WPML_Translation_Element_Factory $elementFactory */
 	private $elementFactory;
 
+	private $postsToRefreshNeedsUpdate;
+
 	public function __construct(
 		\WPML_PB_Integration $pbIntegration,
 		\WPML_Translation_Element_Factory $elementFactory
 	) {
-		$this->pbIntegration     = $pbIntegration;
-		$this->elementFactory    = $elementFactory;
+		$this->pbIntegration             = $pbIntegration;
+		$this->elementFactory            = $elementFactory;
+		$this->postsToRefreshNeedsUpdate = wpml_collect();
 	}
 
 	public function add_hooks() {
+		add_action( 'init', [ $this, 'init' ] );
 		add_filter( 'wpml_tm_post_md5_content', [ $this, 'getMd5ContentFromPackageStrings' ], 10, 2 );
-		add_action( 'wpml_after_save_post', [ $this, 'resaveTranslationsAfterSavePost' ], 10, 4 );
+		add_action( 'shutdown', [ $this, 'afterRegisterAllStringsInShutdown' ], \WPML\PB\Shutdown\Hooks::PRIORITY_REGISTER_STRINGS + 1 );
+	}
+
+	/**
+	 * We remove the action callback because it will be
+	 * called manually for each of the saved posts in the
+	 * shutdown when the original strings are registered.
+	 */
+	public function init() {
+		remove_action( 'wpml_tm_save_post', 'wpml_tm_save_post', 10, 3 );
 	}
 
 	/**
@@ -67,13 +80,21 @@ class Hooks implements \IWPML_Backend_Action, \IWPML_Frontend_Action, \IWPML_DIC
 	}
 
 	/**
-	 * @param int         $postId
-	 * @param int         $trid
-	 * @param string      $lang
-	 * @param string|null $sourceLang
+	 * We need to call `wpml_tm_save_post` after string registration
+	 * to make sure we build the content hash with the new strings.
 	 */
-	public function resaveTranslationsAfterSavePost( $postId, $trid, $lang, $sourceLang ) {
-		if ( $sourceLang || ! self::getPackages( $postId ) ) {
+	public function afterRegisterAllStringsInShutdown() {
+		foreach ( $this->pbIntegration->get_save_post_queue() as $post ) {
+			wpml_tm_save_post( $post->ID, $post );
+			$this->resaveTranslations( $post->ID );
+		}
+	}
+
+	/**
+	 * @param int $postId
+	 */
+	private function resaveTranslations( $postId ) {
+		if ( ! self::getPackages( $postId ) ) {
 			return;
 		}
 
@@ -84,7 +105,7 @@ class Hooks implements \IWPML_Backend_Action, \IWPML_Frontend_Action, \IWPML_DIC
 		$ifCompleted = pipe( [ TranslationStatus::class, 'get' ], Relation::equals( ICL_TM_COMPLETE ) );
 
 		// $resaveElement :: \WPML_Post_Element → null
-		$resaveElement = [ $this->pbIntegration, 'resave_post_translation_in_shutdown' ];
+		$resaveElement = \WPML\FP\Fns::unary( partialRight( [ $this->pbIntegration, 'resave_post_translation_in_shutdown' ], false ) );
 
 		wpml_collect( $this->elementFactory->create_post( $postId )->get_translations() )
 			->reject( $ifOriginal )
