@@ -151,7 +151,7 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 			$pb_integration,
 			'migrate_location'
 		) );
-		\WP_Mock::expectActionAdded( 'save_post', array(
+		\WP_Mock::expectActionAdded( 'wpml_tm_save_post', array(
 			$pb_integration,
 			'queue_save_post_actions'
 		), PHP_INT_MAX, 2 );
