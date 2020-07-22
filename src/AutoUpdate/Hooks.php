@@ -54,7 +54,7 @@ class Hooks implements \IWPML_Backend_Action, \IWPML_Frontend_Action, \IWPML_DIC
 		// $joinPackageStringHashes :: \WPML_Package → string
 		$joinPackageStringHashes = pipe(
 			invoke( 'get_package_strings' )->with( true ),
-			Lst::pluck( 'name' ),
+			Lst::pluck( 'value' ),
 			Lst::sort( Relation::gt() ),
 			Lst::join( self::HASH_SEP )
 		);
