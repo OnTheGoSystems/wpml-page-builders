@@ -70,7 +70,7 @@ class TestHooks extends  TestCase {
 		$packageWithMissingStringData = $this->getPackage( [] );
 
 		// keys are sorted inside each package
-		$expectedPostContentMd5 = 'string1A' . Hooks::HASH_SEP . 'string1B' . Hooks::HASH_SEP . 'string2A' . Hooks::HASH_SEP . 'string2B-';
+		$expectedPostContentMd5 = 'The string 1A' . Hooks::HASH_SEP . 'The string 1B' . Hooks::HASH_SEP . 'The string 2A' . Hooks::HASH_SEP . 'The string 2B-';
 
 		\WP_Mock::onFilter( 'wpml_st_get_post_string_packages' )
 			->with( [], $post->ID )
