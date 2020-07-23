@@ -30,9 +30,15 @@ class Hooks implements \IWPML_Backend_Action, \IWPML_Frontend_Action, \IWPML_DIC
 	}
 
 	public function add_hooks() {
-		add_action( 'init', [ $this, 'init' ] );
-		add_filter( 'wpml_tm_post_md5_content', [ $this, 'getMd5ContentFromPackageStrings' ], 10, 2 );
-		add_action( 'shutdown', [ $this, 'afterRegisterAllStringsInShutdown' ], \WPML\PB\Shutdown\Hooks::PRIORITY_REGISTER_STRINGS + 1 );
+		if ( $this->isTmLoaded() ) {
+			add_action( 'init', [ $this, 'init' ] );
+			add_filter( 'wpml_tm_post_md5_content', [ $this, 'getMd5ContentFromPackageStrings' ], 10, 2 );
+			add_action( 'shutdown', [ $this, 'afterRegisterAllStringsInShutdown' ], \WPML\PB\Shutdown\Hooks::PRIORITY_REGISTER_STRINGS + 1 );
+		}
+	}
+
+	public function isTmLoaded() {
+		return defined( 'WPML_TM_VERSION' );
 	}
 
 	/**
