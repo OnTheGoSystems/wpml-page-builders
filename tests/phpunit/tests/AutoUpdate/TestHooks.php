@@ -13,7 +13,26 @@ class TestHooks extends  TestCase {
 	/**
 	 * @test
 	 */
+	public function itDoesNotAddHooksIfTmIsNotActive() {
+		$constant = FunctionMocker::replace( 'defined', false );
+
+		$subject = $this->getSubject();
+
+		\WP_Mock::expectActionNotAdded( 'init', [ $subject, 'init' ] );
+		\WP_Mock::expectFilterNotAdded( 'wpml_tm_post_md5_content', [ $subject, 'getMd5ContentFromPackageStrings' ], 10, 2 );
+		\WP_Mock::expectActionNotAdded( 'shutdown', [ $subject, 'afterRegisterAllStringsInShutdown' ], \WPML\PB\Shutdown\Hooks::PRIORITY_REGISTER_STRINGS + 1 );
+
+		$subject->add_hooks();
+
+		$constant->wasCalledWithOnce( [ 'WPML_TM_VERSION' ] );
+	}
+
+	/**
+	 * @test
+	 */
 	public function itAddsHooks() {
+		$constant = FunctionMocker::replace( 'defined', true );
+
 		$subject = $this->getSubject();
 
 		\WP_Mock::expectActionAdded( 'init', [ $subject, 'init' ] );
@@ -21,6 +40,8 @@ class TestHooks extends  TestCase {
 		\WP_Mock::expectActionAdded( 'shutdown', [ $subject, 'afterRegisterAllStringsInShutdown' ], \WPML\PB\Shutdown\Hooks::PRIORITY_REGISTER_STRINGS + 1 );
 
 		$subject->add_hooks();
+
+		$constant->wasCalledWithOnce( [ 'WPML_TM_VERSION' ] );
 	}
 
 	/**
