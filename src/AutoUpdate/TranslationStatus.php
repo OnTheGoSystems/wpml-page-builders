@@ -15,6 +15,8 @@ class TranslationStatus {
 	 * @return int|null
 	 */
 	public static function get( WPML_Post_Element $element ) {
+		wpml_tm_load_element_translations();
+
 		return Maybe::fromNullable( make( '\WPML_TM_Translation_Status' ) )
 			->map( invoke( 'filter_translation_status' )->with( null, $element->get_trid(), $element->get_language_code() ) )
 			->getOrElse( null );

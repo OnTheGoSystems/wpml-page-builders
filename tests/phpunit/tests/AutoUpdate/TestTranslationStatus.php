@@ -14,6 +14,7 @@ class TestTranslationStatus extends TestCase {
 	 * @test
 	 */
 	public function itGetsAndReturnNullIfClassIsMissing() {
+		\WP_Mock::userFunction( 'wpml_tm_load_element_translations' )->times( 1 );
 		\WP_Mock::userFunction( 'WPML\Container\make' )->andReturn( null );
 
 		$this->assertNull( TranslationStatus::get( $this->getElement( 123, 'fr' ) ) );
@@ -26,6 +27,8 @@ class TestTranslationStatus extends TestCase {
 		$trid   = 123;
 		$lang   = 'fr';
 		$status = 999;
+
+		\WP_Mock::userFunction( 'wpml_tm_load_element_translations' )->times( 1 );
 
 		$statusObject = $this->getMockBuilder( '\WPML_TM_Translation_Status' )
 			->setMethods( [ 'filter_translation_status' ] )
