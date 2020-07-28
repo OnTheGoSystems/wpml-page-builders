@@ -21,6 +21,9 @@ class Hooks implements \IWPML_Backend_Action, \IWPML_Frontend_Action, \IWPML_DIC
 	/** @var \WPML_Translation_Element_Factory $elementFactory */
 	private $elementFactory;
 
+	/** @var array $savePostQueue */
+	private $savePostQueue = [];
+
 	public function __construct(
 		\WPML_PB_Integration $pbIntegration,
 		\WPML_Translation_Element_Factory $elementFactory
@@ -32,6 +35,7 @@ class Hooks implements \IWPML_Backend_Action, \IWPML_Frontend_Action, \IWPML_DIC
 	public function add_hooks() {
 		if ( $this->isTmLoaded() ) {
 			add_action( 'init', [ $this, 'init' ] );
+			add_action( 'wpml_tm_save_post', [ $this, 'addToSavePostQueue' ], 10, 2 );
 			add_filter( 'wpml_tm_post_md5_content', [ $this, 'getMd5ContentFromPackageStrings' ], 10, 2 );
 			add_action( 'shutdown', [ $this, 'afterRegisterAllStringsInShutdown' ], \WPML\PB\Shutdown\Hooks::PRIORITY_REGISTER_STRINGS + 1 );
 		}
@@ -48,6 +52,14 @@ class Hooks implements \IWPML_Backend_Action, \IWPML_Frontend_Action, \IWPML_DIC
 	 */
 	public function init() {
 		remove_action( 'wpml_tm_save_post', 'wpml_tm_save_post', 10 );
+	}
+
+	/**
+	 * @param int      $postId
+	 * @param \WP_Post $post
+	 */
+	public function addToSavePostQueue( $postId, $post ) {
+		$this->savePostQueue[ $postId ] = $post;
 	}
 
 	/**
@@ -87,7 +99,7 @@ class Hooks implements \IWPML_Backend_Action, \IWPML_Frontend_Action, \IWPML_DIC
 	 * to make sure we build the content hash with the new strings.
 	 */
 	public function afterRegisterAllStringsInShutdown() {
-		foreach ( $this->pbIntegration->get_save_post_queue() as $post ) {
+		foreach ( $this->savePostQueue as $post ) {
 			wpml_tm_save_post( $post->ID, $post );
 			$this->resaveTranslations( $post->ID );
 		}

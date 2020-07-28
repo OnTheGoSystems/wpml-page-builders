@@ -19,6 +19,7 @@ class TestHooks extends  TestCase {
 		$subject = $this->getSubject();
 
 		\WP_Mock::expectActionNotAdded( 'init', [ $subject, 'init' ] );
+		\WP_Mock::expectActionNotAdded( 'wpml_tm_save_post', [ $subject, 'addToSavePostQueue' ], 10, 2 );
 		\WP_Mock::expectFilterNotAdded( 'wpml_tm_post_md5_content', [ $subject, 'getMd5ContentFromPackageStrings' ], 10, 2 );
 		\WP_Mock::expectActionNotAdded( 'shutdown', [ $subject, 'afterRegisterAllStringsInShutdown' ], \WPML\PB\Shutdown\Hooks::PRIORITY_REGISTER_STRINGS + 1 );
 
@@ -36,6 +37,7 @@ class TestHooks extends  TestCase {
 		$subject = $this->getSubject();
 
 		\WP_Mock::expectActionAdded( 'init', [ $subject, 'init' ] );
+		\WP_Mock::expectActionAdded( 'wpml_tm_save_post', [ $subject, 'addToSavePostQueue' ], 10, 2 );
 		\WP_Mock::expectFilterAdded( 'wpml_tm_post_md5_content', [ $subject, 'getMd5ContentFromPackageStrings' ], 10, 2 );
 		\WP_Mock::expectActionAdded( 'shutdown', [ $subject, 'afterRegisterAllStringsInShutdown' ], \WPML\PB\Shutdown\Hooks::PRIORITY_REGISTER_STRINGS + 1 );
 
@@ -113,13 +115,13 @@ class TestHooks extends  TestCase {
 			->with( $post->ID, $post );
 
 		$pbIntegration = $this->getPbIntegration();
-		$pbIntegration->method( 'get_save_post_queue' )->willReturn( [ $post ] );
 		$pbIntegration->expects( $this->never() )->method( 'resave_post_translation_in_shutdown' );
 
 		$factory = $this->getElementFactory();
 		$factory->expects( $this->never() )->method( 'create_post' );
 
 		$subject = $this->getSubject( $pbIntegration, $factory );
+		$subject->addToSavePostQueue( $post->ID, $post );
 
 		$subject->afterRegisterAllStringsInShutdown();
 	}
@@ -139,13 +141,13 @@ class TestHooks extends  TestCase {
 			->reply( [] );
 
 		$pbIntegration = $this->getPbIntegration();
-		$pbIntegration->method( 'get_save_post_queue' )->willReturn( [ $post ] );
 		$pbIntegration->expects( $this->never() )->method( 'resave_post_translation_in_shutdown' );
 
 		$factory = $this->getElementFactory();
 		$factory->expects( $this->never() )->method( 'create_post' );
 
 		$subject = $this->getSubject( $pbIntegration, $factory );
+		$subject->addToSavePostQueue( $post->ID, $post );
 
 		$subject->afterRegisterAllStringsInShutdown();
 	}
@@ -171,7 +173,6 @@ class TestHooks extends  TestCase {
 		$original = $this->getElement( null, [ $translation1, $translation2, $translationNotCompleted ] );
 
 		$pbIntegration = $this->getPbIntegration();
-		$pbIntegration->method( 'get_save_post_queue' )->willReturn( [ $post1 ] );
 		$pbIntegration->expects( $this->exactly( 2 ) )
 			->method( 'resave_post_translation_in_shutdown' )
 			->withConsecutive(
@@ -190,6 +191,7 @@ class TestHooks extends  TestCase {
 		);
 
 		$subject = $this->getSubject( $pbIntegration, $factory );
+		$subject->addToSavePostQueue( $post1->ID, $post1 );
 
 		$subject->afterRegisterAllStringsInShutdown();
 	}
@@ -203,7 +205,7 @@ class TestHooks extends  TestCase {
 
 	private function getPbIntegration() {
 		return $this->getMockBuilder( '\WPML_PB_Integration' )
-			->setMethods( [ 'resave_post_translation_in_shutdown', 'get_save_post_queue' ] )
+			->setMethods( [ 'resave_post_translation_in_shutdown' ] )
 			->disableOriginalConstructor()
 			->getMock();
 	}
