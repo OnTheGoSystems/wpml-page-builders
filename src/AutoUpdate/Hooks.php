@@ -99,9 +99,13 @@ class Hooks implements \IWPML_Backend_Action, \IWPML_Frontend_Action, \IWPML_DIC
 	 * to make sure we build the content hash with the new strings.
 	 */
 	public function afterRegisterAllStringsInShutdown() {
-		foreach ( $this->savePostQueue as $post ) {
-			wpml_tm_save_post( $post->ID, $post );
-			$this->resaveTranslations( $post->ID );
+		if ( $this->savePostQueue ) {
+			do_action( 'wpml_cache_clear' );
+
+			foreach ( $this->savePostQueue as $post ) {
+				wpml_tm_save_post( $post->ID, $post );
+				$this->resaveTranslations( $post->ID );
+			}
 		}
 	}
 

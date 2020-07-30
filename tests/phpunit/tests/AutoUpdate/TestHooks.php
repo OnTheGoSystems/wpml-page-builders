@@ -110,6 +110,8 @@ class TestHooks extends  TestCase {
 	public function itDoesNotResaveTranslationsIfNotOriginal() {
 		$post = $this->getPost( 123 );
 
+		\WP_Mock::expectAction( 'wpml_cache_clear' );
+
 		\WP_Mock::userFunction( 'wpml_tm_save_post' )
 			->times( 1 )
 			->with( $post->ID, $post );
@@ -131,6 +133,8 @@ class TestHooks extends  TestCase {
 	 */
 	public function itDoesNotResaveTranslationsIfNoPackage() {
 		$post = $this->getPost( 123 );
+
+		\WP_Mock::expectAction( 'wpml_cache_clear' );
 
 		\WP_Mock::userFunction( 'wpml_tm_save_post' )
 		        ->times( 1 )
@@ -157,6 +161,8 @@ class TestHooks extends  TestCase {
 	 */
 	public function itResavesTranslationsAfterSavePost() {
 		$post1 = $this->getPost( 123 );
+
+		\WP_Mock::expectAction( 'wpml_cache_clear' );
 
 		\WP_Mock::userFunction( 'wpml_tm_save_post' )
 		        ->times( 1 )
