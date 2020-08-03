@@ -81,7 +81,7 @@ class WPML_PB_Loader {
 				$hooks,
 				[
 					WPML_PB_Handle_Post_Body::class,
-					WPML\PB\AutoUpdate\Hooks::class,
+//					WPML\PB\AutoUpdate\Hooks::class, // see wpmlcore-7428
 					WPML\PB\Shutdown\Hooks::class,
 				]
 			);
