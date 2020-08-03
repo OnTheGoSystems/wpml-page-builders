@@ -19,7 +19,7 @@ class Test_WPML_PB_Loader extends WPML_PB_TestCase {
 				$hooks,
 				[
 					WPML_PB_Handle_Post_Body::class,
-					WPML\PB\AutoUpdate\Hooks::class,
+//					WPML\PB\AutoUpdate\Hooks::class,
 					WPML\PB\Shutdown\Hooks::class,
 				]
 			);
