@@ -1,6 +1,7 @@
 <?php
 
 use \WPML\LIB\WP\Gutenberg;
+use WPML\FP\Obj;
 
 class WPML_PB_Shortcode_Strategy implements IWPML_PB_Strategy {
 
@@ -34,13 +35,14 @@ class WPML_PB_Shortcode_Strategy implements IWPML_PB_Strategy {
 			}
 
 			if ( ! in_array( $tag, $this->shortcodes ) ) {
-				$this->shortcodes[ $tag ] = array(
+				$this->shortcodes[ $tag ] = [
 					'encoding'           => $shortcode['tag']['encoding'],
 					'encoding-condition' => isset( $shortcode['tag']['encoding-condition'] ) ? $shortcode['tag']['encoding-condition'] : '',
 					'type'               => isset( $shortcode['tag']['type'] ) ? $shortcode['tag']['type'] : '',
 					'ignore-content'     => isset( $shortcode['tag']['ignore-content'] ) ? (bool) $shortcode['tag']['ignore-content'] : false,
-					'attributes'         => array(),
-				);
+					'label'              => isset( $shortcode['tag']['label'] ) ? $shortcode['tag']['label'] : '',
+					'attributes'         => [],
+				];
 			}
 			if ( isset( $shortcode['attributes'] ) ) {
 				foreach ( $shortcode['attributes'] as $attribute ) {
@@ -86,6 +88,12 @@ class WPML_PB_Shortcode_Strategy implements IWPML_PB_Strategy {
 			return strtoupper( $this->shortcodes[ $tag ]['attributes'][ $attribute ]['type'] );
 		}
 		return 'LINE';
+	}
+
+	public function get_shortcode_attribute_label( $tag, $attribute ) {
+		$labelPath = 'content' === $attribute ? [ $tag, 'label' ] : [ $tag, 'attributes', $attribute, 'label' ];
+
+		return Obj::pathOr( '', $labelPath, $this->shortcodes );
 	}
 
 	public function get_shortcode_parser() {

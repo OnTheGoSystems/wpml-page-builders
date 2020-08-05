@@ -42,10 +42,10 @@ class Test_WPML_PB_Config_Import extends \OTGS\PHPUnit\Tools\TestCase {
 					),
 				),
 				array(
-					'tag'        => array( 'value' => 'tag1', 'encoding' => '', 'encoding-condition' => '', 'type' => '', 'raw-html' => '', 'ignore-content' => false ),
+					'tag'        => array( 'value' => 'tag1', 'encoding' => '', 'encoding-condition' => '', 'type' => '', 'raw-html' => '', 'ignore-content' => false, 'label' => '' ),
 					'attributes' => array(
-						array( 'value' => 'attribute1', 'encoding' => '', 'type' => '' ),
-						array( 'value' => 'attribute2', 'encoding' => '', 'type' => '' ),
+						array( 'value' => 'attribute1', 'encoding' => '', 'type' => '', 'label' => '' ),
+						array( 'value' => 'attribute2', 'encoding' => '', 'type' => '', 'label' => '' ),
 					),
 				),
 			),
@@ -55,9 +55,21 @@ class Test_WPML_PB_Config_Import extends \OTGS\PHPUnit\Tools\TestCase {
 					'attributes' => array( 'attribute' => array( 'value' => 'attribute3' ) ),
 				),
 				array(
-					'tag'        => array( 'value' => 'tag2', 'encoding' => '', 'encoding-condition' => '', 'type' => '', 'raw-html' => '', 'ignore-content' => false ),
+					'tag'        => array( 'value' => 'tag2', 'encoding' => '', 'encoding-condition' => '', 'type' => '', 'raw-html' => '', 'ignore-content' => false, 'label' => '' ),
 					'attributes' => array(
-						array( 'value' => 'attribute3', 'encoding' => '', 'type' => '' ),
+						array( 'value' => 'attribute3', 'encoding' => '', 'type' => '', 'label' => '' ),
+					),
+				),
+			),
+			'one attribute with labels' => array(
+				array(
+					'tag'        => array( 'value' => 'tag2', 'attr' => ['label' => 'Custom tag label'] ),
+					'attributes' => array( 'attribute' => array( 'value' => 'attribute3', 'attr'=> ['label' => 'Custom attrib label'] ) ),
+				),
+				array(
+					'tag'        => array( 'value' => 'tag2', 'encoding' => '', 'encoding-condition' => '', 'type' => '', 'raw-html' => '', 'ignore-content' => false, 'label' => 'Custom tag label' ),
+					'attributes' => array(
+						array( 'value' => 'attribute3', 'encoding' => '', 'type' => '', 'label' => 'Custom attrib label' ),
 					),
 				),
 			),
@@ -66,7 +78,7 @@ class Test_WPML_PB_Config_Import extends \OTGS\PHPUnit\Tools\TestCase {
 					'tag' => array( 'value' => 'tag3' ),
 				),
 				array(
-					'tag'        => array( 'value' => 'tag3', 'encoding' => '', 'encoding-condition' => '', 'type' => '', 'raw-html' => '', 'ignore-content' => false ),
+					'tag'        => array( 'value' => 'tag3', 'encoding' => '', 'encoding-condition' => '', 'type' => '', 'raw-html' => '', 'ignore-content' => false, 'label' => '' ),
 					'attributes' => array(),
 				),
 			),
@@ -75,7 +87,7 @@ class Test_WPML_PB_Config_Import extends \OTGS\PHPUnit\Tools\TestCase {
 					'tag' => array( 'value' => 'tag4', 'attr' => array( 'encoding' => 'encoding1' ) ),
 				),
 				array(
-					'tag'        => array( 'value' => 'tag4', 'encoding' => 'encoding1', 'encoding-condition' => '', 'type' => '', 'raw-html' => '', 'ignore-content' => false ),
+					'tag'        => array( 'value' => 'tag4', 'encoding' => 'encoding1', 'encoding-condition' => '', 'type' => '', 'raw-html' => '', 'ignore-content' => false, 'label' => '' ),
 					'attributes' => array(),
 				),
 			),
@@ -84,7 +96,7 @@ class Test_WPML_PB_Config_Import extends \OTGS\PHPUnit\Tools\TestCase {
 					'tag' => array( 'value' => 'tag4', 'attr' => array( 'encoding' => 'encoding1', 'encoding-condition' => 'option:something=1' ) ),
 				),
 				array(
-					'tag'        => array( 'value' => 'tag4', 'encoding' => 'encoding1', 'encoding-condition' => 'option:something=1', 'type' => '', 'raw-html' => '', 'ignore-content' => false ),
+					'tag'        => array( 'value' => 'tag4', 'encoding' => 'encoding1', 'encoding-condition' => 'option:something=1', 'type' => '', 'raw-html' => '', 'ignore-content' => false, 'label' => '' ),
 					'attributes' => array(),
 				),
 			),
@@ -99,9 +111,9 @@ class Test_WPML_PB_Config_Import extends \OTGS\PHPUnit\Tools\TestCase {
 					),
 				),
 				array(
-					'tag'        => array( 'value' => 'tag5', 'encoding' => '', 'encoding-condition' => '', 'type' => '', 'raw-html' => '', 'ignore-content' => false ),
+					'tag'        => array( 'value' => 'tag5', 'encoding' => '', 'encoding-condition' => '', 'type' => '', 'raw-html' => '', 'ignore-content' => false, 'label' => '' ),
 					'attributes' => array(
-						array( 'value' => 'attribute4', 'encoding' => 'encoding2', 'type' => '' ),
+						array( 'value' => 'attribute4', 'encoding' => 'encoding2', 'type' => '', 'label' => '' ),
 					),
 				),
 			),
@@ -110,7 +122,7 @@ class Test_WPML_PB_Config_Import extends \OTGS\PHPUnit\Tools\TestCase {
 					'tag'        => array( 'value' => 'tag1', 'attr' => array( 'raw-html' => '1' ) ),
 				),
 				array(
-					'tag'        => array( 'value' => 'tag1', 'encoding' => '', 'encoding-condition' => '', 'type' => '', 'raw-html' => '1', 'ignore-content' => false ),
+					'tag'        => array( 'value' => 'tag1', 'encoding' => '', 'encoding-condition' => '', 'type' => '', 'raw-html' => '1', 'ignore-content' => false, 'label' => '' ),
 					'attributes' => array(),
 				),
 			),
@@ -161,9 +173,9 @@ class Test_WPML_PB_Config_Import extends \OTGS\PHPUnit\Tools\TestCase {
 					),
 				),
 				array(
-					'tag'        => array( 'value' => 'tag1', 'encoding' => '', 'encoding-condition' => '', 'type' => '', 'raw-html' => '', 'ignore-content' => true ),
+					'tag'        => array( 'value' => 'tag1', 'encoding' => '', 'encoding-condition' => '', 'type' => '', 'raw-html' => '', 'ignore-content' => true, 'label' => '' ),
 					'attributes' => array(
-						array( 'value' => 'attribute4', 'encoding' => '', 'type' => '' ),
+						array( 'value' => 'attribute4', 'encoding' => '', 'type' => '', 'label' => '' ),
 					),
 				),
 			),
@@ -416,10 +428,10 @@ class Test_WPML_PB_Config_Import extends \OTGS\PHPUnit\Tools\TestCase {
 		);
 
 		$expected_value = array(
-			'tag'        => array( 'value' => 'tag1', 'encoding' => '', 'encoding-condition' => '', 'type' => 'link', 'raw-html' => '', 'ignore-content' => false ),
+			'tag'        => array( 'value' => 'tag1', 'encoding' => '', 'encoding-condition' => '', 'type' => 'link', 'raw-html' => '', 'ignore-content' => false, 'label' => '' ),
 			'attributes' => array(
-				array( 'value' => 'attribute1', 'encoding' => '', 'type' => 'link' ),
-				array( 'value' => 'attribute2', 'encoding' => '', 'type' => '' ),
+				array( 'value' => 'attribute1', 'encoding' => '', 'type' => 'link', 'label' => '' ),
+				array( 'value' => 'attribute2', 'encoding' => '', 'type' => '', 'label' => '' ),
 			)
 		);
 
