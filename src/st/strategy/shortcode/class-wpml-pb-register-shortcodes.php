@@ -141,6 +141,11 @@ class WPML_PB_Register_Shortcodes {
 	}
 
 	function get_updated_shortcode_string_title( $string_id, $shortcode, $attribute ) {
+		$title = $this->shortcode_strategy->get_shortcode_attribute_label( $shortcode['tag'], $attribute );
+		if ( $title ) {
+			return $title;
+		}
+
 		$current_title = $this->get_shortcode_string_title( $string_id );
 
 		$current_title_parts = explode( ':', $current_title );

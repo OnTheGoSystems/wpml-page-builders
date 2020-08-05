@@ -15,6 +15,12 @@ class Test_WPML_PB_Visual_Composer_Links extends WPML_PB_TestCase {
 	function setUp() {
 		parent::setUp();
 
+		\WP_Mock::userFunction( 'get_shortcode_regex', array(
+			'return' => '\[(\[?)(wpml_string_wrapper|vc_column_text)(?![\w-])([^\]\/]*(?:\/(?!\])[^\]\/]*)*?)(?:(\/)\]|\](?:([^\[]*+(?:\[(?!\/\2\])[^\[]*+)*+)\[\/\2\])?)(\]?)',
+		) );
+
+		\WP_Mock::wpFunction( 'update_post_meta', [] );
+
 		/** @var WPML_PB_Shortcodes|\Mockery\MockInterface $shortcode_parser */
 		$shortcode_parser = \Mockery::mock( 'WPML_PB_Shortcodes' );
 		$shortcode_parser->shouldReceive( 'get_shortcodes' )->andReturn(
@@ -66,11 +72,15 @@ class Test_WPML_PB_Visual_Composer_Links extends WPML_PB_TestCase {
 		/** @var WPML_PB_String_Registration|\Mockery\MockInterface $string_handler */
 		$string_handler = \Mockery::mock( 'WPML_PB_String_Registration' );
 		$string_handler->shouldReceive( 'register_string' )->times( 1 )->with( $post_id, '', 'VISUAL', 'vc_btn: content', '', 1 );
-		$string_handler->shouldReceive( 'register_string' )->times( 1 )->with( $post_id, 'Button with link', 'LINE', 'vc_btn: title', '', 1 );
+		$string_handler->shouldReceive( 'register_string' )->times( 1 )->with( $post_id, 'Button with link', 'LINE', 'Visual Composer: Button', '', 1 );
 		$string_handler->shouldReceive( 'register_string' )->times( 1 )->with( $post_id, 'http://wpml-new-editor.local/test-editor-2/', 'LINE', 'vc_btn: link url', '', 1 );
 		$string_handler->shouldReceive( 'register_string' )->times( 1 )->with( $post_id, 'Test editor', 'LINE', 'vc_btn: link title', '', 1 );
 		$string_handler->shouldReceive( 'get_string_id_from_package' )->andReturn( 'anything' );
 		$string_handler->shouldReceive( 'get_string_title' )->andReturn( 'anything' );
+
+		$this->shortcode_strategy->shouldReceive( 'get_shortcode_attribute_label' )->andReturnUsing( function ( $tag, $attrib ) {
+			return $tag === 'vc_btn' && $attrib === 'title' ? 'Visual Composer: Button' : '';
+		} );
 
 		$reuse_translations_mock = Mockery::mock( 'WPML_PB_Reuse_Translations_By_Strategy' );
 		$reuse_translations_mock->shouldReceive( 'set_original_strings' );
