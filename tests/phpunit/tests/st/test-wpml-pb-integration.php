@@ -29,6 +29,27 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 
 	/**
 	 * @test
+	 */
+	public function it_skips_registration_when_post_argument_is_not_wp_post_instance() {
+		$post = (object) [
+			'ID'           => 1,
+			'post_status'  => 'publish',
+			'post_type'    => 'page',
+			'post_content' => 'Content of post',
+		];
+
+		$sitepress_mock = $this->get_sitepress_mock( $post->ID );
+		$factory_mock   = $this->createMock( \WPML_PB_Factory::class );
+		$strategy       = $this->createMock( \WPML_PB_API_Hooks_Strategy::class );
+		$strategy->expects( $this->never() )->method( 'register_strings' );
+
+		$pb_integration = new WPML_PB_Integration( $sitepress_mock, $factory_mock );
+		$pb_integration->add_strategy( $strategy );
+		$pb_integration->register_all_strings_for_translation( $post );
+	}
+	
+	/**
+	 * @test
 	 * @group wpmlcore-7188
 	 */
 	public function it_should_NOT_process_pb_content_with_hidden_strings_only_if_string_translation_was_added() {
