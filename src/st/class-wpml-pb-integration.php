@@ -151,7 +151,7 @@ class WPML_PB_Integration {
 	 * @param WP_Post $post
 	 */
 	public function register_all_strings_for_translation( $post ) {
-		if ( $this->is_post_status_ok( $post ) && $this->is_original_post( $post ) ) {
+		if ( $post instanceof \WP_Post && $this->is_post_status_ok( $post ) && $this->is_original_post( $post ) ) {
 			$this->is_registering_string = true;
 			$this->with_strategies( invoke( 'register_strings' )->with( $post ) );
 			$this->is_registering_string = false;
