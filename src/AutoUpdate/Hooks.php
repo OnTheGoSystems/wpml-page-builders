@@ -7,6 +7,7 @@ use WPML\FP\Logic;
 use WPML\FP\Lst;
 use WPML\FP\Maybe;
 use WPML\FP\Relation;
+use WPML\PB\Shutdown\Hooks as ShutdownHooks;
 use function WPML\FP\invoke;
 use function WPML\FP\partialRight;
 use function WPML\FP\pipe;
@@ -21,8 +22,8 @@ class Hooks implements \IWPML_Backend_Action, \IWPML_Frontend_Action, \IWPML_DIC
 	/** @var \WPML_Translation_Element_Factory $elementFactory */
 	private $elementFactory;
 
-	/** @var array $savePostQueue */
-	private $savePostQueue = [];
+	/** @var array $translationStatusesUpdaters */
+	private $translationStatusesUpdaters = [];
 
 	public function __construct(
 		\WPML_PB_Integration $pbIntegration,
@@ -34,10 +35,9 @@ class Hooks implements \IWPML_Backend_Action, \IWPML_Frontend_Action, \IWPML_DIC
 
 	public function add_hooks() {
 		if ( $this->isTmLoaded() ) {
-			add_action( 'init', [ $this, 'init' ] );
-			add_action( 'wpml_tm_save_post', [ $this, 'addToSavePostQueue' ], 10, 2 );
+			add_filter( 'wpml_tm_delegate_translation_statuses_update', [ $this, 'enqueueTranslationStatusUpdate'], 10, 3 );
 			add_filter( 'wpml_tm_post_md5_content', [ $this, 'getMd5ContentFromPackageStrings' ], 10, 2 );
-			add_action( 'shutdown', [ $this, 'afterRegisterAllStringsInShutdown' ], \WPML\PB\Shutdown\Hooks::PRIORITY_REGISTER_STRINGS + 1 );
+			add_action( 'shutdown', [ $this, 'afterRegisterAllStringsInShutdown' ], ShutdownHooks::PRIORITY_REGISTER_STRINGS + 1 );
 		}
 	}
 
@@ -46,20 +46,15 @@ class Hooks implements \IWPML_Backend_Action, \IWPML_Frontend_Action, \IWPML_DIC
 	}
 
 	/**
-	 * We remove the action callback because it will be
-	 * called manually for each of the saved posts in the
-	 * shutdown when the original strings are registered.
+	 * @param $isDelegated
+	 * @param $originalPostId
+	 * @param $statusesUpdater
+	 *
+	 * @return bool
 	 */
-	public function init() {
-		remove_action( 'wpml_tm_save_post', 'wpml_tm_save_post', 10 );
-	}
-
-	/**
-	 * @param int      $postId
-	 * @param \WP_Post $post
-	 */
-	public function addToSavePostQueue( $postId, $post ) {
-		$this->savePostQueue[ $postId ] = $post;
+	public function enqueueTranslationStatusUpdate( $isDelegated, $originalPostId, $statusesUpdater ) {
+		$this->translationStatusesUpdaters[ $originalPostId ] = $statusesUpdater;
+		return true;
 	}
 
 	/**
@@ -95,16 +90,16 @@ class Hooks implements \IWPML_Backend_Action, \IWPML_Frontend_Action, \IWPML_DIC
 	}
 
 	/**
-	 * We need to call `wpml_tm_save_post` after string registration
+	 * We need to update translation statuses after string registration
 	 * to make sure we build the content hash with the new strings.
 	 */
 	public function afterRegisterAllStringsInShutdown() {
-		if ( $this->savePostQueue ) {
+		if ( $this->translationStatusesUpdaters ) {
 			do_action( 'wpml_cache_clear' );
 
-			foreach ( $this->savePostQueue as $post ) {
-				wpml_tm_save_post( $post->ID, $post );
-				$this->resaveTranslations( $post->ID );
+			foreach ( $this->translationStatusesUpdaters as $originalPostId => $translationStatusesUpdater ) {
+				call_user_func( $translationStatusesUpdater );
+				$this->resaveTranslations( $originalPostId );
 			}
 		}
 	}

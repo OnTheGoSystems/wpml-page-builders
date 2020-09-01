@@ -18,8 +18,7 @@ class TestHooks extends  TestCase {
 
 		$subject = $this->getSubject();
 
-		\WP_Mock::expectActionNotAdded( 'init', [ $subject, 'init' ] );
-		\WP_Mock::expectActionNotAdded( 'wpml_tm_save_post', [ $subject, 'addToSavePostQueue' ], 10, 2 );
+		\WP_Mock::expectFilterNotAdded( 'wpml_tm_delegate_translation_statuses_update', [ $subject, 'enqueueTranslationStatusUpdate'], 10, 3 );
 		\WP_Mock::expectFilterNotAdded( 'wpml_tm_post_md5_content', [ $subject, 'getMd5ContentFromPackageStrings' ], 10, 2 );
 		\WP_Mock::expectActionNotAdded( 'shutdown', [ $subject, 'afterRegisterAllStringsInShutdown' ], \WPML\PB\Shutdown\Hooks::PRIORITY_REGISTER_STRINGS + 1 );
 
@@ -36,8 +35,7 @@ class TestHooks extends  TestCase {
 
 		$subject = $this->getSubject();
 
-		\WP_Mock::expectActionAdded( 'init', [ $subject, 'init' ] );
-		\WP_Mock::expectActionAdded( 'wpml_tm_save_post', [ $subject, 'addToSavePostQueue' ], 10, 2 );
+		\WP_Mock::expectFilterAdded( 'wpml_tm_delegate_translation_statuses_update', [ $subject, 'enqueueTranslationStatusUpdate'], 10, 3 );
 		\WP_Mock::expectFilterAdded( 'wpml_tm_post_md5_content', [ $subject, 'getMd5ContentFromPackageStrings' ], 10, 2 );
 		\WP_Mock::expectActionAdded( 'shutdown', [ $subject, 'afterRegisterAllStringsInShutdown' ], \WPML\PB\Shutdown\Hooks::PRIORITY_REGISTER_STRINGS + 1 );
 
@@ -49,12 +47,12 @@ class TestHooks extends  TestCase {
 	/**
 	 * @test
 	 */
-	public function itShouldInit() {
-		\WP_Mock::userFunction( 'remove_action' )
-			->with( 'wpml_tm_save_post', 'wpml_tm_save_post', 10 )
-			->times( 1 );
+	public function itEnqueuesTranslationStatusUpdate() {
+		$translationStatusesUpdater = function() {};
 
-		$this->getSubject()->init();
+		$this->assertTrue(
+			$this->getSubject()->enqueueTranslationStatusUpdate( false, 123, $translationStatusesUpdater )
+		);
 	}
 
 	/**
@@ -112,9 +110,7 @@ class TestHooks extends  TestCase {
 
 		\WP_Mock::expectAction( 'wpml_cache_clear' );
 
-		\WP_Mock::userFunction( 'wpml_tm_save_post' )
-			->times( 1 )
-			->with( $post->ID, $post );
+		$translationStatusesUpdater = $this->getTranslationStatusesUpdater();
 
 		$pbIntegration = $this->getPbIntegration();
 		$pbIntegration->expects( $this->never() )->method( 'resave_post_translation_in_shutdown' );
@@ -123,7 +119,7 @@ class TestHooks extends  TestCase {
 		$factory->expects( $this->never() )->method( 'create_post' );
 
 		$subject = $this->getSubject( $pbIntegration, $factory );
-		$subject->addToSavePostQueue( $post->ID, $post );
+		$subject->enqueueTranslationStatusUpdate( false, $post->ID, $translationStatusesUpdater );
 
 		$subject->afterRegisterAllStringsInShutdown();
 	}
@@ -136,9 +132,7 @@ class TestHooks extends  TestCase {
 
 		\WP_Mock::expectAction( 'wpml_cache_clear' );
 
-		\WP_Mock::userFunction( 'wpml_tm_save_post' )
-		        ->times( 1 )
-		        ->with( $post->ID, $post );
+		$translationStatusesUpdater = $this->getTranslationStatusesUpdater();
 
 		\WP_Mock::onFilter( 'wpml_st_get_post_string_packages' )
 			->with( [], $post->ID )
@@ -151,7 +145,7 @@ class TestHooks extends  TestCase {
 		$factory->expects( $this->never() )->method( 'create_post' );
 
 		$subject = $this->getSubject( $pbIntegration, $factory );
-		$subject->addToSavePostQueue( $post->ID, $post );
+		$subject->enqueueTranslationStatusUpdate( false, $post->ID, $translationStatusesUpdater );
 
 		$subject->afterRegisterAllStringsInShutdown();
 	}
@@ -164,9 +158,7 @@ class TestHooks extends  TestCase {
 
 		\WP_Mock::expectAction( 'wpml_cache_clear' );
 
-		\WP_Mock::userFunction( 'wpml_tm_save_post' )
-		        ->times( 1 )
-		        ->with( $post1->ID, $post1 );
+		$translationStatusesUpdater = $this->getTranslationStatusesUpdater();
 
 		\WP_Mock::onFilter( 'wpml_st_get_post_string_packages' )
 			->with( [], $post1->ID )
@@ -197,7 +189,7 @@ class TestHooks extends  TestCase {
 		);
 
 		$subject = $this->getSubject( $pbIntegration, $factory );
-		$subject->addToSavePostQueue( $post1->ID, $post1 );
+		$subject->enqueueTranslationStatusUpdate( false, $post1->ID, $translationStatusesUpdater );
 
 		$subject->afterRegisterAllStringsInShutdown();
 	}
@@ -271,5 +263,15 @@ class TestHooks extends  TestCase {
 		$post->ID = $id;
 
 		return $post;
+	}
+
+	/**
+	 * @return \PHPUnit_Framework_MockObject_MockObject|callable
+	 */
+	private function getTranslationStatusesUpdater() {
+		$translationStatusesUpdater = $this->createPartialMock( \stdClass::class, [ '__invoke' ] );
+		$translationStatusesUpdater->expects( $this->once() )->method( '__invoke' );
+
+		return $translationStatusesUpdater;
 	}
 }
