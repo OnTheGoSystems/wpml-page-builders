@@ -46,6 +46,7 @@ FunctionMocker::init(
 		'blacklist' => [],
 		'whitelist' => [],
 		'redefinable-internals' => [
+			'constant',
 			'defined',
 		],
 	]
