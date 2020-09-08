@@ -13,7 +13,26 @@ class TestHooks extends  TestCase {
 	/**
 	 * @test
 	 */
+	public function itDoesNotAddHooksIfAutoUpdateNotEnabled() {
+		FunctionMocker::replace( Settings::class . '::isEnabled', false );
+
+		$constant = FunctionMocker::replace( 'defined', true );
+
+		$subject = $this->getSubject();
+
+		\WP_Mock::expectFilterNotAdded( 'wpml_tm_delegate_translation_statuses_update', [ $subject, 'enqueueTranslationStatusUpdate'], 10, 3 );
+		\WP_Mock::expectFilterNotAdded( 'wpml_tm_post_md5_content', [ $subject, 'getMd5ContentFromPackageStrings' ], 10, 2 );
+		\WP_Mock::expectActionNotAdded( 'shutdown', [ $subject, 'afterRegisterAllStringsInShutdown' ], \WPML\PB\Shutdown\Hooks::PRIORITY_REGISTER_STRINGS + 1 );
+
+		$subject->add_hooks();
+	}
+
+	/**
+	 * @test
+	 */
 	public function itDoesNotAddHooksIfTmIsNotActive() {
+		FunctionMocker::replace( Settings::class . '::isEnabled', true );
+
 		$constant = FunctionMocker::replace( 'defined', false );
 
 		$subject = $this->getSubject();
@@ -31,6 +50,8 @@ class TestHooks extends  TestCase {
 	 * @test
 	 */
 	public function itAddsHooks() {
+		FunctionMocker::replace( Settings::class . '::isEnabled', true );
+
 		$constant = FunctionMocker::replace( 'defined', true );
 
 		$subject = $this->getSubject();
