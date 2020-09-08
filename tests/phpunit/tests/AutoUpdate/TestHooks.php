@@ -18,6 +18,7 @@ class TestHooks extends  TestCase {
 
 		$subject = $this->getSubject();
 
+		\WP_Mock::expectFilterNotAdded( 'wpml_pb_auto_update_enabled', '__return_true' );
 		\WP_Mock::expectFilterNotAdded( 'wpml_tm_delegate_translation_statuses_update', [ $subject, 'enqueueTranslationStatusUpdate'], 10, 3 );
 		\WP_Mock::expectFilterNotAdded( 'wpml_tm_post_md5_content', [ $subject, 'getMd5ContentFromPackageStrings' ], 10, 2 );
 		\WP_Mock::expectActionNotAdded( 'shutdown', [ $subject, 'afterRegisterAllStringsInShutdown' ], \WPML\PB\Shutdown\Hooks::PRIORITY_REGISTER_STRINGS + 1 );
@@ -35,6 +36,7 @@ class TestHooks extends  TestCase {
 
 		$subject = $this->getSubject();
 
+		\WP_Mock::expectFilterAdded( 'wpml_pb_auto_update_enabled', '__return_true' );
 		\WP_Mock::expectFilterAdded( 'wpml_tm_delegate_translation_statuses_update', [ $subject, 'enqueueTranslationStatusUpdate'], 10, 3 );
 		\WP_Mock::expectFilterAdded( 'wpml_tm_post_md5_content', [ $subject, 'getMd5ContentFromPackageStrings' ], 10, 2 );
 		\WP_Mock::expectActionAdded( 'shutdown', [ $subject, 'afterRegisterAllStringsInShutdown' ], \WPML\PB\Shutdown\Hooks::PRIORITY_REGISTER_STRINGS + 1 );
