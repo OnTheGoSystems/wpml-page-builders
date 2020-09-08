@@ -39,7 +39,7 @@ class Hooks implements \IWPML_Backend_Action, \IWPML_Frontend_Action, \IWPML_DIC
 	}
 
 	public function add_hooks() {
-		if ( $this->isTmLoaded() ) {
+		if ( Settings::isEnabled() && $this->isTmLoaded() ) {
 			add_filter( 'wpml_tm_delegate_translation_statuses_update', [ $this, 'enqueueTranslationStatusUpdate'], 10, 3 );
 			add_filter( 'wpml_tm_post_md5_content', [ $this, 'getMd5ContentFromPackageStrings' ], 10, 2 );
 			add_action( 'shutdown', [ $this, 'afterRegisterAllStringsInShutdown' ], ShutdownHooks::PRIORITY_REGISTER_STRINGS + 1 );
