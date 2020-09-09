@@ -110,6 +110,10 @@ class TestHooks extends  TestCase {
 
 		\WP_Mock::expectAction( 'wpml_cache_clear' );
 
+		\WP_Mock::userFunction( 'get_post' )
+		        ->with( $post->ID )
+		        ->andReturn( $post );
+
 		$translationStatusesUpdater = $this->getTranslationStatusesUpdater();
 
 		$pbIntegration = $this->getPbIntegration();
@@ -137,6 +141,10 @@ class TestHooks extends  TestCase {
 		\WP_Mock::onFilter( 'wpml_st_get_post_string_packages' )
 			->with( [], $post->ID )
 			->reply( [] );
+
+		\WP_Mock::userFunction( 'get_post' )
+		        ->with( $post->ID )
+		        ->andReturn( $post );
 
 		$pbIntegration = $this->getPbIntegration();
 		$pbIntegration->expects( $this->never() )->method( 'resave_post_translation_in_shutdown' );
@@ -194,11 +202,59 @@ class TestHooks extends  TestCase {
 		$subject->afterRegisterAllStringsInShutdown();
 	}
 
-	private function getSubject( $pbIntegration = null, $elementFactory = null ) {
+	/**
+	 * @test
+	 * @group wpmlcore-6232
+	 */
+	public function itResavesTranslationsAfterSavePostIfPostIsPageBuilderWithoutStrings() {
+		$post1 = $this->getPost( 123 );
+
+		\WP_Mock::expectAction( 'wpml_cache_clear' );
+
+		$translationStatusesUpdater = $this->getTranslationStatusesUpdater();
+
+		\WP_Mock::onFilter( 'wpml_st_get_post_string_packages' )
+			->with( [], $post1->ID )
+			->reply( [] );
+
+		\WP_Mock::userFunction( 'get_post' )
+		        ->with( $post1->ID )
+		        ->andReturn( $post1 );
+
+		$translation1 = $this->getElement( 'en' );
+
+		$original = $this->getElement( null, [ $translation1 ] );
+
+		$pbIntegration = $this->getPbIntegration();
+		$pbIntegration->expects( $this->exactly( 1 ) )
+			->method( 'resave_post_translation_in_shutdown' )
+			->with( $translation1 );
+
+		$factory = $this->getElementFactory();
+		$factory->method( 'create_post' )->with( $post1->ID )->willReturn( $original );
+
+		$pageBuilt = $this->getPageBuilt();
+		$pageBuilt->method( 'is_page_builder_page' )
+			->with( $post1 )
+			->willReturn( true );
+
+		FunctionMocker::replace(
+			TranslationStatus::class . '::get',
+			function() { return ICL_TM_COMPLETE; }
+		);
+
+		$subject = $this->getSubject( $pbIntegration, $factory, $pageBuilt );
+		$subject->enqueueTranslationStatusUpdate( false, $post1->ID, $translationStatusesUpdater );
+
+		$subject->afterRegisterAllStringsInShutdown();
+	}
+
+	private function getSubject( $pbIntegration = null, $elementFactory = null, $pageBuilt = null ) {
 		$pbIntegration  = $pbIntegration ?: $this->getPbIntegration();
 		$elementFactory = $elementFactory ?: $this->getElementFactory();
+		$pageBuilt      = $pageBuilt ?: $this->getPageBuilt();
 
-		return new Hooks( $pbIntegration, $elementFactory );
+		return new Hooks( $pbIntegration, $elementFactory, $pageBuilt );
 	}
 
 	private function getPbIntegration() {
@@ -221,6 +277,13 @@ class TestHooks extends  TestCase {
 		}
 
 		return $factory;
+	}
+
+	private function getPageBuilt() {
+		return $this->getMockBuilder( '\WPML_Page_Builders_Page_Built' )
+		            ->setMethods( [ 'is_page_builder_page' ] )
+		            ->disableOriginalConstructor()
+		            ->getMock();
 	}
 
 	private function getElement( $sourceLang, $translations = [] ) {

@@ -22,15 +22,20 @@ class Hooks implements \IWPML_Backend_Action, \IWPML_Frontend_Action, \IWPML_DIC
 	/** @var \WPML_Translation_Element_Factory $elementFactory */
 	private $elementFactory;
 
+	/** @var \WPML_Page_Builders_Page_Built $pageBuilt */
+	private $pageBuilt;
+
 	/** @var array $translationStatusesUpdaters */
 	private $translationStatusesUpdaters = [];
 
 	public function __construct(
 		\WPML_PB_Integration $pbIntegration,
-		\WPML_Translation_Element_Factory $elementFactory
+		\WPML_Translation_Element_Factory $elementFactory,
+		\WPML_Page_Builders_Page_Built $pageBuilt
 	) {
-		$this->pbIntegration             = $pbIntegration;
-		$this->elementFactory            = $elementFactory;
+		$this->pbIntegration  = $pbIntegration;
+		$this->elementFactory = $elementFactory;
+		$this->pageBuilt      = $pageBuilt;
 	}
 
 	public function add_hooks() {
@@ -108,7 +113,7 @@ class Hooks implements \IWPML_Backend_Action, \IWPML_Frontend_Action, \IWPML_DIC
 	 * @param int $postId
 	 */
 	private function resaveTranslations( $postId ) {
-		if ( ! self::getPackages( $postId ) ) {
+		if ( ! $this->isPageBuilder( $postId ) ) {
 			return;
 		}
 
@@ -125,5 +130,22 @@ class Hooks implements \IWPML_Backend_Action, \IWPML_Frontend_Action, \IWPML_DIC
 			->reject( $ifOriginal )
 			->filter( $ifCompleted )
 			->each( $resaveElement );
+	}
+
+	/**
+	 * @param int $postId
+	 *
+	 * @return bool
+	 */
+	private function isPageBuilder( $postId ) {
+		$isPbPostWithoutStrings = function( $postId ) {
+			$post = get_post( $postId );
+
+			return $post instanceof \WP_Post
+			       && $this->pageBuilt->is_page_builder_page( $post );
+		};
+
+		return self::getPackages( $postId )
+			|| $isPbPostWithoutStrings( $postId );
 	}
 }
