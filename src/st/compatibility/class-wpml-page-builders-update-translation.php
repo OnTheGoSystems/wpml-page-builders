@@ -48,9 +48,7 @@ abstract class WPML_Page_Builders_Update_Translation extends WPML_Page_Builders_
 		if ( array_key_exists( $string->get_name(), $this->string_translations ) &&
 		     array_key_exists( $this->lang, $this->string_translations[ $string->get_name() ] ) ) {
 			$translation = $this->string_translations[ $string->get_name() ][ $this->lang ];
-			if ( (int) $translation['status'] === self::TRANSLATION_COMPLETE ) {
-				$string->set_value( $translation['value'] );
-			}
+			$string->set_value( $translation['value'] );
 		}
 
 		return $string;
