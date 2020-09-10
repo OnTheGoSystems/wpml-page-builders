@@ -58,4 +58,28 @@ class Test_WPML_PB_API_Hooks_Strategy extends WPML_PB_TestCase {
 		$subject->register_strings( $post );
 
 	}
+
+	/**
+	 * @group wpmlcore-6232
+	 */
+	function test_get_package_strings() {
+		$package_data    = [ 'package data' ];
+		$package_strings = [ 'some strings' ];
+
+		$string_translations = \Mockery::mock( WPML_PB_String_Translation_By_Strategy::class );
+		$string_translations->shouldReceive( 'get_package_strings' )
+			->with( $package_data )
+			->andReturn( $package_strings );
+
+		$factory = \Mockery::mock( WPML_PB_Factory::class );
+		$factory->shouldReceive( 'get_string_translations' )->andReturn( $string_translations );
+
+		$subject = new WPML_PB_API_Hooks_Strategy( 'Cornerstone' );
+		$subject->set_factory( $factory );
+		
+		$this->assertEquals(
+			$package_strings,
+			$subject->get_package_strings( $package_data )
+		);
+	}
 }
