@@ -23,7 +23,16 @@ class WPML_PB_Reuse_Translations_By_Strategy extends WPML_PB_Reuse_Translations 
 	 * @param array $leftover_strings
 	 */
 	public function find_and_reuse( $post_id, array $leftover_strings ) {
-		$current_strings = $this->strategy->get_package_strings( $this->strategy->get_package_key( $post_id ) );
+		$current_strings = $this->get_strings( $post_id );
 		$this->find_and_reuse_translations( $this->original_strings_by_strategy, $current_strings, $leftover_strings );
+	}
+
+	/**
+	 * @param int $post_id
+	 *
+	 * @return array
+	 */
+	public function get_strings( $post_id ) {
+		return $this->strategy->get_package_strings( $this->strategy->get_package_key( $post_id ) );
 	}
 }

@@ -60,6 +60,41 @@ class Test_WPML_PB_Register_Strings extends WPML_PB_TestCase2 {
 		);
 		$subject->register_strings( $post, $package );
 	}
+
+	/**
+	 * @test
+	 * @group wpmlcore-6232
+	 */
+	public function it_reuses_string_translations() {
+		list( $name, $post, $package ) = $this->get_post_and_package( 'Cornerstone' );
+		$existing_strings = [ 'some strings' ];
+
+		\WP_Mock::userFunction( 'get_post_meta', [
+			'args'   => [ $post->ID, '_cornerstone_data', false ],
+			'return' => [],
+		] );
+
+		WP_Mock::expectAction( 'wpml_start_string_package_registration', $package );
+		WP_Mock::expectAction( 'wpml_delete_unused_package_strings', $package );
+
+		$data_settings = \Mockery::mock( 'IWPML_Page_Builders_Data_Settings' );
+		$data_settings->shouldReceive( 'is_handling_post' )->with( $post->ID )->andReturn( true );
+		$data_settings->shouldReceive( 'get_meta_field' )->andReturn( '_cornerstone_data' );
+
+		$reuse_translations = \Mockery::mock( WPML_PB_Reuse_Translations_By_Strategy::class );
+		$reuse_translations->shouldReceive( 'get_strings' )->with( $post->ID )->andReturn( $existing_strings );
+		$reuse_translations->shouldReceive( 'set_original_strings' )->with( $existing_strings );
+		$reuse_translations->shouldReceive( 'find_and_reuse' )->with( $post->ID, $existing_strings );
+
+		$subject = new WPML_Concrete_Test_Register_Strings(
+			\Mockery::mock( 'IWPML_Page_Builders_Translatable_Nodes' ),
+			$data_settings,
+			\Mockery::mock( 'WPML_PB_String_Registration' ),
+			$reuse_translations
+		);
+
+		$subject->register_strings( $post, $package );
+	}
 }
 
 

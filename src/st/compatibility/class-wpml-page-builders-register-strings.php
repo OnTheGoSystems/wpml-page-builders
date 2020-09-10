@@ -20,24 +20,23 @@ abstract class WPML_Page_Builders_Register_Strings {
 	 */
 	private $string_registration;
 
+	/** @var WPML_PB_Reuse_Translations_By_Strategy|null $reuse_translations */
+	private $reuse_translations;
+
 	/** @var int $string_location */
 	private $string_location;
 
-	/**
-	 * WPML_Page_Builders_Register_Strings constructor.
-	 *
-	 * @param IWPML_Page_Builders_Translatable_Nodes $translatable_nodes
-	 * @param IWPML_Page_Builders_Data_Settings $data_settings
-	 * @param WPML_PB_String_Registration $string_registration
-	 */
 	public function __construct(
 		IWPML_Page_Builders_Translatable_Nodes $translatable_nodes,
 		IWPML_Page_Builders_Data_Settings $data_settings,
-		WPML_PB_String_Registration $string_registration ) {
+		WPML_PB_String_Registration $string_registration,
+		WPML_PB_Reuse_Translations_By_Strategy $reuse_translations = null
+	) {
 
-		$this->data_settings = $data_settings;
-		$this->translatable_nodes = $translatable_nodes;
+		$this->data_settings       = $data_settings;
+		$this->translatable_nodes  = $translatable_nodes;
 		$this->string_registration = $string_registration;
+		$this->reuse_translations  = $reuse_translations;
 	}
 
 	/**
@@ -51,6 +50,12 @@ abstract class WPML_Page_Builders_Register_Strings {
 		$this->string_location = 1;
 
 		if ( $this->data_settings->is_handling_post( $post->ID ) ) {
+
+			if ( $this->reuse_translations ) {
+				$existing_strings = $this->reuse_translations->get_strings( $post->ID );
+				$this->reuse_translations->set_original_strings( $existing_strings );
+			}
+
 			$data = get_post_meta( $post->ID, $this->data_settings->get_meta_field(), false );
 
 			if ( $data ) {
@@ -61,6 +66,10 @@ abstract class WPML_Page_Builders_Register_Strings {
 						$package
 					);
 				}
+			}
+
+			if ( $this->reuse_translations ) {
+				$this->reuse_translations->find_and_reuse( $post->ID, $existing_strings );
 			}
 		}
 
