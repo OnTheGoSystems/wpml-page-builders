@@ -12,19 +12,34 @@ class Hooks implements \IWPML_Action {
 	/** @var Storage $storage */
 	private $storage;
 
+	/** @var string $translatableWidgetsHook */
+	private $translatableWidgetsHook;
+
 	public function __construct(
 		Parser $parser,
-		Storage $storage
+		Storage $storage,
+		$translatableWidgetsHook
 	) {
-		$this->parser  = $parser;
-		$this->storage = $storage;
+		$this->parser                  = $parser;
+		$this->storage                 = $storage;
+		$this->translatableWidgetsHook = $translatableWidgetsHook;
 	}
 
 	public function add_hooks() {
 		add_filter( 'wpml_config_array', tap( [ $this, 'extractConfig' ] ) );
+		add_filter( $this->translatableWidgetsHook , [ $this, 'extendTranslatableWidgets' ] );
 	}
 
 	public function extractConfig( array $allConfig ) {
 		$this->storage->update( $this->parser->extract( $allConfig ) );
+	}
+
+	/**
+	 * @param array $widgets
+	 *
+	 * @return array
+	 */
+	public function extendTranslatableWidgets( array $widgets ) {
+		return array_merge( $widgets, $this->storage->get() );
 	}
 }
