@@ -10,6 +10,9 @@ use function WPML\FP\tap as tap;
  */
 class TestHooks extends TestCase {
 
+	/** @see wpml_elementor_widgets_to_translate */
+	const TRANSLATABLE_WIDGETS_HOOK = 'wpml_super_pb_widgets_to_translate';
+
 	/**
 	 * @test
 	 */
@@ -17,6 +20,7 @@ class TestHooks extends TestCase {
 		$subject = $this->getSubject();
 
 		\WP_Mock::expectFilterAdded( 'wpml_config_array', tap( [ $subject, 'extractConfig' ] ) );
+		\WP_Mock::expectFilterAdded( self::TRANSLATABLE_WIDGETS_HOOK, [ $subject, 'extendTranslatableWidgets' ] );
 
 		$subject->add_hooks();
 	}
@@ -42,11 +46,34 @@ class TestHooks extends TestCase {
 		$subject->extractConfig( $allConfig );
 	}
 
+	/**
+	 * @test
+	 */
+	public function itShouldExtendTranslatableWidgets() {
+		$originalConfig = [
+			'text-editor' => [ 'some config for text-editor' ],
+		];
+
+		$storedConfig = [
+			'heading' => [ 'some config for heading' ],
+		];
+
+		$storage = $this->getStorage();
+		$storage->method( 'get' )->willReturn( $storedConfig );
+
+		$subject = $this->getSubject( null, $storage );
+
+		$this->assertEquals(
+			array_merge( $originalConfig, $storedConfig ),
+			$subject->extendTranslatableWidgets( $originalConfig )
+		);
+	}
+
 	private function getSubject( $parser = null, $storage = null ) {
 		$parser  = $parser ?: $this->getParser();
 		$storage = $storage ?: $this->getStorage();
 
-		return new Hooks( $parser, $storage );
+		return new Hooks( $parser, $storage, self::TRANSLATABLE_WIDGETS_HOOK );
 	}
 
 	private function getParser() {
