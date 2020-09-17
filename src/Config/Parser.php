@@ -39,14 +39,14 @@ class Parser {
 
 			$pbConfig[ $widgetName ] = [
 				'conditions' => $this->parseConditions( $widget, $widgetName ),
-				'fields'     => $this->parseFields( $widget ),
+				'fields'     => $this->parseFields(  Obj::pathOr( [], ['fields', 'field'], $widget ) ),
 			];
 
 			$fieldsInItem = Obj::prop( 'fields-in-item', $widget );
 
 			if ( $fieldsInItem ) {
 				$itemOf                                    = Obj::path( [ 'attr', 'items_of' ], $fieldsInItem );
-				$pbConfig[ $widgetName ]['fields_in_item'] = [ $itemOf => $this->parseFieldsInItem( $fieldsInItem ) ];
+				$pbConfig[ $widgetName ]['fields_in_item'] = [ $itemOf => $this->parseFields( Obj::propOr( [], 'field', $fieldsInItem ) ) ];
 			}
 
 			$integrationClasses = $this->parseIntegrationClasses( $widget );
@@ -78,12 +78,11 @@ class Parser {
 	}
 
 	/**
-	 * @param array $widget
+	 * @param array $rawFields
 	 *
 	 * @return array
 	 */
-	private function parseFields( array $widget ) {
-		$rawFields    = Obj::pathOr( [], ['fields', 'field'], $widget );
+	private function parseFields( array $rawFields ) {
 		$parsedFields = [];
 
 		foreach ( $this->normalize( $rawFields ) as $field ) {
@@ -108,28 +107,6 @@ class Parser {
 		}
 
 		return $parsedFields;
-	}
-
-	/**
-	 * @param array $fieldsInItem
-	 *
-	 * @return array
-	 */
-	private function parseFieldsInItem( array $fieldsInItem ) {
-		$rawFieldsInItem    = Obj::propOr( [], 'field', $fieldsInItem );
-		$parsedFieldsInItem = [];
-
-		foreach ( $this->normalize( $rawFieldsInItem ) as $field ) {
-			$parsedField = [
-				'field'       => $field['value'],
-				'type'        => Obj::pathOr( $field['value'], [ 'attr', 'type' ], $field ),
-				'editor_type' => Obj::pathOr( 'LINE', [ 'attr', 'editor_type' ], $field ),
-			];
-
-			$parsedFieldsInItem[] = $parsedField;
-		}
-
-		return $parsedFieldsInItem;
 	}
 
 	/**
