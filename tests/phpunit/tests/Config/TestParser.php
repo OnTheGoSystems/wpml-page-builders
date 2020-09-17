@@ -294,6 +294,14 @@ class TestParser extends TestCase {
 										'editor_type' => 'TEXTAREA',
 									],
 								],
+								[
+									'value' => 'url',
+									'attr'  => [
+										'type'        => 'The Item URL',
+										'editor_type' => 'LINK',
+										'key_of'      => 'the-key-of-item-url',
+									],
+								],
 							],
 						],
 						'integration-classes' => [
@@ -333,6 +341,11 @@ class TestParser extends TestCase {
 									'field'       => 'sub-title',
 									'type'        => 'The Item Sub-Title',
 									'editor_type' => 'TEXTAREA',
+								],
+								'the-key-of-item-url' => [
+									'field'       => 'url',
+									'type'        => 'The Item URL',
+									'editor_type' => 'LINK',
 								],
 							],
 						],
