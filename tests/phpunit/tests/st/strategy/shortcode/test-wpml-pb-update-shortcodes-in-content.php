@@ -165,6 +165,28 @@ class Test_WPML_PB_Update_Shortcodes_In_Content extends WPML_PB_TestCase {
 					),
 				),
 			),
+			"Don't escape already escaped chars" => array(
+				'[et_shortcode title="My text: A &amp; B and other" /]',
+				'[et_shortcode title="FR My text: A &amp; B and other" /]',
+				array( 'et_shortcode' ),
+				array( 'et_shortcode' => array( 'title' ) ),
+				array(
+					array(
+						'block'      => '[et_shortcode title="My text: A &amp; B and other" /]]',
+						'tag'        => 'et_shortcode',
+						'attributes' => ' title="My text: A &amp; B and other"',
+						'content'    => '',
+					),
+				),
+				array(
+					md5( 'My text: A &amp; B and other' ) => array(
+						'fr' => array(
+							'status' => ICL_TM_COMPLETE,
+							'value'  => 'FR My text: A &amp; B and other',
+						),
+					),
+				),
+			),
 			'Test translating only translatable attributes even when their values are the same' => array(
 				'[et_shortcode title="title value" title2="title value" /]',
 				'[et_shortcode title="fr title value" title2="title value" /]',
