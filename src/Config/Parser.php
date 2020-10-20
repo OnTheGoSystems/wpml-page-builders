@@ -42,11 +42,16 @@ class Parser {
 				'fields'     => $this->parseFields(  Obj::pathOr( [], ['fields', 'field'], $widget ) ),
 			];
 
-			$fieldsInItem = Obj::prop( 'fields-in-item', $widget );
+			$fieldsInItems = Obj::prop( 'fields-in-item', $widget );
 
-			if ( $fieldsInItem ) {
-				$itemOf                                    = Obj::path( [ 'attr', 'items_of' ], $fieldsInItem );
-				$pbConfig[ $widgetName ]['fields_in_item'] = [ $itemOf => $this->parseFields( Obj::propOr( [], 'field', $fieldsInItem ) ) ];
+			if ( $fieldsInItems ) {
+				$pbConfig[ $widgetName ]['fields_in_item'] = [];
+				$fieldsInItems                             = $this->normalize( $fieldsInItems );
+
+				foreach ( $fieldsInItems as $fieldsInItem ) {
+					$itemOf                                               = Obj::path( [ 'attr', 'items_of' ], $fieldsInItem );
+					$pbConfig[ $widgetName ]['fields_in_item'][ $itemOf ] = $this->parseFields( Obj::propOr( [], 'field', $fieldsInItem ) );
+				}
 			}
 
 			$integrationClasses = $this->parseIntegrationClasses( $widget );
@@ -130,6 +135,10 @@ class Parser {
 	 * @return array
 	 */
 	public function normalize( array $partialConfig ) {
-		return isset( $partialConfig['value'] ) ? [ $partialConfig ] : $partialConfig;
+		$isAssocArray = function( array $array ) {
+			return count( array_filter( array_keys( $array ), 'is_string' ) ) > 0;
+		};
+
+		return $isAssocArray( $partialConfig ) ? [ $partialConfig ] : $partialConfig;
 	}
 }

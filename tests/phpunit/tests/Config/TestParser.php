@@ -210,6 +210,66 @@ class TestParser extends TestCase {
 					],
 				],
 			],
+			// https://onthegosystems.myjetbrains.com/youtrack/issue/wpmlcore-7337
+			'with multiple occurrences of "fields in item"' => [
+				$this->getAllConfig( [
+					[
+						'attr'   => [
+							'name' => 'some-widget',
+						],
+						'fields-in-item' => [
+							[
+								'attr' => [
+									'items_of' => 'the-first-key-of-item',
+								],
+								'field' => [
+									'value' => 'first',
+									'attr'  => [
+										'type'        => 'The first key field',
+										'editor_type' => 'TEXTAREA',
+									],
+								],
+							],
+							[
+								'attr' => [
+									'items_of' => 'the-second-key-of-item',
+								],
+								'field' => [
+									'value' => 'second',
+									'attr'  => [
+										'type'        => 'The second key field',
+										'editor_type' => 'LINE',
+									],
+								],
+							],
+						],
+					],
+				] ),
+				[
+					'some-widget' => [
+						'conditions' => [
+							self::DEFAULT_CONDITION_KEY => 'some-widget',
+						],
+						'fields' => [],
+						'fields_in_item' => [
+							'the-first-key-of-item' => [
+								[
+									'field'       => 'first',
+									'type'        => 'The first key field',
+									'editor_type' => 'TEXTAREA',
+								],
+							],
+							'the-second-key-of-item' => [
+								[
+									'field'       => 'second',
+									'type'        => 'The second key field',
+									'editor_type' => 'LINE',
+								],
+							],
+						],
+					],
+				],
+			],
 			'with "integration-classes"' => [
 				$this->getAllConfig( [
 					[
