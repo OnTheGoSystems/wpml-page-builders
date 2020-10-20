@@ -20,7 +20,7 @@ class TestHooks extends TestCase {
 		$subject = $this->getSubject();
 
 		\WP_Mock::expectFilterAdded( 'wpml_config_array', tap( [ $subject, 'extractConfig' ] ) );
-		\WP_Mock::expectFilterAdded( self::TRANSLATABLE_WIDGETS_HOOK, [ $subject, 'extendTranslatableWidgets' ] );
+		\WP_Mock::expectFilterAdded( self::TRANSLATABLE_WIDGETS_HOOK, [ $subject, 'extendTranslatableWidgets' ], Hooks::PRIORITY_AFTER_DEFAULT );
 
 		$subject->add_hooks();
 	}
