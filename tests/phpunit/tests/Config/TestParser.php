@@ -44,7 +44,7 @@ class TestParser extends TestCase {
 								'value' => 'title',
 								'attr'  => [
 									'type'        => 'The Widget Title',
-									'editor_type' => 'TEXTAREA',
+									'editor_type' => 'AREA',
 								],
 							],
 						],
@@ -59,7 +59,7 @@ class TestParser extends TestCase {
 							[
 								'field'       => 'title',
 								'type'        => 'The Widget Title',
-								'editor_type' => 'TEXTAREA',
+								'editor_type' => 'AREA',
 							],
 						],
 					],
@@ -84,7 +84,7 @@ class TestParser extends TestCase {
 								'value' => 'title',
 								'attr'  => [
 									'type'        => 'The Widget Title',
-									'editor_type' => 'TEXTAREA',
+									'editor_type' => 'AREA',
 								],
 							],
 						],
@@ -99,7 +99,7 @@ class TestParser extends TestCase {
 							[
 								'field'       => 'title',
 								'type'        => 'The Widget Title',
-								'editor_type' => 'TEXTAREA',
+								'editor_type' => 'AREA',
 							],
 						],
 					],
@@ -116,7 +116,7 @@ class TestParser extends TestCase {
 								'value' => 'title',
 								'attr'  => [
 									'type'        => 'The Widget Title',
-									'editor_type' => 'TEXTAREA',
+									'editor_type' => 'AREA',
 									'key_of'      => 'the-key-of-the-field',
 								],
 							],
@@ -132,7 +132,7 @@ class TestParser extends TestCase {
 							'the-key-of-the-field' => [
 								'field'       => 'title',
 								'type'        => 'The Widget Title',
-								'editor_type' => 'TEXTAREA',
+								'editor_type' => 'AREA',
 							],
 						],
 					],
@@ -149,7 +149,7 @@ class TestParser extends TestCase {
 								'value' => 'title',
 								'attr'  => [
 									'type'        => 'The Widget Title',
-									'editor_type' => 'TEXTAREA',
+									'editor_type' => 'AREA',
 									'field_id'    => 'the-id-of-the-field',
 								],
 							],
@@ -165,7 +165,7 @@ class TestParser extends TestCase {
 							[
 								'field'       => 'title',
 								'type'        => 'The Widget Title',
-								'editor_type' => 'TEXTAREA',
+								'editor_type' => 'AREA',
 								'field_id'    => 'the-id-of-the-field',
 							],
 						],
@@ -186,7 +186,7 @@ class TestParser extends TestCase {
 								'value' => 'title',
 								'attr'  => [
 									'type'        => 'The Widget Title',
-									'editor_type' => 'TEXTAREA',
+									'editor_type' => 'AREA',
 								],
 							],
 						],
@@ -203,7 +203,7 @@ class TestParser extends TestCase {
 								[
 									'field'       => 'title',
 									'type'        => 'The Widget Title',
-									'editor_type' => 'TEXTAREA',
+									'editor_type' => 'AREA',
 								]
 							],
 						],
@@ -226,7 +226,7 @@ class TestParser extends TestCase {
 									'value' => 'first',
 									'attr'  => [
 										'type'        => 'The first key field',
-										'editor_type' => 'TEXTAREA',
+										'editor_type' => 'AREA',
 									],
 								],
 							],
@@ -256,7 +256,7 @@ class TestParser extends TestCase {
 								[
 									'field'       => 'first',
 									'type'        => 'The first key field',
-									'editor_type' => 'TEXTAREA',
+									'editor_type' => 'AREA',
 								],
 							],
 							'the-second-key-of-item' => [
@@ -323,14 +323,14 @@ class TestParser extends TestCase {
 									'value' => 'title',
 									'attr'  => [
 										'type'        => 'The Widget Title',
-										'editor_type' => 'TEXTAREA',
+										'editor_type' => 'AREA',
 									],
 								],
 								[
 									'value' => 'sub-title',
 									'attr'  => [
 										'type'        => 'The Widget Sub-Title',
-										'editor_type' => 'TEXTAREA',
+										'editor_type' => 'AREA',
 									],
 								],
 							],
@@ -344,14 +344,14 @@ class TestParser extends TestCase {
 									'value' => 'title',
 									'attr'  => [
 										'type'        => 'The Item Title',
-										'editor_type' => 'TEXTAREA',
+										'editor_type' => 'AREA',
 									],
 								],
 								[
 									'value' => 'sub-title',
 									'attr'  => [
 										'type'        => 'The Item Sub-Title',
-										'editor_type' => 'TEXTAREA',
+										'editor_type' => 'AREA',
 									],
 								],
 								[
@@ -382,12 +382,12 @@ class TestParser extends TestCase {
 							[
 								'field'       => 'title',
 								'type'        => 'The Widget Title',
-								'editor_type' => 'TEXTAREA',
+								'editor_type' => 'AREA',
 							],
 							[
 								'field'       => 'sub-title',
 								'type'        => 'The Widget Sub-Title',
-								'editor_type' => 'TEXTAREA',
+								'editor_type' => 'AREA',
 							],
 						],
 						'fields_in_item' => [
@@ -395,12 +395,12 @@ class TestParser extends TestCase {
 								[
 									'field'       => 'title',
 									'type'        => 'The Item Title',
-									'editor_type' => 'TEXTAREA',
+									'editor_type' => 'AREA',
 								],
 								[
 									'field'       => 'sub-title',
 									'type'        => 'The Item Sub-Title',
-									'editor_type' => 'TEXTAREA',
+									'editor_type' => 'AREA',
 								],
 								'the-key-of-item-url' => [
 									'field'       => 'url',
