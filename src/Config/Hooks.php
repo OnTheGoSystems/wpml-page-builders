@@ -6,6 +6,8 @@ use function WPML\FP\tap as tap;
 
 class Hooks implements \IWPML_Action {
 
+	const PRIORITY_AFTER_DEFAULT = 20;
+
 	/** @var Parser $parser */
 	private $parser;
 
@@ -27,7 +29,7 @@ class Hooks implements \IWPML_Action {
 
 	public function add_hooks() {
 		add_filter( 'wpml_config_array', tap( [ $this, 'extractConfig' ] ) );
-		add_filter( $this->translatableWidgetsHook , [ $this, 'extendTranslatableWidgets' ] );
+		add_filter( $this->translatableWidgetsHook , [ $this, 'extendTranslatableWidgets' ], self::PRIORITY_AFTER_DEFAULT );
 	}
 
 	public function extractConfig( array $allConfig ) {
