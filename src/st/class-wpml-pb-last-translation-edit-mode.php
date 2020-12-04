@@ -11,8 +11,8 @@ class WPML_PB_Last_Translation_Edit_Mode {
 	 *
 	 * @return bool
 	 */
-	public function is_native_editor( $post_id ) {
-		return $this->get_last_mode( $post_id ) === self::NATIVE_EDITOR;
+	public static function is_native_editor( $post_id ) {
+		return self::get_last_mode( $post_id ) === self::NATIVE_EDITOR;
 	}
 
 	/**
@@ -20,8 +20,8 @@ class WPML_PB_Last_Translation_Edit_Mode {
 	 *
 	 * @return bool
 	 */
-	public function is_translation_editor( $post_id ) {
-		return $this->get_last_mode( $post_id ) === self::TRANSLATION_EDITOR;
+	public static function is_translation_editor( $post_id ) {
+		return self::get_last_mode( $post_id ) === self::TRANSLATION_EDITOR;
 	}
 
 	/**
@@ -29,29 +29,29 @@ class WPML_PB_Last_Translation_Edit_Mode {
 	 *
 	 * @return mixed
 	 */
-	private function get_last_mode( $post_id ) {
+	private static function get_last_mode( $post_id ) {
 		return get_post_meta( $post_id, self::POST_META_KEY, true );
 	}
 
 	/**
 	 * @param int $post_id
 	 */
-	public function set_native_editor( $post_id ) {
-		$this->set_mode( $post_id, self::NATIVE_EDITOR );
+	public static function set_native_editor( $post_id ) {
+		self::set_mode( $post_id, self::NATIVE_EDITOR );
 	}
 
 	/**
 	 * @param int $post_id
 	 */
-	public function set_translation_editor( $post_id ) {
-		$this->set_mode( $post_id, self::TRANSLATION_EDITOR );
+	public static function set_translation_editor( $post_id ) {
+		self::set_mode( $post_id, self::TRANSLATION_EDITOR );
 	}
 
 	/**
 	 * @param int    $post_id
 	 * @param string $mode
 	 */
-	private function set_mode( $post_id, $mode ) {
+	private static function set_mode( $post_id, $mode ) {
 		update_post_meta( $post_id, self::POST_META_KEY, $mode );
 	}
 }

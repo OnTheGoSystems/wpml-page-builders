@@ -20,6 +20,9 @@ class Test_WPML_PB_Last_Edit_Mode extends \OTGS\PHPUnit\Tools\TestCase {
 
 		$this->assertTrue( $subject->is_native_editor( $post_id ) );
 		$this->assertFalse( $subject->is_translation_editor( $post_id ) );
+
+		$this->assertTrue( WPML_PB_Last_Translation_Edit_Mode::is_native_editor( $post_id ) );
+		$this->assertFalse( WPML_PB_Last_Translation_Edit_Mode::is_translation_editor( $post_id ) );
 	}
 
 	/**
@@ -37,6 +40,9 @@ class Test_WPML_PB_Last_Edit_Mode extends \OTGS\PHPUnit\Tools\TestCase {
 
 		$this->assertFalse( $subject->is_native_editor( $post_id ) );
 		$this->assertTrue( $subject->is_translation_editor( $post_id ) );
+
+		$this->assertFalse( WPML_PB_Last_Translation_Edit_Mode::is_native_editor( $post_id ) );
+		$this->assertTrue( WPML_PB_Last_Translation_Edit_Mode::is_translation_editor( $post_id ) );
 	}
 
 	/**
@@ -62,6 +68,24 @@ class Test_WPML_PB_Last_Edit_Mode extends \OTGS\PHPUnit\Tools\TestCase {
 	/**
 	 * @test
 	 */
+	public function it_should_set_native_editor_as_static() {
+		$post_id = 123;
+
+		\WP_Mock::userFunction( 'update_post_meta', array(
+			'times' => 1,
+			'args'  => array(
+				$post_id,
+				WPML_PB_Last_Translation_Edit_Mode::POST_META_KEY,
+				WPML_PB_Last_Translation_Edit_Mode::NATIVE_EDITOR,
+			),
+		));
+
+		WPML_PB_Last_Translation_Edit_Mode::set_native_editor( $post_id );
+	}
+
+	/**
+	 * @test
+	 */
 	public function it_should_set_translation_editor() {
 		$post_id = 123;
 
@@ -77,6 +101,24 @@ class Test_WPML_PB_Last_Edit_Mode extends \OTGS\PHPUnit\Tools\TestCase {
 		$subject = $this->get_subject();
 
 		$subject->set_translation_editor( $post_id );
+	}
+
+	/**
+	 * @test
+	 */
+	public function it_should_set_translation_editor_as_static() {
+		$post_id = 123;
+
+		\WP_Mock::userFunction( 'update_post_meta', array(
+			'times' => 1,
+			'args'  => array(
+				$post_id,
+				WPML_PB_Last_Translation_Edit_Mode::POST_META_KEY,
+				WPML_PB_Last_Translation_Edit_Mode::TRANSLATION_EDITOR,
+			),
+		));
+
+		WPML_PB_Last_Translation_Edit_Mode::set_translation_editor( $post_id );
 	}
 
 	private function get_subject() {
