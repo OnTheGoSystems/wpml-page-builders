@@ -103,8 +103,10 @@ class Hooks implements \IWPML_Backend_Action, \IWPML_Frontend_Action, \IWPML_DIC
 			do_action( 'wpml_cache_clear' );
 
 			foreach ( $this->translationStatusesUpdaters as $originalPostId => $translationStatusesUpdater ) {
-				call_user_func( $translationStatusesUpdater );
-				$this->resaveTranslations( $originalPostId );
+				if ( \get_post( $originalPostId ) ) {
+					call_user_func( $translationStatusesUpdater );
+					$this->resaveTranslations( $originalPostId );
+				}
 			}
 		}
 	}

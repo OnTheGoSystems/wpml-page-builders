@@ -346,6 +346,11 @@ class TestHooks extends  TestCase {
 		$post = $this->getMockBuilder( '\WP_Post' )->getMock();
 		$post->ID = $id;
 
+		\WP_Mock::userFunction( 'get_post', [
+			'args'   => [ $id ],
+			'return' => $post,
+		] );
+
 		return $post;
 	}
 
