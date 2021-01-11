@@ -21,9 +21,11 @@ class Test_WPML_Page_Builders_Media_Shortcodes extends \OTGS\PHPUnit\Tools\TestC
 		$translated_id_1  = 11;
 		$original_id_2    = 7;
 		$translated_id_2  = 19;
+		$original_bg      = 'http://example.org/original-bg.jpg';
+		$translated_bg    = 'http://example.org/translated-bg.jpg';
 
 		$content = '
-[et_pb_section bb_built="1"][et_pb_row][et_pb_column type="4_4"]
+[et_pb_section bb_built="1"][et_pb_row][et_pb_column type="4_4" general_image_bg="' . $original_bg . '"]
 	[et_pb_gallery _builder_version="3.12" gallery_ids="' . $original_id_1 . '" zoom_icon_color="#2ea3f2" /]
 	[et_pb_audio _builder_version="3.12" title="Audio block One" /]
 	[et_pb_audio _builder_version="3.12" title="Audio block Two" background_image="' . $original_url_1 . '" /]
@@ -44,7 +46,7 @@ class Test_WPML_Page_Builders_Media_Shortcodes extends \OTGS\PHPUnit\Tools\TestC
 ';
 
 		$translated_content = '
-[et_pb_section bb_built="1"][et_pb_row][et_pb_column type="4_4"]
+[et_pb_section bb_built="1"][et_pb_row][et_pb_column type="4_4" general_image_bg="' . $translated_bg . '"]
 	[et_pb_gallery _builder_version="3.12" gallery_ids="' . $translated_id_1 . '" zoom_icon_color="#2ea3f2" /]
 	[et_pb_audio _builder_version="3.12" title="Audio block One" /]
 	[et_pb_audio _builder_version="3.12" title="Audio block Two" background_image="' . $translated_url_1 . '" /]
@@ -65,6 +67,13 @@ class Test_WPML_Page_Builders_Media_Shortcodes extends \OTGS\PHPUnit\Tools\TestC
 ';
 
 		$config = array(
+			// Config applying to attributes of all media shortcodes
+			array(
+				'tag' => array( 'name' => '*' ),
+				'attributes' => array(
+					'general_image_bg' => array( 'type' => WPML_Page_Builders_Media_Shortcodes::TYPE_URL ),
+				),
+			),
 			array(
 				'tag'        => array( 'name' => 'et_pb_cta' ),
 				'attributes' => array(
@@ -127,6 +136,7 @@ class Test_WPML_Page_Builders_Media_Shortcodes extends \OTGS\PHPUnit\Tools\TestC
 		);
 		$media_translate->method( 'translate_image_url' )->willReturnMap(
 			array(
+				array( $original_bg, $target_lang, $source_lang, $translated_bg ),
 				array( $original_url_1, $target_lang, $source_lang, $translated_url_1 ),
 				array( $original_url_2, $target_lang, $source_lang, $translated_url_2 ),
 			)
