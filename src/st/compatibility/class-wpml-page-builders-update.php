@@ -1,6 +1,8 @@
 <?php
 
-class WPML_Page_Builders_Update implements IWPML_Page_Builders_Update {
+use WPML\PB\Integration\IUpdate;
+
+class WPML_Page_Builders_Update implements IUpdate {
 
 	/** @var IWPML_Page_Builders_Data_Settings */
 	protected $data_settings;

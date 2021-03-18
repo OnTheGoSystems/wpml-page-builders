@@ -1,13 +1,8 @@
 <?php
 
-interface IWPML_Page_Builders_Update {
+namespace WPML\PB\Integration;
 
-	/**
-	 * @param int $post_id
-	 *
-	 * @return array
-	 */
-	public function get_converted_data( $post_id );
+interface IUpdate {
 
 	/**
 	 * @param int   $post_id

@@ -1,6 +1,8 @@
 <?php
 
-class WPML_Page_Builders_Register_Strings_Base implements IWPML_Page_Builders_Register_Strings {
+namespace WPML\PB\Integration;
+
+class RegisterStrings implements IRegisterStrings {
 
 	/** @var callable $isHandlingPost :: int -> bool */
 	protected $isHandlingPost;
@@ -8,17 +10,17 @@ class WPML_Page_Builders_Register_Strings_Base implements IWPML_Page_Builders_Re
 	/** @var callable $registerStrings :: ( int, array, WPML_PB_String_Registration ) -> void */
 	protected $registerStrings;
 
-	/** @var WPML_PB_String_Registration $string_registration */
+	/** @var \WPML_PB_String_Registration $string_registration */
 	protected $string_registration;
 
-	/** @var WPML_PB_Reuse_Translations_By_Strategy|null $reuse_translations */
+	/** @var \WPML_PB_Reuse_Translations_By_Strategy|null $reuse_translations */
 	protected $reuse_translations;
 
 	public function __construct(
 		callable $isHandlingPost,
 		callable $registerStrings,
-		WPML_PB_String_Registration $string_registration,
-		WPML_PB_Reuse_Translations_By_Strategy $reuse_translations = null
+		\WPML_PB_String_Registration $string_registration,
+		\WPML_PB_Reuse_Translations_By_Strategy $reuse_translations = null
 	) {
 		$this->isHandlingPost      = $isHandlingPost;
 		$this->registerStrings     = $registerStrings;
@@ -27,10 +29,10 @@ class WPML_Page_Builders_Register_Strings_Base implements IWPML_Page_Builders_Re
 	}
 
 	/**
-	 * @param WP_Post $post
+	 * @param \WP_Post $post
 	 * @param array $package
 	 */
-	public function register_strings( WP_Post $post, array $package ) {
+	public function register_strings( \WP_Post $post, array $package ) {
 
 		do_action( 'wpml_start_string_package_registration', $package );
 

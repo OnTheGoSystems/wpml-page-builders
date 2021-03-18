@@ -1,10 +1,12 @@
 <?php
 
+use WPML\PB\Integration\IRegisterStrings;
+use WPML\PB\Integration\RegisterStrings;
+
 /**
  * Class WPML_Page_Builders_Register_Strings
  */
-abstract class WPML_Page_Builders_Register_Strings extends WPML_Page_Builders_Register_Strings_Base
-	implements IWPML_Page_Builders_Register_Strings {
+abstract class WPML_Page_Builders_Register_Strings extends RegisterStrings implements IRegisterStrings {
 
 	/**
 	 * @var IWPML_Page_Builders_Translatable_Nodes

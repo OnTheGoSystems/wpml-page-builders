@@ -1,7 +1,8 @@
 <?php
 
-class WPML_Page_Builders_Update_Translation_Base extends WPML_Page_Builders_Update_Base
-	implements IWPML_Page_Builders_Update_Translation {
+namespace WPML\PB\Integration;
+
+class UpdateTranslation extends Update implements IUpdateTranslation {
 
 	/** @var callable $applyStringTranslations :: ( array, array, string ) -> array */
 	private $applyStringTranslations;
@@ -16,10 +17,10 @@ class WPML_Page_Builders_Update_Translation_Base extends WPML_Page_Builders_Upda
 	}
 
 	/**
-	 * @param int $translated_post_id
-	 * @param $original_post
-	 * @param $string_translations
-	 * @param string $lang
+	 * @param int      $translated_post_id
+	 * @param \WP_Post $original_post
+	 * @param array    $string_translations
+	 * @param string   $lang
 	 */
 	public function update( $translated_post_id, $original_post, $string_translations, $lang ) {
 		$converted_data = $this->get_converted_data( $original_post->ID );

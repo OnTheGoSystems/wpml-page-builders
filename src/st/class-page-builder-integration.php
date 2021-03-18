@@ -1,16 +1,20 @@
 <?php
 
+use WPML\PB\Integration\Integration;
+use WPML\PB\Integration\IRegisterStrings;
+use WPML\PB\Integration\IUpdateTranslation;
+
 /**
  * Class WPML_Page_Builders_Integration
  */
-class WPML_Page_Builders_Integration extends WPML_Page_Builders_Integration_Base {
+class WPML_Page_Builders_Integration extends Integration {
 
 	/** @var IWPML_Page_Builders_Data_Settings */
 	private $data_settings;
 
 	public function __construct(
-		WPML_Page_Builders_Register_Strings $register_strings,
-		WPML_Page_Builders_Update_Translation $update_translation,
+		IRegisterStrings $register_strings,
+		IUpdateTranslation $update_translation,
 		IWPML_Page_Builders_Data_Settings $data_settings
 	) {
 		parent::__construct(

@@ -1,6 +1,8 @@
 <?php
 
-class WPML_Page_Builders_Update_Base implements IWPML_Page_Builders_Update {
+namespace WPML\PB\Integration;
+
+class Update implements IUpdate {
 
 	/**@var callable $getConvertedData :: int -> array */
 	private $getConvertedData;

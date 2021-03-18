@@ -1,6 +1,8 @@
 <?php
 
-interface IWPML_Page_Builders_Update_Translation extends IWPML_Page_Builders_Update {
+namespace WPML\PB\Integration;
+
+interface IUpdateTranslation {
 
 	/**
 	 * @param int $translated_post_id

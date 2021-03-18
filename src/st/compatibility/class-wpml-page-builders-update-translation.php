@@ -1,10 +1,12 @@
 <?php
 
+use WPML\PB\Integration\IUpdateTranslation;
+use WPML\PB\Integration\Update;
+
 /**
  * Class WPML_Page_Builders_Update_Translation
  */
-abstract class WPML_Page_Builders_Update_Translation extends WPML_Page_Builders_Update
-	implements IWPML_Page_Builders_Update_Translation {
+abstract class WPML_Page_Builders_Update_Translation extends Update implements IUpdateTranslation {
 
 	const TRANSLATION_COMPLETE = 10;
 
@@ -12,6 +14,11 @@ abstract class WPML_Page_Builders_Update_Translation extends WPML_Page_Builders_
 	 * @var IWPML_Page_Builders_Translatable_Nodes
 	 */
 	protected $translatable_nodes;
+
+	/**
+	 * @var IWPML_Page_Builders_Data_Settings $data_settings
+	 */
+	protected $data_settings;
 
 	private $string_translations;
 	private $lang;
@@ -21,6 +28,7 @@ abstract class WPML_Page_Builders_Update_Translation extends WPML_Page_Builders_
 		IWPML_Page_Builders_Data_Settings $data_settings
 	) {
 		$this->translatable_nodes = $translatable_nodes;
+		$this->data_settings      = $data_settings;
 		parent::__construct( $data_settings );
 	}
 
