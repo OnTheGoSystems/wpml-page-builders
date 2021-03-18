@@ -82,6 +82,9 @@ class WPML_PB_Factory {
 		);
 	}
 
+	/**
+	 * @depecated Use the static methods instead of the instance.
+	 */
 	public function get_last_translation_edit_mode() {
 		return new WPML_PB_Last_Translation_Edit_Mode();
 	}

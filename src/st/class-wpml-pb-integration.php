@@ -75,7 +75,7 @@ class WPML_PB_Integration {
 			return;
 		}
 
-		if ( $this->factory->get_last_translation_edit_mode()->is_native_editor( $post_element->get_id() ) ) {
+		if ( WPML_PB_Last_Translation_Edit_Mode::is_native_editor( $post_element->get_id() ) ) {
 			return;
 		}
 
@@ -122,12 +122,10 @@ class WPML_PB_Integration {
 			return;
 		}
 
-		$last_edit_mode = $this->factory->get_last_translation_edit_mode();
-
 		if ( $this->is_editing_translation_with_native_editor() ) {
-			$last_edit_mode->set_native_editor( $post_id );
+			WPML_PB_Last_Translation_Edit_Mode::set_native_editor( $post_id );
 		} else {
-			$last_edit_mode->set_translation_editor( $post_id );
+			WPML_PB_Last_Translation_Edit_Mode::set_translation_editor( $post_id );
 		}
 	}
 

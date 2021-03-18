@@ -1,5 +1,7 @@
 <?php
 
+use tad\FunctionMocker\FunctionMocker;
+
 /**
  * Class Test_WPML_PB_Integration
  *
@@ -47,7 +49,7 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 		$pb_integration->add_strategy( $strategy );
 		$pb_integration->register_all_strings_for_translation( $post );
 	}
-	
+
 	/**
 	 * @test
 	 * @group wpmlcore-7188
@@ -393,7 +395,6 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 				                     'get_update_translated_posts_from_original',
 				                     'get_string_translations',
 				                     'get_package_strings_resave',
-				                     'get_last_translation_edit_mode',
 				                     'get_post_element',
 			                     )
 		                     )->disableOriginalConstructor()
@@ -403,10 +404,7 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 
 		$factory_mock->method( 'get_string_translations' )->with( $strategy )->willReturn( $string_translation );
 
-		$last_edit_mode = $this->get_last_edit_mode();
-		$last_edit_mode->method( 'is_native_editor' )->willReturn( false );
-
-		$factory_mock->method( 'get_last_translation_edit_mode' )->willReturn( $last_edit_mode );
+		$this->mockLastEditModeIsNativeEditor( $translated_post->ID, false );
 
 		$post_element = $this->getMockBuilder( 'WPML_Post_Element' )
 		                     ->setMethods( array( 'get_source_language_code' ) )->getMock();
@@ -461,7 +459,6 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 				                     'get_string_translations',
 				                     'get_package_strings_resave',
 				                     'get_handle_post_body',
-				                     'get_last_translation_edit_mode',
 				                     'get_post_element',
 			                     )
 		                     )->disableOriginalConstructor()
@@ -471,10 +468,7 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 
 		$factory_mock->method( 'get_string_translations' )->with( $strategy )->willReturn( $string_translation );
 
-		$last_edit_mode = $this->get_last_edit_mode();
-		$last_edit_mode->method( 'is_native_editor' )->willReturn( false );
-
-		$factory_mock->method( 'get_last_translation_edit_mode' )->willReturn( $last_edit_mode );
+		$this->mockLastEditModeIsNativeEditor( $translated_post->ID, false );
 
 		$post_element = $this->getMockBuilder( 'WPML_Post_Element' )
 		                     ->setMethods( array( 'get_source_language_code' ) )->getMock();
@@ -746,13 +740,11 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 
 		$sitepress = $this->get_sitepress_mock();
 		$factory   = $this->getMockBuilder( 'WPML_PB_Factory' )
-		                  ->setMethods( array( 'get_last_translation_edit_mode', 'get_package_strings_resave' ) )
+		                  ->setMethods( array( 'get_package_strings_resave' ) )
 		                  ->disableOriginalConstructor()->getMock();
 
-		$last_edit_mode = $this->get_last_edit_mode();
-		$last_edit_mode->method( 'is_native_editor' )->with( $post_id )->willReturn( true );
 
-		$factory->expects( $this->once() )->method( 'get_last_translation_edit_mode' )->willReturn( $last_edit_mode );
+		$this->mockLastEditModeIsNativeEditor( $post_id, true );
 
 		$factory->expects( $this->never() )->method( 'get_package_strings_resave' );
 
@@ -772,16 +764,20 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 
 		$sitepress = $this->get_sitepress_mock();
 		$factory   = $this->getMockBuilder( 'WPML_PB_Factory' )
-		                  ->setMethods( array( 'get_post_element', 'get_last_translation_edit_mode' ) )
+		                  ->setMethods( array( 'get_post_element' ) )
 		                  ->disableOriginalConstructor()->getMock();
 
 		$factory->method( 'get_post_element' )->with( $post_id )->willReturn( $post_element );
 
-		$factory->expects( $this->never() )->method( 'get_last_translation_edit_mode' );
+		$setNativeEditor      = $this->mockLastEditModeSetNativeEditor();
+		$setTranslationEditor = $this->mockLastEditModeSetTranslationEditor();
 
 		$subject = new WPML_PB_Integration( $sitepress, $factory );
 
 		$subject->queue_save_post_actions( $post_id, $post );
+
+		$setNativeEditor->wasNotCalled();
+		$setTranslationEditor->wasNotCalled();
 	}
 
 	/**
@@ -802,20 +798,20 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 
 		$sitepress = $this->get_sitepress_mock();
 		$factory   = $this->getMockBuilder( 'WPML_PB_Factory' )
-		                  ->setMethods( array( 'get_post_element', 'get_last_translation_edit_mode' ) )
+		                  ->setMethods( array( 'get_post_element' ) )
 		                  ->disableOriginalConstructor()->getMock();
 
 		$factory->method( 'get_post_element' )->with( $post_id )->willReturn( $post_element );
 
-		$last_edit_mode = $this->get_last_edit_mode();
-		$last_edit_mode->expects( $this->once() )->method( 'set_native_editor' )->with( $post_id );
-		$last_edit_mode->expects( $this->never() )->method( 'set_translation_editor' )->with( $post_id );
-
-		$factory->method( 'get_last_translation_edit_mode' )->willReturn( $last_edit_mode );
+		$setNativeEditor      = $this->mockLastEditModeSetNativeEditor();
+		$setTranslationEditor = $this->mockLastEditModeSetTranslationEditor();
 
 		$subject = new WPML_PB_Integration( $sitepress, $factory );
 
 		$subject->queue_save_post_actions( $post_id, $post );
+
+		$setNativeEditor->wasCalledWithOnce( [ $post_id ] );
+		$setTranslationEditor->wasNotCalled();
 	}
 
 	/**
@@ -835,20 +831,20 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 
 		$sitepress = $this->get_sitepress_mock();
 		$factory   = $this->getMockBuilder( 'WPML_PB_Factory' )
-		                  ->setMethods( array( 'get_post_element', 'get_last_translation_edit_mode' ) )
+		                  ->setMethods( array( 'get_post_element' ) )
 		                  ->disableOriginalConstructor()->getMock();
 
 		$factory->method( 'get_post_element' )->with( $post_id )->willReturn( $post_element );
 
-		$last_edit_mode = $this->get_last_edit_mode();
-		$last_edit_mode->expects( $this->never() )->method( 'set_native_editor' )->with( $post_id );
-		$last_edit_mode->expects( $this->once() )->method( 'set_translation_editor' )->with( $post_id );
-
-		$factory->method( 'get_last_translation_edit_mode' )->willReturn( $last_edit_mode );
+		$setNativeEditor      = $this->mockLastEditModeSetNativeEditor();
+		$setTranslationEditor = $this->mockLastEditModeSetTranslationEditor();
 
 		$subject = new WPML_PB_Integration( $sitepress, $factory );
 
 		$subject->queue_save_post_actions( $post_id, $post );
+
+		$setNativeEditor->wasNotCalled();
+		$setTranslationEditor->wasCalledWithOnce( [ $post_id ] );
 	}
 
 	public function dp_post_payload_not_from_native_editor() {
@@ -940,21 +936,17 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 	}
 
 	private function get_factory_mock_for_shutdown() {
-		$last_translation_edit_mode = $this->get_last_edit_mode();
-		$last_translation_edit_mode->method( 'is_native_editor' )->willReturn( false );
+		$this->mockLastEditModeIsNativeEditor( null, false );
 
 		$factory = $this->getMockBuilder( 'WPML_PB_Factory' )
 		                ->setMethods(
 			                array(
 				                'get_update_translated_posts_from_original',
-				                'get_last_translation_edit_mode',
 				                'get_post_element',
 			                )
 		                )
 		                ->disableOriginalConstructor()
 		                ->getMock();
-
-		$factory->method( 'get_last_translation_edit_mode' )->willReturn( $last_translation_edit_mode );
 
 		$post_element = $this->getMockBuilder( 'WPML_Post_Element' )
 		                     ->setMethods( array( 'get_source_language_code' ) )
@@ -1071,14 +1063,30 @@ class Test_WPML_PB_Integration extends WPML_PB_TestCase {
 		return $element;
 	}
 
-	private function get_last_edit_mode() {
-		return $this->getMockBuilder( 'WPML_PB_Last_Translation_Edit_Mode' )
-		            ->setMethods(
-			            array(
-				            'is_native_editor',
-				            'set_native_editor',
-				            'set_translation_editor',
-			            )
-		            )->getMock();
+	private function mockLastEditModeIsNativeEditor( $postId, $bool ) {
+		FunctionMocker::replace(
+			'WPML_PB_Last_Translation_Edit_Mode::is_native_editor',
+			function( $id ) use ( $postId, $bool ) {
+				if ( ! $postId || $id == $postId ) {
+					return $bool;
+				}
+
+				throw new Exception( 'The $postId is not matching.' );
+			}
+		);
+	}
+
+	private function mockLastEditModeSetNativeEditor() {
+		return FunctionMocker::replace(
+			'WPML_PB_Last_Translation_Edit_Mode::set_native_editor',
+			null
+		);
+	}
+
+	private function mockLastEditModeSetTranslationEditor() {
+		return FunctionMocker::replace(
+			'WPML_PB_Last_Translation_Edit_Mode::set_translation_editor',
+			null
+		);
 	}
 }
