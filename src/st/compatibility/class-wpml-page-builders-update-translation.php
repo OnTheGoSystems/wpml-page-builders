@@ -3,7 +3,8 @@
 /**
  * Class WPML_Page_Builders_Update_Translation
  */
-abstract class WPML_Page_Builders_Update_Translation extends WPML_Page_Builders_Update {
+abstract class WPML_Page_Builders_Update_Translation extends WPML_Page_Builders_Update
+	implements IWPML_Page_Builders_Update_Translation {
 
 	const TRANSLATION_COMPLETE = 10;
 

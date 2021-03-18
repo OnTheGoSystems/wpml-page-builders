@@ -3,7 +3,8 @@
 /**
  * Class WPML_Page_Builders_Register_Strings
  */
-abstract class WPML_Page_Builders_Register_Strings {
+abstract class WPML_Page_Builders_Register_Strings extends WPML_Page_Builders_Register_Strings_Base
+	implements IWPML_Page_Builders_Register_Strings {
 
 	/**
 	 * @var IWPML_Page_Builders_Translatable_Nodes
@@ -15,14 +16,6 @@ abstract class WPML_Page_Builders_Register_Strings {
 	 */
 	protected $data_settings;
 
-	/**
-	 * @var WPML_PB_String_Registration
-	 */
-	private $string_registration;
-
-	/** @var WPML_PB_Reuse_Translations_By_Strategy|null $reuse_translations */
-	private $reuse_translations;
-
 	/** @var int $string_location */
 	private $string_location;
 
@@ -32,48 +25,42 @@ abstract class WPML_Page_Builders_Register_Strings {
 		WPML_PB_String_Registration $string_registration,
 		WPML_PB_Reuse_Translations_By_Strategy $reuse_translations = null
 	) {
+		parent::__construct(
+			[ $this, 'is_handling_post' ],
+			[ $this, 'register_strings_from_custom_field' ],
+			$this->string_registration = $string_registration,
+			$this->reuse_translations  = $reuse_translations
+		);
 
-		$this->data_settings       = $data_settings;
-		$this->translatable_nodes  = $translatable_nodes;
-		$this->string_registration = $string_registration;
-		$this->reuse_translations  = $reuse_translations;
+		$this->data_settings      = $data_settings;
+		$this->translatable_nodes = $translatable_nodes;
 	}
 
 	/**
-	 * @param WP_Post $post
+	 * @param int $post_id
+	 *
+	 * @return bool
+	 */
+	protected function is_handling_post( $post_id ) {
+		return $this->data_settings->is_handling_post( $post_id );
+	}
+
+	/**
+	 * @param int   $post_id
 	 * @param array $package
 	 */
-	public function register_strings( WP_Post $post, array $package ) {
+	protected function register_strings_from_custom_field( $post_id, $package ) {
+		$data = get_post_meta( $post_id, $this->data_settings->get_meta_field(), false );
 
-		do_action( 'wpml_start_string_package_registration', $package );
-
-		$this->string_location = 1;
-
-		if ( $this->data_settings->is_handling_post( $post->ID ) ) {
-
-			if ( $this->reuse_translations ) {
-				$existing_strings = $this->reuse_translations->get_strings( $post->ID );
-				$this->reuse_translations->set_original_strings( $existing_strings );
-			}
-
-			$data = get_post_meta( $post->ID, $this->data_settings->get_meta_field(), false );
-
-			if ( $data ) {
-				$converted = $this->data_settings->convert_data_to_array( $data );
-				if ( is_array( $converted ) ) {
-					$this->register_strings_for_modules(
-						$converted,
-						$package
-					);
-				}
-			}
-
-			if ( $this->reuse_translations ) {
-				$this->reuse_translations->find_and_reuse( $post->ID, $existing_strings );
+		if ( $data ) {
+			$converted = $this->data_settings->convert_data_to_array( $data );
+			if ( is_array( $converted ) ) {
+				$this->register_strings_for_modules(
+					$converted,
+					$package
+				);
 			}
 		}
-
-		do_action( 'wpml_delete_unused_package_strings', $package );
 	}
 
 	/**
