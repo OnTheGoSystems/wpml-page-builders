@@ -35,9 +35,17 @@ class Test_WPML_Page_Builders_Defined extends WPML_PB_TestCase2 {
 					'wpml-translation-editor',
 				),
 			),
-			'cornerstone'      => array(
+			'cornerstone'    => array(
 				'name'            => 'Cornerstone',
 				'constant'        => 'CS_VERSION',
+				'function'        => null,
+				'notices-display' => array(
+					'wpml-translation-editor',
+				),
+			),
+			'siteorigin'     => array(
+				'name'            => 'SiteOrigin',
+				'constant'        => 'SITEORIGIN_PANELS_VERSION',
 				'function'        => null,
 				'notices-display' => array(
 					'wpml-translation-editor',
@@ -71,6 +79,10 @@ class Test_WPML_Page_Builders_Defined extends WPML_PB_TestCase2 {
 			'cornerstone'    => array(
 				'constant' => 'CS_VERSION',
 				'factory'  => 'WPML_Cornerstone_Integration_Factory',
+			),
+			'siteorigin'   => array(
+				'constant' => 'SITEORIGIN_PANELS_VERSION',
+				'factory'  => \WPML\PB\SiteOrigin\Factory::class,
 			),
 		);
 
