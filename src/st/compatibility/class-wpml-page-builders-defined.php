@@ -41,6 +41,7 @@ class WPML_Page_Builders_Defined {
 					'elementor'      => 'Elementor',
 					'gutenberg'      => 'Gutenberg',
 					'cornerstone'    => 'Cornerstone',
+					'siteorigin'     => 'SiteOrigin',
 				) as $key => $name
 			) {
 				$components['page-builders'][ $key ] = array(
@@ -71,9 +72,13 @@ class WPML_Page_Builders_Defined {
 				'constant' => 'GUTENBERG_VERSION',
 				'factory' => 'WPML_Gutenberg_Integration_Factory',
 			),
-			'cornerstone'    => array(
+			'cornerstone' => array(
 				'constant' => 'CS_VERSION',
 				'factory'  => 'WPML_Cornerstone_Integration_Factory',
+			),
+			'siteorigin' => array(
+				'constant' => 'SITEORIGIN_PANELS_VERSION',
+				'factory'  => \WPML\PB\SiteOrigin\Factory::class,
 			),
 		);
 	}
