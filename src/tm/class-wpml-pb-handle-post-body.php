@@ -31,7 +31,9 @@ class WPML_PB_Handle_Post_Body implements IWPML_Backend_Action, IWPML_Frontend_A
 	public function copy( $new_post_id, $original_post_id, array $fields ) {
 		$original_post = get_post( $original_post_id );
 		if ( $original_post && $this->page_builders_built->is_page_builder_page( $original_post ) && ! $this->job_has_packages( $fields ) ) {
-			wpml_update_escaped_post( [ 'ID' => $new_post_id, 'post_content' => $original_post->post_content ] );
+			$post_content =
+				apply_filters( 'wpml_pb_before_page_without_elements_post_content_copy', $original_post->post_content, $new_post_id, $original_post_id );
+			wpml_update_escaped_post( [ 'ID' => $new_post_id, 'post_content' => $post_content ] );
 			do_action( 'wpml_pb_after_page_without_elements_post_content_copy', $new_post_id, $original_post_id );
 		}
 	}

@@ -250,4 +250,45 @@ class Test_WPML_PB_Handle_Post_Body extends OTGS\PHPUnit\Tools\TestCase {
 		$subject = new WPML_PB_Handle_Post_Body( $page_builders_built );
 		$subject->copy( $new_post_id, $original_post_id, $fields );
 	}
+
+	/**
+	 * @test
+	 */
+	public function post_body_is_filtered_before_the_save() {
+		$page_builders_built = $this->getMockBuilder( 'WPML_Page_Builders_Page_Built' )
+			->disableOriginalConstructor()
+			->getMock();
+
+
+
+		$content_original            = 'content original';
+		$content_translated          = 'content translated';
+		$new_post_id                 = 2;
+		$original_post_id            = 1;
+		$original_post               = $this->getMockBuilder( 'WP_Post' )->disableOriginalConstructor()->getMock();
+		$original_post->post_content = $content_original;
+
+		$page_builders_built->method( 'is_page_builder_page' )
+			->with( $original_post )
+			->willReturn( true );
+
+		$fields = array(
+			'some-something' => 'something',
+		);
+
+		\WP_Mock::wpFunction( 'get_post', array(
+			'args'   => $original_post_id,
+			'return' => $original_post,
+		) );
+
+		WP_Mock::userFunction( 'apply_filters', [
+			'args' => [ 'wpml_pb_before_page_without_elements_post_content_copy', $content_original, $new_post_id, $original_post_id ],
+			'return' => $content_translated
+		] );
+		WP_Mock::userFunction( 'wpml_update_escaped_post' );
+		WP_Mock::userFunction( 'do_action' );
+
+		$subject = new WPML_PB_Handle_Post_Body( $page_builders_built );
+		$subject->copy( $new_post_id, $original_post_id, $fields );
+	}
 }
