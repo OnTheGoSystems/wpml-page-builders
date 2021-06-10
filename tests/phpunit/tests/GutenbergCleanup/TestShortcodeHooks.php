@@ -27,6 +27,20 @@ class TestShortcodeHooks extends TestCase {
 
 	/**
 	 * @test
+	 * @group wpmlcore-8575
+	 */
+	public function itShouldBailOutIfNotAWpPost() {
+		$post = (object) [ 'foo' => 'bar' ];
+
+		\WP_Mock::userFunction( 'wp_update_post' )->times( 0 );
+
+		$subject = new ShortcodeHooks();
+
+		$subject->removeGutenbergFootprint( 123, $post );
+	}
+
+	/**
+	 * @test
 	 */
 	public function itShouldNotRemoveGutenbergFootprintIfNotBuiltWithShortcodes() {
 		$post = $this->getPost( '<!-- wp:paragraph -->Something<!-- /wp:paragraph -->' );
