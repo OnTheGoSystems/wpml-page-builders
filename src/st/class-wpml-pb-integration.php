@@ -131,9 +131,19 @@ class WPML_PB_Integration {
 
 	/** @return bool */
 	private function is_editing_translation_with_native_editor() {
-		return isset( $_POST['action'], $_POST['ID'] )
+		$isTranslationWithNativeEditor = isset( $_POST['action'], $_POST['ID'] )
 			&& 'editpost' === $_POST['action']
 			&& $this->is_translation( $_POST['ID'] );
+
+		/**
+		 * This filter allows to override the result if a translation
+		 * is edited with a native editor, but not the WP one.
+		 *
+		 * @since WPML 4.5.0
+		 *
+		 * @param bool $isTranslationWithNativeEditor
+		 */
+		return apply_filters( 'wpml_pb_is_editing_translation_with_native_editor', $isTranslationWithNativeEditor );
 	}
 
 	/**
