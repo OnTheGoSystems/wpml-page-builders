@@ -45,8 +45,8 @@ class WPML_ST_Diff {
 	 * @return float|int
 	 */
 	public static function get_sameness_percent( $old_text, $new_text ) {
+		$old_text = $old_text ? strip_tags( $old_text ) : $old_text;
 		if ( $old_text ) {
-			$old_text = strip_tags( $old_text );
 			$new_text = strip_tags( $new_text );
 
 			$diff = self::diff( preg_split( '/[\s]+/', $old_text ), preg_split( '/[\s]+/', $new_text ) );

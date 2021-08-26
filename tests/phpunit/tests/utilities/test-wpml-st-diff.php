@@ -64,6 +64,7 @@ class Test_WPML_ST_Diff extends WPML_PB_TestCase {
 			array( 'This is the original string that will be modified', 'The original string that has been modified', 53.06 ),
 			array( 'This is the original string that will be modified', 'The original string that has been modified', 53.06 ),
 			array( "<p>Hello there</p>\n", "<p>Updated Hello there</p>\n", 83.33 ),
+			array( "<p></p>", "<p>update</p>", 0 ),
 		);
 	}
 }
