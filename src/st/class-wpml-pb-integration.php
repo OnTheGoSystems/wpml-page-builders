@@ -1,6 +1,7 @@
 <?php
 
 use \WPML\FP\Fns;
+use WPML\FP\Obj;
 use WPML\PB\Shortcode\StringCleanUp;
 use function WPML\FP\invoke;
 use function WPML\Container\make;
@@ -101,11 +102,11 @@ class WPML_PB_Integration {
 	}
 
 	/**
-	 * @param $post_id
-	 * @param $post
+	 * @param int|string $post_id
+	 * @param \WP_Post   $post
 	 */
 	public function queue_save_post_actions( $post_id, $post ) {
-		$this->update_last_editor_mode( $post_id );
+		$this->update_last_editor_mode( (int) $post_id );
 		$this->save_post_queue[ $post_id ] = $post;
 	}
 
@@ -122,18 +123,29 @@ class WPML_PB_Integration {
 			return;
 		}
 
-		if ( $this->is_editing_translation_with_native_editor() ) {
+		if ( $this->is_editing_translation_with_native_editor( $post_id ) ) {
 			WPML_PB_Last_Translation_Edit_Mode::set_native_editor( $post_id );
 		} else {
 			WPML_PB_Last_Translation_Edit_Mode::set_translation_editor( $post_id );
 		}
 	}
 
-	/** @return bool */
-	private function is_editing_translation_with_native_editor() {
-		$isTranslationWithNativeEditor = isset( $_POST['action'], $_POST['ID'] )
-			&& 'editpost' === $_POST['action']
-			&& $this->is_translation( $_POST['ID'] );
+	/**
+	 * Due to the "translation auto-update" feature, an original update
+	 * can also trigger an update on the translations.
+	 * We need to make sure the globally edited post is matching with
+	 * the local one.
+	 *
+	 * @param int $translatedPostId
+	 *
+	 * @return bool
+	 */
+	private function is_editing_translation_with_native_editor( $translatedPostId ) {
+		// $getPOST :: string -> mixed
+		$getPOST = Obj::prop( Fns::__, $_POST );
+
+		$isTranslationWithNativeEditor = 'editpost' === $getPOST( 'action' )
+		                                 && (int) $getPOST( 'ID' ) === $translatedPostId;
 
 		/**
 		 * This filter allows to override the result if a translation
@@ -142,8 +154,9 @@ class WPML_PB_Integration {
 		 * @since WPML 4.5.0
 		 *
 		 * @param bool $isTranslationWithNativeEditor
+		 * @param int  $translatedPostId
 		 */
-		return apply_filters( 'wpml_pb_is_editing_translation_with_native_editor', $isTranslationWithNativeEditor );
+		return apply_filters( 'wpml_pb_is_editing_translation_with_native_editor', $isTranslationWithNativeEditor, $translatedPostId );
 	}
 
 	/**
