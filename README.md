@@ -1,3 +1,7 @@
+# This package has been merged into the [WPML Page Builders](https://git.onthegosystems.com/glue-plugins/wpml/wpml-page-builders) addon.
+
+----
+
 # wpml-page-builders
 This library is used by [WPML](https://wpml.org) for handling [page builders plugins and themes](https://wpml.org/documentation/translating-your-contents/page-builders/).
 
